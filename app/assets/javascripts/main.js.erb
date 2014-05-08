@@ -1,0 +1,42 @@
+function setup_datatable() {
+  var height = searchResultsLayout.state.center.innerHeight - 63
+  table = $('#example').DataTable({
+    "serverSide": true,
+    "scrollY": height,
+    "dom": 'ftS',
+    "ajax": "index.json",
+    "scroller": {
+      loadingIndicator: true
+    }
+  });
+}
+
+$(document).ready(function() {
+  var pageLayout = $('body').layout({
+    applyDefaultStyles: true,
+    west__size: "20%",
+    west__minSize: "10%",
+    west__maxSize: "50%",
+    west__onresize: function() {
+      table.columns.adjust().draw();
+    },
+    west__onclose: function() {
+      table.columns.adjust().draw();
+    }
+  });
+  
+  searchResultsLayout = $("#search_results").layout({
+    applyDefaultStyles: true,
+    // north__spacing_open: 0,
+    south__size: "50%",
+    south__minSize: "25%",
+    south__maxSize: "75%",
+    center__onresize: function() {
+      table.destroy()
+      setup_datatable()
+    }
+  });
+
+  setup_datatable()
+
+});

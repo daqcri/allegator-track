@@ -12,5 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require jquery-ui-1.9.2/jquery-ui-1.9.2.min
 //= require turbolinks
+//= require jquery.layout.min-1.3.0-rc
 //= require_tree .

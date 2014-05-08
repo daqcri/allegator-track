@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DafnaViz</title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <title>Dafna Vizualization</title>
+  <%= stylesheet_link_tag   'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= stylesheet_link_tag   '//cdn.datatables.net/1.10.0/css/jquery.dataTables.css', media: 'all' %>
+  <%= stylesheet_link_tag   '//cdn.datatables.net/scroller/1.2.1/css/dataTables.scroller.css', media: 'all' %>
+
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag '//cdn.datatables.net/1.10.0/js/jquery.dataTables.js' %>
+  <%= javascript_include_tag '//cdn.datatables.net/scroller/1.2.1/js/dataTables.scroller.min.js' %>
   <%= csrf_meta_tags %>
 </head>
 <body>
