@@ -135,6 +135,7 @@ function setup_west_pane()
   $('.fileupload').fileupload({
     dataType: 'json',
     done: function (e, data) {
+      datatable.draw()
       // console.log(e)
       // alert(data.status);
     },
