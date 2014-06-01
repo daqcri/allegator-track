@@ -1,3 +1,13 @@
+var pageLayout
+var searchResultsLayout
+var datatable
+
+$(document).ready(function() {
+  setup_layout()
+  setup_west_pane()
+  setup_datatable()
+});
+
 function setup_datatable() {
   var height = searchResultsLayout.state.center.innerHeight - 115
   var include_exclude_action = function( nButton, oConfig ) {
@@ -9,18 +19,23 @@ function setup_datatable() {
               alert("Including rows: \n" + data.join("\n"))
           }
 
-  table = $('#example').DataTable({
+  datatable = $('#example').DataTable({
     "serverSide": true,
     "scrollY": height,
     "dom": '<"toolbar"T>iftS',
     "ajax": "index.json",
+    "destroy": true,  // destroy first if reinitializing
+    "columnDefs": [{
+      "targets": 0,
+      "width": "100px"
+    }],
     "scroller": {
       loadingIndicator: true
     },
     tableTools: {
       "sRowSelect": "os",
       "fnRowSelected": function ( nodes ) {
-        var data = table.row(nodes[0]).data()
+        var data = datatable.row(nodes[0]).data()
         $("#details").html("You have selected row with name: " + data[0] + " and salary " + data[1])
       },
       "fnRowDeselected": function ( nodes ) {
@@ -84,32 +99,102 @@ function setup_datatable() {
   });
 }
 
-$(document).ready(function() {
-  var pageLayout = $('body').layout({
+function setup_layout()
+{
+  pageLayout = $('body').layout({
     applyDefaultStyles: true,
-    west__size: "20%",
+    west__size: "35%",
     west__minSize: "10%",
     west__maxSize: "50%",
     west__onresize: function() {
-      table.columns.adjust().draw();
+      datatable.columns.adjust();
     },
     west__onclose: function() {
-      table.columns.adjust().draw();
+      datatable.columns.adjust();
     }
   });
   
-  searchResultsLayout = $("#search_results").layout({
+  searchResultsLayout = $(".inner").layout({
     applyDefaultStyles: true,
-    // north__spacing_open: 0,
     south__size: "50%",
     south__minSize: "25%",
     south__maxSize: "75%",
     center__onresize: function() {
-      table.destroy()
       setup_datatable()
     }
   });
+}
 
-  setup_datatable()
+function setup_west_pane()
+{
+  // create algorithm divs
+  var container = $("#tab_pane")
+  var html = ""
+  $.each(algorithms, function(index, algorithm) {
+    var params =""
+    $.each(algorithm.params, function(pindex, param){
+      params += "<tr><td width='100%'><span>" + param.name
+        + "</span><span class='info-icon ui-icon ui-icon-info' title='"
+        + param.desc + "'></span> </td><td><input class='spinner' min='"
+        + param.min+"' max='"+param.max+"' value='"+param.value
+        + "'></input></td></tr>" 
+    });
+    html += "<h3>" + algorithm.name + "</h3><div><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
+      + params + "</table></div>"
+  });
+  
+  container.append(html)
 
-});
+  // create spinners
+  $(".spinner").spinner({
+      step: 0.1,
+      numberFormat: "n",
+    }).each(function(){
+      $(this).spinner('option', 'min', parseFloat($(this).attr("min")));
+      $(this).spinner('option', 'max', parseFloat($(this).attr("max")));
+    });
+
+  // create Algorithm section in tab-1 under 3rd header
+  var container = $("#algo_pane")
+  var html =""
+
+  $.each(algorithms, function(index, algorithm){
+    html += "<input type='checkbox' id='algorithm_checkbox_"+algorithm.id+"' class='algorithm_checkbox'/><label class='algorithm_checkbox_label' for='algorithm_checkbox_"+algorithm.id+"'>"+algorithm.name +"</label>"
+  });
+  container.append(html);
+
+  // create button checkbox
+  $(".algorithm_checkbox")
+    .button()
+    .change(function(){
+      $(this).button("option", "icons", $(this).is(':checked') ? {primary: 'ui-icon-check'} : {})
+    });
+
+  // create the accordion
+  $( ".accordion" ).accordion({
+    collapsible: true,
+    active: false,
+    heightStyle: "content",
+  });
+
+  // file upload
+  $('.fileupload').fileupload({
+    dataType: 'json',
+    done: function (e, data) {
+     // console.log(data)
+      alert(data.status);
+    },
+    progressall: function (e, data) {
+        console.log(data)
+        var progress = parseInt(data.loaded / data.total * 100, 10);
+         $(this).parent().next().find('.progress-bar').css(
+            'width',
+            progress + '%'
+        );
+    }
+  }); 
+
+  // tabs setup
+  $( "#tabs" ).tabs();
+
+}

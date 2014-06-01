@@ -1,1 +1,1 @@
-Rails.application.config.assets.precompile += %w( jquery-ui-1.9.2/* )
+Rails.application.config.assets.precompile += %w( main/index.css main/index.js main/algorithms.js jquery-ui-1.9.2/* )

@@ -1,26 +1,85 @@
-<style>
-.toolbar {
-    float: left;
-}
-</style>
+<%= stylesheet_link_tag     'main/index.css', media: 'all' %>
+<%= javascript_include_tag  'main/algorithms.js' %>
+<%= javascript_include_tag  'main/index.js' %>
 
 <div class="ui-layout-west">
-    WEST AREA 
+    <!-- DIV for tabs -->
+    <div id="tabs">
+        <ul>
+          <li> <a href="#tab-1">Input</a> </li>
+          <li>  <a href="#tab-2">Configuration</a>  </li>
+          <li>  <a href="#tab-3">Run </a> </li>
+        </ul>
+           <!-- This is tab 1 -->
+        <div id="tab-1"> 
+          <div class = "accordion" >
+            <h3>Upload Datasets</h3>
+            <div> 
+              <span class="btn btn-success fileinput-button">
+                 <i class="glyphicon glyphicon-plus"></i>
+                 <span>Select files...</span>
+                 <!-- The file input field used as target for the file upload widget -->
+                 <input class="fileupload" type="file" name="csv" data-url="/upload?type=claims" multiple>
+              </span>
+              <!-- The global progress bar -->
+              <div class="progress">
+               <div class="progress-bar progress-bar-success"></div>
+             </div>
+            </div>
+            <h3>Upload Ground Truths</h3>
+            <div>
+              <span class="btn btn-success fileinput-button">
+                <i class="glyphicon glyphicon-plus"></i>
+                <span>Select files...</span>
+                <!-- The file input field used as target for the file upload widget -->
+                <input class="fileupload" type="file" name="csv" data-url="/upload?type=ground" multiple>
+              </span>
+              <!-- The global progress bar -->
+              <div class="progress">
+               <div class="progress-bar progress-bar-success"></div>
+             </div>
+            </div>
+
+            <h3>Algorithms</h3>
+            <div id="algo_pane">
+                <p>Select one or more algorithms from below</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- This is tab 2 -->
+        <div id="tab-2"> <div id ="tab_pane" class="accordion"> </div> </div>
+
+        <!-- This is tab 3 -->
+        <div id="tab-3"> 
+          <div>
+              <button type="button">Start</button> 
+          </div>
+        </div>  
+    </div>
 </div>
 
-<div id="search_results" class="ui-layout-center">
-    <div class="ui-layout-center">
-        <table id="example" class="display" cellspacing="0" width="100%">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Salary</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
-    <div class="ui-layout-south">
-        <p id="details">
-        </p>
-    </div>
+<div class="ui-layout-center inner">
+  <div class= "ui-layout-center">
+    <table id="example" class="display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Salary</th>
+            </tr>
+        </thead>
+    </table>
+  </div>
+  <div class= "ui-layout-south">
+    <p id="details">
+    </p>
+  </div>
+</div>
+
+<div id="user_nav">
+    <% if user_signed_in? %>
+        Signed in as <%= current_user %>.
+        <%= link_to 'Change password', edit_user_registration_path %> -
+        <%= link_to 'Sign out', destroy_user_session_path, :method => :delete %>
+    <% end %>
 </div>
