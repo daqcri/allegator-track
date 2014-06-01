@@ -17,6 +17,7 @@
 //= require jquery.layout.min-1.3.0-rc
 //= require jquery.dataTables
 //= require dataTables.tableTools.min
+//= require dataTables.scroller.min
 //= require jquery.fileupload
 //= require jquery.iframe-transport
 //= require jquery.mousewheel
