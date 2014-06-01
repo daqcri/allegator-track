@@ -40,3 +40,5 @@ gem 'unicorn'
 # gem 'debugger', group: [:development, :test]
 
 gem 'devise'
+
+gem 'carrierwave-postgresql'

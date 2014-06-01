@@ -19,7 +19,7 @@
                  <i class="glyphicon glyphicon-plus"></i>
                  <span>Select files...</span>
                  <!-- The file input field used as target for the file upload widget -->
-                 <input class="fileupload" type="file" name="csv" data-url="/upload?type=claims" multiple>
+                 <input class="fileupload" type="file" name="csv" data-url="/datasets?kind=claims" multiple>
               </span>
               <!-- The global progress bar -->
               <div class="progress">
@@ -32,7 +32,7 @@
                 <i class="glyphicon glyphicon-plus"></i>
                 <span>Select files...</span>
                 <!-- The file input field used as target for the file upload widget -->
-                <input class="fileupload" type="file" name="csv" data-url="/upload?type=ground" multiple>
+                <input class="fileupload" type="file" name="csv" data-url="/datasets?kind=ground" multiple>
               </span>
               <!-- The global progress bar -->
               <div class="progress">
@@ -61,11 +61,15 @@
 
 <div class="ui-layout-center inner">
   <div class= "ui-layout-center">
-    <table id="example" class="display" cellspacing="0" width="100%">
+    <table id="datatable" class="display" cellspacing="0" width="100%">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Salary</th>
+                <th>claim_id</th>
+                <th>object_id</th>
+                <th>property_key</th>
+                <th>propery_value</th>
+                <th>source_id</th>
+                <th>timestamp</th>
             </tr>
         </thead>
     </table>

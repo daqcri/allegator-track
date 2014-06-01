@@ -11,10 +11,33 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140601070607) do
+ActiveRecord::Schema.define(version: 20140601151018) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "dataset_rows", force: true do |t|
+    t.integer "dataset_id"
+    t.string  "claim_id"
+    t.string  "object_id"
+    t.string  "property_key"
+    t.string  "propery_value"
+    t.string  "source_id"
+    t.string  "timestamp"
+  end
+
+  add_index "dataset_rows", ["dataset_id"], name: "index_dataset_rows_on_dataset_id", using: :btree
+
+  create_table "datasets", force: true do |t|
+    t.integer  "user_id"
+    t.integer  "upload"
+    t.string   "kind"
+    t.string   "original_filename"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "datasets", ["user_id"], name: "index_datasets_on_user_id", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "email",                  default: "", null: false

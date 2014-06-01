@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   root 'main#index'
   get 'index(.:format)' => 'main#index'
 
+  resources :datasets
+  resources :dataset_rows
+
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 

@@ -19,16 +19,21 @@ function setup_datatable() {
               alert("Including rows: \n" + data.join("\n"))
           }
 
-  datatable = $('#example').DataTable({
+  datatable = $('#datatable').DataTable({
     "serverSide": true,
     "scrollY": height,
-    "dom": '<"toolbar"T>iftS',
-    "ajax": "index.json",
+    // "sorting": false, 
+    "dom": '<"toolbar"T>itS',
+    "ajax": "/dataset_rows",
+    "columns": [
+      {data: 'claim_id'},
+      {data: 'object_id'},
+      {data: 'property_key'},
+      {data: 'propery_value'},
+      {data: 'source_id'},
+      {data: 'timestamp'}
+    ],
     "destroy": true,  // destroy first if reinitializing
-    "columnDefs": [{
-      "targets": 0,
-      "width": "100px"
-    }],
     "scroller": {
       loadingIndicator: true
     },
@@ -36,64 +41,13 @@ function setup_datatable() {
       "sRowSelect": "os",
       "fnRowSelected": function ( nodes ) {
         var data = datatable.row(nodes[0]).data()
-        $("#details").html("You have selected row with name: " + data[0] + " and salary " + data[1])
+        $("#details").html("You have selected claim with id: " + data.claim_id)
       },
       "fnRowDeselected": function ( nodes ) {
         $("#details").html("")
       },
       "aButtons": [
-        "select_none",
-        {
-          "sExtends": "text",
-          "sButtonText": "Include",
-          "fnClick": include_exclude_action
-        },
-        {
-          "sExtends": "text",
-          "sButtonText": "Exclude",
-          "fnClick": include_exclude_action
-        },
-        {
-          "sExtends": "text",
-          "sButtonText": "Undecide",
-          "fnClick": include_exclude_action
-        },
-        {
-          "sExtends": "collection",
-          "sButtonText": "Label",
-          "aButtons" : [
-            {"sExtends": "div", "sButtonText": "label1"},
-            {"sExtends": "div", "sButtonText": "label2"},
-            {"sExtends": "div", "sButtonText": "New label..."}
-          ]
-        },
-        {
-          "sExtends": "collection",
-          "sButtonText": "Fetch references",
-          "aButtons" : [
-            {"sExtends": "div", "sButtonText": "Selected (n)"},
-            {"sExtends": "div", "sButtonText": "Filtered (n)"},
-            {"sExtends": "div", "sButtonText": "All (n)"}
-          ]
-        },
-        {
-          "sExtends": "collection",
-          "sButtonText": "Export",
-          "aButtons" : [
-            {"sExtends": "div", "sButtonText": "RefMan"},
-            {"sExtends": "div", "sButtonText": "BibTex"},
-            {"sExtends": "div", "sButtonText": "EndNote"},
-            {"sExtends": "div", "sButtonText": "CSV"}
-          ]
-        },
-        {
-          "sExtends": "text",
-          "sButtonText": "New search..."
-        },
-        {
-          "sExtends": "text",
-          "sButtonText": "All reviews..."
-        },
+        "select_none"
       ]
     }
   });
@@ -165,9 +119,9 @@ function setup_west_pane()
 
   // create button checkbox
   $(".algorithm_checkbox")
-    .button()
+    .button({icons: {primary: 'ui-icon-closethick'}})
     .change(function(){
-      $(this).button("option", "icons", $(this).is(':checked') ? {primary: 'ui-icon-check'} : {})
+      $(this).button("option", "icons", {primary: $(this).is(':checked') ? 'ui-icon-check' : 'ui-icon-closethick'})
     });
 
   // create the accordion
@@ -181,11 +135,10 @@ function setup_west_pane()
   $('.fileupload').fileupload({
     dataType: 'json',
     done: function (e, data) {
-     // console.log(data)
-      alert(data.status);
+      // console.log(e)
+      // alert(data.status);
     },
     progressall: function (e, data) {
-        console.log(data)
         var progress = parseInt(data.loaded / data.total * 100, 10);
          $(this).parent().next().find('.progress-bar').css(
             'width',

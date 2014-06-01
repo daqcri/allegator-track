@@ -4,6 +4,9 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable
 
+  has_many :datasets
+  has_many :dataset_rows, through: :datasets
+  
   def to_s
     email
   end
