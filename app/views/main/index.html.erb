@@ -24,8 +24,19 @@
               <!-- The global progress bar -->
               <div class="progress">
                <div class="progress-bar progress-bar-success"></div>
-             </div>
-            </div>
+             </div>        
+             <table id='dataset_table' border=1 >
+             <thead class='header_row'>
+                 <th> File ID </th>
+                 <th> File Name </th>
+                 <th> Created Date </th>
+                 <th> Row Count</th>
+             </thead>
+             <tbody id= 'datasets_claims_tbody'>
+              
+             </tbody>
+             </table>
+           </div>
             <h3>Upload Ground Truths</h3>
             <div>
               <span class="btn btn-success fileinput-button">
@@ -38,8 +49,17 @@
               <div class="progress">
                <div class="progress-bar progress-bar-success"></div>
              </div>
+             <table id='ground_table' border=1 >
+             <thead>
+                 <th> File ID </th>
+                 <th> File Name </th>
+                 <th> Created Date </th>
+                 <th> Row Count </th>
+             </thead>
+             <tbody id="datasets_ground_tbody">
+             </tbody>
+             </table>
             </div>
-
             <h3>Algorithms</h3>
             <div id="algo_pane">
                 <p>Select one or more algorithms from below</p>

@@ -6,7 +6,31 @@ $(document).ready(function() {
   setup_layout()
   setup_west_pane()
   setup_datatable()
+  refresh_datasets_tables()
 });
+
+function refresh_datasets_tables(){
+  $.getJSON("/datasets", function(data){
+    refresh_datasets_table(data, 'claims')
+    refresh_datasets_table(data, 'ground')
+  })
+}
+
+function refresh_datasets_table(data, dataset_kind)
+{
+  var items = ""
+  $.each(data[dataset_kind], function(key, value){
+    items += "<tr><td>"+ value.id+"</td><td>"+value.original_filename+"</td><td>"+value.created_at
+    +"</td><td>"+value.row_count+"</td><td> <span id='delete_for' class='trash-icon ui-icon ui-icon-trash'></span></td></tr>"
+  });
+  $("#datasets_" + dataset_kind + "_tbody")
+    .empty()
+    .append(items)
+    $('.trash-icon').ajax({
+      url: '/datasets/<dataset_id>',
+      type: 'DELETE',
+    });
+}
 
 function setup_datatable() {
   var height = searchResultsLayout.state.center.innerHeight - 115
@@ -57,7 +81,7 @@ function setup_layout()
 {
   pageLayout = $('body').layout({
     applyDefaultStyles: true,
-    west__size: "35%",
+    west__size: "45%",
     west__minSize: "10%",
     west__maxSize: "50%",
     west__onresize: function() {
@@ -134,20 +158,19 @@ function setup_west_pane()
   // file upload
   $('.fileupload').fileupload({
     dataType: 'json',
-    done: function (e, data) {
-      // console.log(e)
-      // alert(data.status);
-    },
     progressall: function (e, data) {
         var progress = parseInt(data.loaded / data.total * 100, 10);
          $(this).parent().next().find('.progress-bar').css(
             'width',
             progress + '%'
         );
+    },
+    done: function() {
+      refresh_datasets_tables()
     }
-  }); 
 
+
+  }); 
   // tabs setup
   $( "#tabs" ).tabs();
-
 }
