@@ -8,19 +8,13 @@ class DatasetRowsController < ApplicationController
 
     unless params[:search][:value].blank?
       criteria = params[:search][:value]
-      fields = params[:extra_only].blank? ? %w(claim_id property_key propery_value timestamp) : [params[:extra_only]]
+      fields = params[:extra_only].blank? ? %w(claim_id object_id source_id property_key propery_value timestamp) : [params[:extra_only]]
       query = query.where fields.map{|f| "LOWER(#{f}) like LOWER('%#{criteria}%')"}.join(" OR ")
     end
     criteria = params[:extra_object_id_criteria]
     query = query.where "LOWER(object_id) like LOWER('%#{criteria}%')" unless criteria.blank?
     criteria = params[:extra_source_id_criteria]
     query = query.where "LOWER(source_id) like LOWER('%#{criteria}%')" unless criteria.blank?
-
-    total = query.count
-    start = params[:start].to_i
-    length = params[:length].to_i
-    length = total if length == -1
-    query = query.offset(start).limit(length)
 
     if params[:order]
       sort = params[:order]["0"]
@@ -29,6 +23,15 @@ class DatasetRowsController < ApplicationController
       
       query = query.order("#{sort_col} #{sort_asc ? 'asc' : 'desc'}")
     end
+
+    query = query.uniq(params[:extra_only].blank? ? "claim_id" : params[:extra_only])
+
+    total = query.count(params[:extra_only].blank? ? "claim_id" : params[:extra_only])
+
+    start = params[:start].to_i
+    length = params[:length].to_i
+    length = total if length == -1
+    query = query.offset(start).limit(length)
 
     query = query.pluck(params[:extra_only]).map{|f| [f]} unless params[:extra_only].blank?
 
