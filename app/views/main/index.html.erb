@@ -76,38 +76,34 @@
 </div>
 
 <div class="ui-layout-center inner">
-  <div class= "ui-layout-center">
-      <div class="all_tables" width="15%" border=1 >
-        <table class="display" id="source_datatable">
-          <thead>
-            <th></th>
-            <th>Sources</th>
-          </thead>
-        </table>
-      </div>
-      <div class="all_tables" width="15%">
-        <table class="display" id="object_datatable">
-          <thead>
-            <th></th>
-            <th> Objects</th>
-          </thead>
-        </table>
-      </div>
-      <div class="all_tables" style="width:47%">
-        <table id="datatable" class="display" cellspacing="0" width="100%">
-          <thead>
-            <tr>
-              <th>claim_id</th>
-              <th>object_id</th>
-              <th>property_key</th>
-              <th>propery_value</th>
-              <th>source_id</th>
-              <th>timestamp</th>
-            </tr>
-          </thead>
-        </table>
-      </div>  
-  </div>
+    <div class="ui-layout-west">
+      <table class="display" id="source_id_datatable" _style="margin-top:30.5px">
+        <thead>
+          <th>Sources</th>
+        </thead>
+      </table>
+    </div>
+    <div class="ui-layout-center">
+      <table class="display" id="object_id_datatable" _style="margin-top:30.5px">
+        <thead>
+          <th>Objects</th>
+        </thead>
+      </table>
+    </div>
+    <div class="ui-layout-east">
+      <table id="datatable" class="display" cellspacing="0" width="100%">
+        <thead>
+          <tr>
+            <th>claim_id</th>
+            <th>object_id</th>
+            <th>property_key</th>
+            <th>propery_value</th>
+            <th>source_id</th>
+            <th>timestamp</th>
+          </tr>
+        </thead>
+      </table>
+    </div>  
   
   <div class= "ui-layout-south">
     <p id="details">

@@ -51,17 +51,21 @@
   width: 100px;
 }
 
-.mytable{
-  width: 100%;
-}
-
 .trash-icon{
   cursor: pointer;
 }
-.all_tables{
-  float:left;
-  display:inline;
-  border: 1px solid black;
+
+.dataTable td {
+  max-width: 10px; /* the number per se is not used but it is there to get the overflow properties work! */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+#source_id_datatable_filter input, #object_id_datatable_filter input {
+  width: 100px;
+}
+
+#datatable_filter input {
+  width: 200px;
+}
 

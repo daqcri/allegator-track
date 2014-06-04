@@ -1,15 +1,23 @@
 var pageLayout
 var searchResultsLayout
-var datatable
+var datatable, source_table, object_table
 
 $(document).ready(function() {
   setup_layout()
   setup_west_pane()
-  setup_datatable()
+  setup_datatables()
   refresh_datasets_tables()
 });
 
-function refresh_datasets_tables(){
+function refresh_datatables()
+{
+  datatable.draw()
+  source_table.draw()
+  object_table.draw()
+}
+
+function refresh_datasets_tables()
+{
   $.getJSON("/datasets", function(data){
     refresh_datasets_table(data, 'claims')
     refresh_datasets_table(data, 'ground')
@@ -33,79 +41,32 @@ function refresh_datasets_table(data, dataset_kind)
        type: "DELETE",
        success: function(){
         refresh_datasets_tables();
+        refresh_datatables();
        }
      });
    });
 }
 
-function setup_datatable() {
-  var src_dataset= [
-     ['<input type="checkbox">','eCampus.com'],
-     ['<input type="checkbox">','Indoo.com'],
-     ['<input type="checkbox">','A1Books'],
-     ['<input type="checkbox">','textbooksNow'],
-     ['<input type="checkbox">','paperbackworld.de'],
-     ['<input type="checkbox">',' Caiman']
-    ]
-    var obj_dataset= [
-     ['<input type="checkbox">','Object 1'],
-     ['<input type="checkbox">','Object 2'],
-     ['<input type="checkbox">','Object 3'],
-     ['<input type="checkbox">','Object 4'],
-     ['<input type="checkbox">','Object 5'],
-     ['<input type="checkbox">','Object 6']
-    ]
-    var source_table = $("#source_datatable").DataTable({
-    "data": src_dataset,
-    retrieve: true,
-    "columns":[
-      {"check_box": ""},
-      {"source": "Sources"},
-    ],
-    dom: 'T<"clear">lf',
-        paging: false,
-        tableTools: {
-          "sRowSelect": "os",
-           "fnRowSelected": function ( nodes ) {
-             var select = source_table.row(nodes[0]).data()
-             
-           },
-          // "fnRowDeselected": function ( nodes ) {
-          // },
-         aButtons: []
-        }
+function setup_datatables() {
+  datatable_excess = 100
+  var height = searchResultsLayout.state.center.innerHeight - datatable_excess
 
-  });
-  var object_table = $("#object_datatable").DataTable({
-    "data": obj_dataset,
-    retrieve: true,
-    "columns":[
-      {"check_box":""},
-      {"object": "Objects"},
-    ],
-    dom: 'T<"clear">lf',
-    paging: false,
-        tableTools: {
-          "sRowSelect": "os",
-          aButtons: []
-        }
-  });
-  var height = searchResultsLayout.state.center.innerHeight - 115
-  var include_exclude_action = function( nButton, oConfig ) {
-            var oTT = TableTools.fnGetInstance('example');
-            var data = oTT.fnGetSelectedData();
-            if (data.length == 0)
-              alert("Nothing selected")
-            else
-              alert("Including rows: \n" + data.join("\n"))
-          }
+  source_table = setup_single_datatable("source_id", height)
+  object_table = setup_single_datatable("object_id", height)
    
   datatable = $('#datatable').DataTable({
     "serverSide": true,
     "scrollY": height,
-    // "sorting": false, 
-    "dom": '<"toolbar"T>ftS',
+    "dom": '<"toolbar"T>ftSi',
     "ajax": "/dataset_rows",
+    "ajax": function (data, callback, settings) {
+      var url = "/dataset_rows"
+      data.extra_source_id_criteria = source_table.search()
+      data.extra_object_id_criteria = object_table.search()
+      $.getJSON(url, data, function(response){
+        callback(response)
+      })
+    },
     "columns": [
       {data: 'claim_id'},
       {data: 'object_id'},
@@ -116,7 +77,7 @@ function setup_datatable() {
     ],
     "destroy": true,  // destroy first if reinitializing
     "scroller": {
-      loadingIndicator: true
+      loadingIndicator: false
     },
     tableTools: {
       "sRowSelect": "os",
@@ -132,11 +93,40 @@ function setup_datatable() {
   });
 }
 
+function setup_single_datatable(field_name, height)
+{
+  return $("#"+field_name+"_datatable").DataTable({
+    "serverSide": true,
+    "scrollY": height,
+    "ajax": "/dataset_rows?extra_only="+field_name,
+    "ajax": function (data, callback, settings) {
+      var url = "/dataset_rows"
+      data.extra_only = field_name
+      if (typeof datatable != 'undefined') datatable.draw()
+      $.getJSON(url, data, function(response){
+        callback(response)
+      })
+    },
+    dom: 'T<"clear">ftSi',
+    "language": {
+      "info": "_START_-_END_/_TOTAL_"
+    },
+    "destroy": true,  // destroy first if reinitializing
+    "scroller": {
+      loadingIndicator: false
+    },
+    tableTools: {
+      "sRowSelect": "none",
+     aButtons: []
+    }
+  });
+}
+
 function setup_layout()
 {
   pageLayout = $('body').layout({
     applyDefaultStyles: true,
-    west__size: "25%",
+    west__size: "35%",
     west__minSize: "10%",
     west__maxSize: "50%",
     west__onresize: function() {
@@ -152,8 +142,16 @@ function setup_layout()
     south__size: "15%",
     south__minSize: "25%",
     south__maxSize: "75%",
+    west__size: '15%',
+    center__size: '15%',
+    east__size: '70%',
+    autoResize:       true,  // try to maintain pane-percentages
+    closable:       true,
+    togglerLength_open:   0, // hide toggler-buttons
+    spacing_closed:     0, // hide resizer/slider bar when closed
+    autoReopen:       true,  // auto-open panes that were previously auto-closed due to 'no room'
     center__onresize: function() {
-      setup_datatable()
+      setup_datatables()
     }
   });
 }
@@ -227,7 +225,8 @@ function setup_west_pane()
         );
     },
     done: function() {
-      refresh_datasets_tables()
+      refresh_datasets_tables();
+      refresh_datatables();
     }
 
 

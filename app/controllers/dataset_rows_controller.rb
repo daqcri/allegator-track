@@ -4,24 +4,39 @@ class DatasetRowsController < ApplicationController
   load_and_authorize_resource :except => [:index]
 
   def index
-    total = current_user.dataset_rows.count
+    query = current_user.dataset_rows
+
+    unless params[:search][:value].blank?
+      criteria = params[:search][:value]
+      fields = params[:extra_only].blank? ? %w(claim_id property_key propery_value timestamp) : [params[:extra_only]]
+      query = query.where fields.map{|f| "LOWER(#{f}) like LOWER('%#{criteria}%')"}.join(" OR ")
+    end
+    criteria = params[:extra_object_id_criteria]
+    query = query.where "LOWER(object_id) like LOWER('%#{criteria}%')" unless criteria.blank?
+    criteria = params[:extra_source_id_criteria]
+    query = query.where "LOWER(source_id) like LOWER('%#{criteria}%')" unless criteria.blank?
+
+    total = query.count
     start = params[:start].to_i
     length = params[:length].to_i
     length = total if length == -1
-    data = current_user.dataset_rows.offset(start).limit(length)
+    query = query.offset(start).limit(length)
 
     if params[:order]
       sort = params[:order]["0"]
-      sort_col = params[:columns][sort["column"]]["data"]
+      sort_col = params[:extra_only] || params[:columns][sort["column"]]["data"]
       sort_asc = sort["dir"] == "asc"
       
-      data = data.order("#{sort_col} #{sort_asc ? 'asc' : 'desc'}")
+      query = query.order("#{sort_col} #{sort_asc ? 'asc' : 'desc'}")
     end
+
+    query = query.pluck(params[:extra_only]).map{|f| [f]} unless params[:extra_only].blank?
+
     render json: {
       draw: params[:draw].to_i,
       recordsTotal: total,
       recordsFiltered: total,
-      data: data
+      data: query
     }
   end
 
