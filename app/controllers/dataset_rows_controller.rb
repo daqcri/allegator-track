@@ -6,6 +6,20 @@ class DatasetRowsController < ApplicationController
   def index
     query = current_user.dataset_rows
 
+    if params[:order]
+      sort = params[:order]["0"]
+      sort_col = params[:extra_only] || params[:columns][sort["column"]]["data"]
+      sort_asc = sort["dir"] == "asc"
+      
+      query = query.order("#{sort_col} #{sort_asc ? 'asc' : 'desc'}")
+    end
+
+    if params[:extra_only].blank?
+      total = query.select("claim_id").distinct.count
+    else
+      total = query.select(params[:extra_only]).distinct.count
+    end
+
     unless params[:search][:value].blank?
       criteria = params[:search][:value]
       fields = params[:extra_only].blank? ? %w(claim_id object_id source_id property_key propery_value timestamp) : [params[:extra_only]]
@@ -16,17 +30,8 @@ class DatasetRowsController < ApplicationController
     criteria = params[:extra_source_id_criteria]
     query = query.where "LOWER(source_id) like LOWER('%#{criteria}%')" unless criteria.blank?
 
-    if params[:order]
-      sort = params[:order]["0"]
-      sort_col = params[:extra_only] || params[:columns][sort["column"]]["data"]
-      sort_asc = sort["dir"] == "asc"
-      
-      query = query.order("#{sort_col} #{sort_asc ? 'asc' : 'desc'}")
-    end
-
-    query = query.uniq(params[:extra_only].blank? ? "claim_id" : params[:extra_only])
-
-    total = query.count(params[:extra_only].blank? ? "claim_id" : params[:extra_only])
+    query = query.distinct
+    filtered = query.count(params[:extra_only].blank? ? "claim_id" : params[:extra_only])
 
     start = params[:start].to_i
     length = params[:length].to_i
@@ -38,7 +43,7 @@ class DatasetRowsController < ApplicationController
     render json: {
       draw: params[:draw].to_i,
       recordsTotal: total,
-      recordsFiltered: total,
+      recordsFiltered: filtered,
       data: query
     }
   end
