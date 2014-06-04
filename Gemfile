@@ -42,7 +42,9 @@ gem 'unicorn'
 gem 'devise'
 
 gem 'carrierwave-postgresql'
+
 group :development do
   gem 'foreman'
 end
 
+gem 'cancan'

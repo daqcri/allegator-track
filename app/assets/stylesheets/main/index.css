@@ -54,3 +54,14 @@
 .mytable{
   width: 100%;
 }
+
+.trash-icon{
+  cursor: pointer;
+}
+.all_tables{
+  float:left;
+  display:inline;
+  border: 1px solid black;
+}
+
+
