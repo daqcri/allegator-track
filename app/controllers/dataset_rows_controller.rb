@@ -1,6 +1,7 @@
 class DatasetRowsController < ApplicationController
-  
+
   before_filter :authenticate_user!
+  load_and_authorize_resource :except => [:index]
 
   def index
     total = current_user.dataset_rows.count

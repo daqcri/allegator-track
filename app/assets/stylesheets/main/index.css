@@ -46,3 +46,22 @@
 .algorithm_checkbox_label {
     width: 100%;
 }
+
+.header_row{
+  width: 100px;
+}
+
+.mytable{
+  width: 100%;
+}
+
+.trash-icon{
+  cursor: pointer;
+}
+.all_tables{
+  float:left;
+  display:inline;
+  border: 1px solid black;
+}
+
+

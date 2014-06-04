@@ -2,6 +2,8 @@ class DatasetsController < ApplicationController
 
   before_filter :authenticate_user!
 
+  load_and_authorize_resource :except => [:create, :index]
+
   def create
     # TODO: RECEIVE MULTIPLE
 
@@ -31,7 +33,7 @@ class DatasetsController < ApplicationController
   end
 
   def destroy
-    # TODO USE cancan to load_and_authorize resource
-    # @dataset.destroy
+    @dataset.destroy
+    render json: {status: 'OK'}
   end
 end

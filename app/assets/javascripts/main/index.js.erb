@@ -6,9 +6,81 @@ $(document).ready(function() {
   setup_layout()
   setup_west_pane()
   setup_datatable()
+  refresh_datasets_tables()
 });
 
+function refresh_datasets_tables(){
+  $.getJSON("/datasets", function(data){
+    refresh_datasets_table(data, 'claims')
+    refresh_datasets_table(data, 'ground')
+  })
+}
+
+function refresh_datasets_table(data, dataset_kind)
+{
+  var items = ""
+  $.each(data[dataset_kind], function(key, value){
+    items += "<tr><td>"+ value.id+"</td><td>"+value.original_filename+"</td><td>"+value.created_at
+    +"</td><td>"+value.row_count+"</td><td> <span dataset_id='"+value.id+"' class='trash-icon ui-icon ui-icon-trash'></span></td></tr>"
+  });
+  var container= $("#datasets_" + dataset_kind + "_tbody")
+     .empty()
+     .append(items)
+  $('.trash-icon',container).click(function(){
+    if(confirm("Are you sure you want to delete this dataset?"))
+     $.ajax({
+       url: '/datasets/'+$(this).attr("dataset_id"),
+       type: "DELETE",
+       success: function(){
+        refresh_datasets_tables();
+       }
+     });
+   });
+}
+
 function setup_datatable() {
+  var src_dataset= [
+     ['eCampus.com'],
+     ['Indoo.com'],
+     ['A1Books'],
+     ['textbooksNow'],
+     ['paperbackworld.de'],
+     [' Caiman']
+    ]
+    var obj_dataset= [
+     ['Object 1'],
+     ['Object 2'],
+     ['Object 3'],
+     ['Object 4'],
+     ['Object 5'],
+     ['Object 6']
+    ]
+    var source_table = $("#source_datatable").DataTable({
+    "data": src_dataset,
+    retrieve: true,
+    "columns":[
+      {"source": "Sources"},
+    ],
+    dom: 'T<"clear">l',
+        paging: false,
+        tableTools: {
+          "sRowSelect": "os",
+         aButtons: []
+        }
+
+  });
+  var object_table = $("#object_datatable").DataTable({
+    "data": obj_dataset,
+    retrieve: true,
+    "columns":[
+      {"object": "Objects"},
+    ],
+    dom: 'T<"clear">l',
+    paging: false,
+        tableTools: {
+          aButtons: []
+        }
+  });
   var height = searchResultsLayout.state.center.innerHeight - 115
   var include_exclude_action = function( nButton, oConfig ) {
             var oTT = TableTools.fnGetInstance('example');
@@ -18,7 +90,7 @@ function setup_datatable() {
             else
               alert("Including rows: \n" + data.join("\n"))
           }
-
+   
   datatable = $('#datatable').DataTable({
     "serverSide": true,
     "scrollY": height,
@@ -46,9 +118,7 @@ function setup_datatable() {
       "fnRowDeselected": function ( nodes ) {
         $("#details").html("")
       },
-      "aButtons": [
-        "select_none"
-      ]
+      "aButtons": []
     }
   });
 }
@@ -70,7 +140,7 @@ function setup_layout()
   
   searchResultsLayout = $(".inner").layout({
     applyDefaultStyles: true,
-    south__size: "50%",
+    south__size: "15%",
     south__minSize: "25%",
     south__maxSize: "75%",
     center__onresize: function() {
@@ -134,20 +204,26 @@ function setup_west_pane()
   // file upload
   $('.fileupload').fileupload({
     dataType: 'json',
-    done: function (e, data) {
-      // console.log(e)
-      // alert(data.status);
+    start: function(){
+      console.log("started upload")
+      $(this).parent().next().find('.progress-bar')
+        .css('width','0');
     },
     progressall: function (e, data) {
+        console.log(data)
         var progress = parseInt(data.loaded / data.total * 100, 10);
          $(this).parent().next().find('.progress-bar').css(
             'width',
             progress + '%'
         );
+    },
+    done: function() {
+      refresh_datasets_tables()
     }
-  }); 
 
+
+  }); 
   // tabs setup
   $( "#tabs" ).tabs();
-
 }
+

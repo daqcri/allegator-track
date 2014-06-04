@@ -4,76 +4,109 @@
 
 <div class="ui-layout-west">
     <!-- DIV for tabs -->
-    <div id="tabs">
-        <ul>
-          <li> <a href="#tab-1">Input</a> </li>
-          <li>  <a href="#tab-2">Configuration</a>  </li>
-          <li>  <a href="#tab-3">Run </a> </li>
-        </ul>
+  <div id="tabs">
+    <ul>
+      <li> <a href="#tab-1">Input</a> </li>
+      <li>  <a href="#tab-2">Configuration</a>  </li>
+      <li>  <a href="#tab-3">Run </a> </li>
+    </ul>
            <!-- This is tab 1 -->
-        <div id="tab-1"> 
-          <div class = "accordion" >
-            <h3>Upload Datasets</h3>
-            <div> 
-              <span class="btn btn-success fileinput-button">
-                 <i class="glyphicon glyphicon-plus"></i>
-                 <span>Select files...</span>
-                 <!-- The file input field used as target for the file upload widget -->
-                 <input class="fileupload" type="file" name="csv" data-url="/datasets?kind=claims" multiple>
-              </span>
-              <!-- The global progress bar -->
-              <div class="progress">
-               <div class="progress-bar progress-bar-success"></div>
-             </div>
-            </div>
-            <h3>Upload Ground Truths</h3>
-            <div>
-              <span class="btn btn-success fileinput-button">
-                <i class="glyphicon glyphicon-plus"></i>
-                <span>Select files...</span>
-                <!-- The file input field used as target for the file upload widget -->
-                <input class="fileupload" type="file" name="csv" data-url="/datasets?kind=ground" multiple>
-              </span>
-              <!-- The global progress bar -->
-              <div class="progress">
-               <div class="progress-bar progress-bar-success"></div>
-             </div>
-            </div>
-
-            <h3>Algorithms</h3>
-            <div id="algo_pane">
-                <p>Select one or more algorithms from below</p>
-            </div>
-          </div>
+    <div id="tab-1"> 
+      <div class = "accordion" >
+        <h3>Upload Datasets</h3>
+        <div> 
+          <span class="btn btn-success fileinput-button">
+            <i class="glyphicon glyphicon-plus"></i>
+            <span>Select files...</span>
+            <!-- The file input field used as target for the file upload widget -->
+            <input class="fileupload" type="file" name="csv" data-url="/datasets?kind=claims" multiple>
+          </span>
+          <!-- The global progress bar -->
+          <div class="progress">
+            <div class="progress-bar progress-bar-success"></div>
+          </div>        
+          <table id='dataset_table' border=1 >
+            <thead class='header_row'>
+              <th> File ID </th>
+              <th> File Name </th>
+              <th> Created Date </th>
+              <th> Row Count</th>
+            </thead>
+            <tbody id= 'datasets_claims_tbody'>   </tbody>
+          </table>
         </div>
-
-        <!-- This is tab 2 -->
-        <div id="tab-2"> <div id ="tab_pane" class="accordion"> </div> </div>
-
-        <!-- This is tab 3 -->
-        <div id="tab-3"> 
-          <div>
-              <button type="button">Start</button> 
+        <h3>Upload Ground Truths</h3>
+        <div>
+          <span class="btn btn-success fileinput-button">
+            <i class="glyphicon glyphicon-plus"></i>
+            <span>Select files...</span>
+            <!-- The file input field used as target for the file upload widget -->
+            <input class="fileupload" type="file" name="csv" data-url="/datasets?kind=ground" multiple>
+          </span>
+          <!-- The global progress bar -->
+          <div class="progress">
+            <div class="progress-bar progress-bar-success"></div>
           </div>
-        </div>  
+          <table id='ground_table' border=1 >
+            <thead>
+              <th> File ID </th>
+              <th> File Name </th>
+              <th> Created Date </th>
+              <th> Row Count </th>
+            </thead>
+            <tbody id="datasets_ground_tbody"></tbody>
+          </table>
+        </div>
+        <h3>Algorithms</h3>
+        <div id="algo_pane">
+          <p>Select one or more algorithms from below</p>
+        </div>
+      </div>
     </div>
+
+    <!-- This is tab 2 -->
+    <div id="tab-2"> <div id ="tab_pane" class="accordion"> </div> </div>
+    <!-- This is tab 3 -->
+    <div id="tab-3"> 
+      <div>
+        <button type="button">Start</button> 
+      </div>
+    </div>  
+  </div>
 </div>
 
 <div class="ui-layout-center inner">
   <div class= "ui-layout-center">
-    <table id="datatable" class="display" cellspacing="0" width="100%">
-        <thead>
+      <div class="all_tables" width:"20%" border=1 >
+        <table class="display" id="source_datatable" style="margin-top:30.5px">
+          <thead>
+            <th>Sources</th>
+          </thead>
+        </table>
+      </div>
+      <div class="all_tables" style="width:20%">
+        <table class="display" id="object_datatable" style="margin-top:30.5px">
+          <thead>
+            <th> Objects</th>
+          </thead>
+        </table>
+      </div>
+      <div class="all_tables" style="width:60%">
+        <table id="datatable" class="display" cellspacing="0" width="100%">
+          <thead>
             <tr>
-                <th>claim_id</th>
-                <th>object_id</th>
-                <th>property_key</th>
-                <th>propery_value</th>
-                <th>source_id</th>
-                <th>timestamp</th>
+              <th>claim_id</th>
+              <th>object_id</th>
+              <th>property_key</th>
+              <th>propery_value</th>
+              <th>source_id</th>
+              <th>timestamp</th>
             </tr>
-        </thead>
-    </table>
+          </thead>
+        </table>
+      </div>  
   </div>
+  
   <div class= "ui-layout-south">
     <p id="details">
     </p>
