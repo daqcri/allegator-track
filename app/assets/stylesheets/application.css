@@ -16,5 +16,6 @@
  *= require dataTables.tableTools
  *= require dataTables.scroller.min
  *= require jquery.fileupload
+ *= require jstree-themes/default/style.min
  *= require_self
  */

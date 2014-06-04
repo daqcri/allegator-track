@@ -21,4 +21,5 @@
 //= require jquery.fileupload
 //= require jquery.iframe-transport
 //= require jquery.mousewheel
+//= require jstree.min
 
