@@ -40,31 +40,38 @@ function refresh_datasets_table(data, dataset_kind)
 
 function setup_datatable() {
   var src_dataset= [
-     ['eCampus.com'],
-     ['Indoo.com'],
-     ['A1Books'],
-     ['textbooksNow'],
-     ['paperbackworld.de'],
-     [' Caiman']
+     ['<input type="checkbox">','eCampus.com'],
+     ['<input type="checkbox">','Indoo.com'],
+     ['<input type="checkbox">','A1Books'],
+     ['<input type="checkbox">','textbooksNow'],
+     ['<input type="checkbox">','paperbackworld.de'],
+     ['<input type="checkbox">',' Caiman']
     ]
     var obj_dataset= [
-     ['Object 1'],
-     ['Object 2'],
-     ['Object 3'],
-     ['Object 4'],
-     ['Object 5'],
-     ['Object 6']
+     ['<input type="checkbox">','Object 1'],
+     ['<input type="checkbox">','Object 2'],
+     ['<input type="checkbox">','Object 3'],
+     ['<input type="checkbox">','Object 4'],
+     ['<input type="checkbox">','Object 5'],
+     ['<input type="checkbox">','Object 6']
     ]
     var source_table = $("#source_datatable").DataTable({
     "data": src_dataset,
     retrieve: true,
     "columns":[
+      {"check_box": ""},
       {"source": "Sources"},
     ],
-    dom: 'T<"clear">l',
+    dom: 'T<"clear">lf',
         paging: false,
         tableTools: {
           "sRowSelect": "os",
+           "fnRowSelected": function ( nodes ) {
+             var select = source_table.row(nodes[0]).data()
+             
+           },
+          // "fnRowDeselected": function ( nodes ) {
+          // },
          aButtons: []
         }
 
@@ -73,11 +80,13 @@ function setup_datatable() {
     "data": obj_dataset,
     retrieve: true,
     "columns":[
+      {"check_box":""},
       {"object": "Objects"},
     ],
-    dom: 'T<"clear">l',
+    dom: 'T<"clear">lf',
     paging: false,
         tableTools: {
+          "sRowSelect": "os",
           aButtons: []
         }
   });
@@ -95,7 +104,7 @@ function setup_datatable() {
     "serverSide": true,
     "scrollY": height,
     // "sorting": false, 
-    "dom": '<"toolbar"T>itS',
+    "dom": '<"toolbar"T>ftS',
     "ajax": "/dataset_rows",
     "columns": [
       {data: 'claim_id'},
@@ -127,7 +136,7 @@ function setup_layout()
 {
   pageLayout = $('body').layout({
     applyDefaultStyles: true,
-    west__size: "35%",
+    west__size: "25%",
     west__minSize: "10%",
     west__maxSize: "50%",
     west__onresize: function() {
