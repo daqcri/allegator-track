@@ -83,7 +83,7 @@ function setup_datatables() {
       "sRowSelect": "os",
       "fnRowSelected": function ( nodes ) {
         var data = datatable.row(nodes[0]).data()
-        $("#details").html("You have selected claim with id: " + data.claim_id)
+        $("#details").html("You have selected claim with id: " + data.claim_id+"").css("color","#00008B")
       },
       "fnRowDeselected": function ( nodes ) {
         $("#details").html("")
@@ -109,8 +109,7 @@ function setup_single_datatable(field_name, height)
     },
     dom: 'T<"clear">ftSi',
     "language": {
-      "info": "_START_-_END_/_TOTAL_",
-      "infoFiltered": " (_MAX_ total)"
+      "info": "_START_-_END_/_TOTAL_"
     },
     "destroy": true,  // destroy first if reinitializing
     "scroller": {
@@ -143,9 +142,9 @@ function setup_layout()
     south__size: "15%",
     south__minSize: "25%",
     south__maxSize: "75%",
-    west__size: '15%',
-    center__size: '15%',
-    east__size: '70%',
+    west__size: '23%',
+    center__size: '23%',
+    east__size: '54%',
     autoResize:       true,  // try to maintain pane-percentages
     closable:       true,
     togglerLength_open:   0, // hide toggler-buttons
