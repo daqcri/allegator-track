@@ -83,7 +83,7 @@ function setup_datatables() {
       "sRowSelect": "os",
       "fnRowSelected": function ( nodes ) {
         var data = datatable.row(nodes[0]).data()
-        $("#details").html("You have selected claim with id: " + data.claim_id)
+        $("#details").html("You have selected claim with id: " + data.claim_id+"").css("color","#00008B")
       },
       "fnRowDeselected": function ( nodes ) {
         $("#details").html("")
