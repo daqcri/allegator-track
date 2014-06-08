@@ -16,7 +16,6 @@
         <h3>Upload Datasets</h3>
         <div> 
           <span class="btn btn-success fileinput-button">
-            <i class="glyphicon glyphicon-plus"></i>
             <span>Select files...</span>
             <!-- The file input field used as target for the file upload widget -->
             <input class="fileupload" type="file" name="csv" data-url="/datasets?kind=claims" multiple>
@@ -24,21 +23,20 @@
           <!-- The global progress bar -->
           <div class="progress">
             <div class="progress-bar progress-bar-success"></div>
-          </div>        
+          </div>
           <table id='dataset_table' border=1 >
             <thead class='header_row'>
               <th> File ID </th>
               <th> File Name </th>
-              <th> Created Date </th>
+              <th> Uploading Date </th>
               <th> Row Count</th>
             </thead>
             <tbody id= 'datasets_claims_tbody'>   </tbody>
           </table>
         </div>
-        <h3>Upload Ground Truths</h3>
+        <h3>Upload Ground Truth Datasets</h3>
         <div>
           <span class="btn btn-success fileinput-button">
-            <i class="glyphicon glyphicon-plus"></i>
             <span>Select files...</span>
             <!-- The file input field used as target for the file upload widget -->
             <input class="fileupload" type="file" name="csv" data-url="/datasets?kind=ground" multiple>
@@ -54,15 +52,15 @@
             <thead>
               <th> File ID </th>
               <th> File Name </th>
-              <th> Created Date </th>
+              <th> Uploading Date </th>
               <th> Row Count </th>
             </thead>
             <tbody id="datasets_ground_tbody"></tbody>
           </table>
         </div>
-        <h3>Algorithms</h3>
+        <h3>Truth Discovery Algorithms</h3>
         <div id="algo_pane">
-          <p>Select one or more algorithms from below</p>
+          <p>Select one or more algorithms:</p>
         </div>
       </div>
     </div>

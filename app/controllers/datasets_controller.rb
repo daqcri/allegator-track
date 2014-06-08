@@ -5,8 +5,6 @@ class DatasetsController < ApplicationController
   load_and_authorize_resource :except => [:create, :index]
 
   def create
-    # TODO: RECEIVE MULTIPLE
-
     # receive uploads
     ds = Dataset.new
     ds.kind = params[:kind] || 'claims'

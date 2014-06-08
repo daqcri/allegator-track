@@ -19,22 +19,22 @@ function refresh_datatables()
 function refresh_datasets_tables()
 {
   $.getJSON("/datasets", function(data){
-    refresh_datasets_table(data, 'claims')
-    refresh_datasets_table(data, 'ground')
+    refresh_datasets_table(data.claims, 'claims')
+    refresh_datasets_table(data.ground, 'ground')
   })
 }
 
-function refresh_datasets_table(data, dataset_kind)
+function refresh_datasets_table(datasets, dataset_kind)
 {
   var items = ""
-  $.each(data[dataset_kind], function(key, value){
+  $.each(datasets, function(key, value){
     items += "<tr><td>"+ value.id+"</td><td>"+value.original_filename+"</td><td>"+value.created_at
     +"</td><td>"+value.row_count+"</td><td> <span dataset_id='"+value.id+"' class='trash-icon ui-icon ui-icon-trash'></span></td></tr>"
   });
   var container= $("#datasets_" + dataset_kind + "_tbody")
      .empty()
      .append(items)
-  $('.trash-icon',container).click(function(){
+  $('.trash-icon', container).click(function(){
     if(confirm("Are you sure you want to delete this dataset?"))
      $.ajax({
        url: '/datasets/'+$(this).attr("dataset_id"),
@@ -57,8 +57,7 @@ function setup_datatables() {
   datatable = $('#datatable').DataTable({
     "serverSide": true,
     "scrollY": height,
-    "dom": '<"toolbar"T>ftSi',
-    "ajax": "/dataset_rows",
+    "dom": '<"toolbar"T>tSif',
     "ajax": function (data, callback, settings) {
       var url = "/dataset_rows"
       data.extra_source_id_criteria = source_table.search()
@@ -99,7 +98,6 @@ function setup_single_datatable(field_name, height)
   var dt = obj.DataTable({
     "serverSide": true,
     "scrollY": height,
-    "ajax": "/dataset_rows?extra_only="+field_name,
     "ajax": function (data, callback, settings) {
       var url = "/dataset_rows"
       data.extra_only = field_name
@@ -108,7 +106,7 @@ function setup_single_datatable(field_name, height)
         callback(response)
       })
     },
-    dom: 'T<"clear">ftSi',
+    dom: 'T<"clear">tSif',
     "language": {
       "info": "_START_-_END_/_TOTAL_",
       "infoFiltered": " (_MAX_ total)",
