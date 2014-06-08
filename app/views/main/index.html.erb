@@ -43,6 +43,9 @@
             <!-- The file input field used as target for the file upload widget -->
             <input class="fileupload" type="file" name="csv" data-url="/datasets?kind=ground" multiple>
           </span>
+          <button type="button" class="btn btn-warning cancel">
+                    <span>Cancel upload</span>
+                </button>
           <!-- The global progress bar -->
           <div class="progress">
             <div class="progress-bar progress-bar-success"></div>
@@ -77,14 +80,14 @@
 
 <div class="ui-layout-center inner">
     <div class="ui-layout-west">
-      <table class="display" id="source_id_datatable" _style="margin-top:30.5px">
+      <table class="display" id="source_id_datatable" >
         <thead>
           <th>Sources</th>
         </thead>
       </table>
     </div>
     <div class="ui-layout-center">
-      <table class="display" id="object_id_datatable" _style="margin-top:30.5px">
+      <table class="display" id="object_id_datatable" >
         <thead>
           <th>Objects</th>
         </thead>
