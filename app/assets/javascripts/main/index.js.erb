@@ -164,7 +164,7 @@ function setup_layout()
 function setup_west_pane()
 {
   // create algorithm divs
-  var container = $("#tab_pane")
+  var container= $("#tab_pane")
   var html = ""
   $.each(algorithms, function(index, algorithm) {
     var params =""
@@ -195,7 +195,8 @@ function setup_west_pane()
   var html =""
 
   $.each(algorithms, function(index, algorithm){
-    html += "<input type='checkbox' id='algorithm_checkbox_"+algorithm.id+"' class='algorithm_checkbox'/><label class='algorithm_checkbox_label' for='algorithm_checkbox_"+algorithm.id+"'>"+algorithm.name +"</label>"
+    html += "<input type='checkbox' id='algorithm_checkbox_"+algorithm.id+"' class='algorithm_checkbox'/><label class='algorithm_checkbox_label' title='"+algorithm.description+
+    "' for='algorithm_checkbox_"+algorithm.id+"'>"+algorithm.name +"</label>"
   });
   container.append(html);
 
@@ -233,8 +234,6 @@ function setup_west_pane()
       refresh_datasets_tables();
       refresh_datatables();
     }
-
-
   }); 
   // tabs setup
   $( "#tabs" ).tabs();
