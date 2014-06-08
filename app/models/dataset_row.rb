@@ -4,11 +4,11 @@ class DatasetRow < ActiveRecord::Base
 
   def self.initialize_from_row(row, dataset)
     dsr = dataset.dataset_rows.build
-    dsr.claim_id = row[:claimid]
-    dsr.object_id = row[:objectid]
-    dsr.property_key = row[:propertyid]
-    dsr.propery_value = row[:propertyvalue]
-    dsr.source_id = row[:sourceid]
+    dsr.claim_id = row[:claimid] || row[:claim_id]
+    dsr.object_id = row[:objectid] || row[:object_id]
+    dsr.property_key = row[:propertyid] || row[:property_id]
+    dsr.propery_value = row[:propertyvalue] || row[:property_value]
+    dsr.source_id = row[:sourceid] || row[:source_id]
     dsr.timestamp = row[:timestamp] == 'null' ? nil : row[:timestamp]
     dsr
   end
