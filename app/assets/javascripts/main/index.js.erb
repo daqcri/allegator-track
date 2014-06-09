@@ -9,6 +9,25 @@ $(document).ready(function() {
   refresh_datasets_tables()
 });
 
+ function check_algorithm_checkbox(algo_checkbox)
+ {
+  var found_check = false
+  var algorithm_id
+  $(algo_checkbox).each(function(index, check_box){
+    algorithm_id = $(check_box).attr("algorithm_id")
+      if($(check_box).is(':checked')){
+        found_check= true
+        $("h3.algorithm_"+algorithm_id).show()
+      }
+      else
+        $(".algorithm_"+algorithm_id).hide()
+  });
+  if (found_check)
+    $('#tabs').tabs("option","disabled", [])
+  else
+    $('#tabs').tabs("option", "disabled",[1,2])
+ }
+
 function refresh_datatables()
 {
   datatable.draw()
@@ -131,7 +150,7 @@ function setup_layout()
 {
   pageLayout = $('body').layout({
     applyDefaultStyles: true,
-    west__size: "25%",
+    west__size: "30%",
     west__minSize: "10%",
     west__maxSize: "50%",
     west__onresize: function() {
@@ -163,6 +182,9 @@ function setup_layout()
 
 function setup_west_pane()
 {
+  // tabs setup
+  $( "#tabs" ).tabs();
+  $( "#tabs" ).tabs({ disabled: [ 1, 2 ] });
   // create algorithm divs
   var container= $("#tab_pane")
   var html = ""
@@ -175,10 +197,9 @@ function setup_west_pane()
         + param.min+"' max='"+param.max+"' value='"+param.value
         + "'></input></td></tr>" 
     });
-    html += "<h3>" + algorithm.name + "</h3><div><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
+    html += "<h3 class='algorithm_"+algorithm.id+"'>" + algorithm.name + "</h3><div class='algorithm_"+algorithm.id+"'><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
       + params + "</table></div>"
-  });
-  
+  }); 
   container.append(html)
 
   // create spinners
@@ -195,7 +216,8 @@ function setup_west_pane()
   var html =""
 
   $.each(algorithms, function(index, algorithm){
-    html += "<input type='checkbox' id='algorithm_checkbox_"+algorithm.id+"' class='algorithm_checkbox'/><label class='algorithm_checkbox_label' title='"+algorithm.description+
+    if(index!= 0)
+    html += "<input type='checkbox' id='algorithm_checkbox_"+algorithm.id+"' algorithm_id='"+algorithm.id+"' class='algorithm_checkbox'/><label class='algorithm_checkbox_label' title='"+algorithm.description+
     "' for='algorithm_checkbox_"+algorithm.id+"'>"+algorithm.name +"</label>"
   });
   container.append(html);
@@ -205,8 +227,10 @@ function setup_west_pane()
     .button({icons: {primary: 'ui-icon-closethick'}})
     .change(function(){
       $(this).button("option", "icons", {primary: $(this).is(':checked') ? 'ui-icon-check' : 'ui-icon-closethick'})
+     check_algorithm_checkbox(".algorithm_checkbox")
     });
-
+    
+  
   // create the accordion
   $( ".accordion" ).accordion({
     collapsible: true,
@@ -215,17 +239,24 @@ function setup_west_pane()
   });
 
   // file upload
-  $('.fileupload').fileupload({
+  var jqXHR=$('.fileupload').fileupload({
     dataType: 'json',
+    // add: function (e, data) {
+    //     jqXHR = data.submit()
+    //     .error(function (jqXHR, textStatus, errorThrown) {
+    //     if (errorThrown === 'abort') {
+    //         alert('File Upload has been canceled');
+    //     }
+    // },  
     start: function(){
       console.log("started upload")
-      $(this).parent().next().find('.progress-bar')
+      $(this).parent().next().next().find('.progress-bar')
         .css('width','0');
     },
     progressall: function (e, data) {
         console.log(data)
         var progress = parseInt(data.loaded / data.total * 100, 10);
-         $(this).parent().next().find('.progress-bar').css(
+         $(this).parent().next().next().find('.progress-bar').css(
             'width',
             progress + '%'
         );
@@ -234,8 +265,18 @@ function setup_west_pane()
       refresh_datasets_tables();
       refresh_datatables();
     }
-  }); 
-  // tabs setup
-  $( "#tabs" ).tabs();
+
+  // }).error(function (jqXHR, textStatus, errorThrown) {
+  //       if (errorThrown === 'abort') {
+  //         console.log("cancelled upload")
+  //         $(this).parent().next().next().find('.progress-bar')
+  //           .css('width','0');
+  //       }
+  //   });
+  // console.log(jqXHR)
+//   $('.cancel').click(function (e) {
+//     // jqXHR.abort();
+ });
+  
 }
 
