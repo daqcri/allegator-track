@@ -1,4 +1,4 @@
-claim_id,object_id,property_key,propery_value,source_id,timestamp
+claim_id,object_id,property_key,property_value,source_id,timestamp
 C1,O1,A1,V1,S1,12-sept-14
 C2,O2,A2,V2,S1,13-sept-14
 C3,O3,A3,V3,S1,14-sept-14
