@@ -21,11 +21,11 @@ $(document).ready(function() {
       }
       else
         $(".algorithm_"+algorithm_id).hide()
-  });
-  if (found_check)
-    $('#tabs').tabs("option","disabled", [])
-  else
-    $('#tabs').tabs("option", "disabled",[1,2])
+      });
+    if (found_check)
+      $('#tabs').tabs("option","disabled", [])
+    else
+      $('#tabs').tabs("option", "disabled",[1,2])
  }
 
 function refresh_datatables()
@@ -71,7 +71,7 @@ function setup_datatables() {
   var height = searchResultsLayout.state.center.innerHeight - datatable_excess
 
   source_table = setup_single_datatable("source_id", height)
-  object_table = setup_single_datatable("object_key", height)
+  object_table = setup_single_datatable("object_id", height)
    
   datatable = $('#datatable').DataTable({
     "serverSide": true,
@@ -80,16 +80,16 @@ function setup_datatables() {
     "ajax": function (data, callback, settings) {
       var url = "/dataset_rows"
       data.extra_source_id_criteria = source_table.search()
-      data.extra_object_key_criteria = object_table.search()
+      data.extra_object_id_criteria = object_table.search()
       $.getJSON(url, data, function(response){
         callback(response)
       })
     },
     "columns": [
       {data: 'claim_id'},
-      {data: 'object_key'},
+      {data: 'object_id'},
       {data: 'property_key'},
-      {data: 'property_value'},
+      {data: 'propery_value'},
       {data: 'source_id'},
       {data: 'timestamp'}
     ],
@@ -228,6 +228,7 @@ function setup_west_pane()
     .change(function(){
       $(this).button("option", "icons", {primary: $(this).is(':checked') ? 'ui-icon-check' : 'ui-icon-closethick'})
      check_algorithm_checkbox(".algorithm_checkbox")
+
     });
     
   

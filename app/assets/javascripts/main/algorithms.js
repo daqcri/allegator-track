@@ -3,12 +3,6 @@ var algorithms = [
     {name: 'Sources trustworthiness cosine Similarity Difference convegence sign', value: 0.001, dataType: 'double', min: 0, max: 0.1, desc: 'the difference of the sources trustworthinessthe cosine similarity between two iterrations must be less than this value for a convergence sign.'},
     {name: 'Starting Trustworthiness', value: 0.8, dataType: 'double' , min: 0, max: 1.0, desc: 'The initial value for all sources trustworthiness.'},
   ]},
-<<<<<<< HEAD
-=======
-  {id:9, name: "TruthFinder", description: "description about algorithm", params: [
-    {name: 'Similarity Constant', value: 0.5, dataType: 'double', min: 0, max: 1, desc: 'Percentage of the similarity betwen the values that will be added to the value confidence.'},
-  ]},
->>>>>>> 8667e47d565083b3bfd3ed30558c50c9b782f0b1
   {id:2, name: "Cosine", description: "description about algorithm", params: [
     {name: 'Starting Confidence', value: 1, dataType: 'double', min: 0, max: 1.0, desc: "The initial value's confidence for all properties values."},
     {name: 'Dampening Factor', value: 0.2, dataType: 'double', min: 0, max: 1, desc: 'Trustworthiness dampening factor.'},
@@ -40,12 +34,9 @@ var algorithms = [
     {name: 'c', value: 0, dataType: 'double', min: 0, max: 1, desc: 'The probability that a value provided by a copier is copied.'},
     {name: 'n', value: 100, dataType: 'int', min: 1, desc: 'The number of false values in the underlying domain for each object.'},
   ]},
-<<<<<<< HEAD
   {id:9, name: "TruthFinder", description: "description about algorithm", params: [
     {name: 'Similarity Constant', value: 0.5, dataType: 'double', min: 0, max: 1, desc: 'Percentage of the similarity betwen the values that will be added to the value confidence.'},
   ]},
-=======
->>>>>>> 8667e47d565083b3bfd3ed30558c50c9b782f0b1
   {id:10, name: "SimpleLCA", description: "description about algorithm", params: [
     {name: 'Bita1', value: 0.5, dataType: 'double', min: 0, max: 1, desc: 'The prior truth probability of the claimed value.'},
   ]},

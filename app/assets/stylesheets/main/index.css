@@ -71,6 +71,14 @@
 .dataTables_filter {
   margin-top: 10px;
 }
+
+.check_color{
+  background-color: green;
+}
+
+.uncheck_color{
+  background-color: red;
+}
 <<<<<<< HEAD
 >>>>>>> 3992736b980b9ec689b5b969dec1037ff84816b5
 
