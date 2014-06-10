@@ -13,6 +13,7 @@ $(document).ready(function() {
  {
   var found_check = false
   var algorithm_id
+
   $(algo_checkbox).each(function(index, check_box){
     algorithm_id = $(check_box).attr("algorithm_id")
       if($(check_box).is(':checked')){
@@ -22,8 +23,14 @@ $(document).ready(function() {
       else
         $(".algorithm_"+algorithm_id).hide()
       });
-    if (found_check)
-      $('#tabs').tabs("option","disabled", [])
+    if (found_check){
+      $('#tabs').tabs("enable",1)
+
+       if(($("table#dataset_table tr:last").index()+1)!=0 )
+         $('#tabs').tabs("enable",2)
+       else
+         $('#tabs').tabs("disable",2)
+    }
     else
       $('#tabs').tabs("option", "disabled",[1,2])
  }
@@ -217,7 +224,8 @@ function setup_west_pane()
 
   $.each(algorithms, function(index, algorithm){
     if(index!= 0)
-    html += "<input type='checkbox' id='algorithm_checkbox_"+algorithm.id+"' algorithm_id='"+algorithm.id+"' class='algorithm_checkbox'/><label class='algorithm_checkbox_label' title='"+algorithm.description+
+    html += "<input type='checkbox' id='algorithm_checkbox_"+algorithm.id+"' algorithm_id='"+algorithm.id+
+  "' class='algorithm_checkbox'/><label class='algorithm_checkbox_label' title='"+algorithm.description+
     "' for='algorithm_checkbox_"+algorithm.id+"'>"+algorithm.name +"</label>"
   });
   container.append(html);
