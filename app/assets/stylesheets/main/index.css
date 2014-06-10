@@ -61,7 +61,7 @@
   text-overflow: ellipsis;
 }
 
-#source_id_datatable_filter input, #object_id_datatable_filter input {
+#source_id_datatable_filter input, #object_key_datatable_filter input {
   width: 100px;
 }
 
@@ -79,8 +79,3 @@
 .uncheck_color{
   background-color: red;
 }
-<<<<<<< HEAD
->>>>>>> 3992736b980b9ec689b5b969dec1037ff84816b5
-
-=======
->>>>>>> 8667e47d565083b3bfd3ed30558c50c9b782f0b1
