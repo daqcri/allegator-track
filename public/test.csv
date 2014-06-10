@@ -1,0 +1,15 @@
+claim_id,object_id,property_key,property_value,source_id,timestamp
+C1,O1,A1,V1,S1,12-sept-14
+C2,O2,A2,V2,S1,13-sept-14
+C3,O3,A3,V3,S1,14-sept-14
+C4,O4,A4,V4,S1,15-sept-14
+C5,O5,A5,V5,S1,16-sept-14
+C6,O6,A6,V6,S1,17-sept-14
+C7,O7,A7,V7,S1,18-sept-14
+C8,O8,A8,V8,S1,19-sept-14
+C9,O9,A9,V9,S2,20-sept-14
+C10,O10,A10,V10,S3,21-sept-14
+C11,O11,A11,V11,S4,22-sept-14
+C12,O12,A12,V12,S5,23-sept-14
+C13,O13,A13,V13,S6,24-sept-14
+C14,O14,A14,V14,S7,25-sept-14
