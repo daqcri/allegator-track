@@ -115,7 +115,7 @@ function setup_datatables() {
       "sRowSelect": "os",
       "fnRowSelected": function ( nodes ) {
         var data = datatable.row(nodes[0]).data()
-        $("#details").html("You have selected claim with id: " + data.claim_id+"").css("color","#00008B")
+        $("#details").html("You have selected claim with id: " + data.claim_id+"")
       },
       "fnRowDeselected": function ( nodes ) {
         $("#details").html("")
@@ -256,15 +256,13 @@ function setup_west_pane()
   });
 
   // file upload
-  var jqXHR=$('.fileupload').fileupload({
+  var jqXHR= null;
+  $('.fileupload').fileupload({
     dataType: 'json',
-    // add: function (e, data) {
-    //     jqXHR = data.submit()
-    //     .error(function (jqXHR, textStatus, errorThrown) {
-    //     if (errorThrown === 'abort') {
-    //         alert('File Upload has been canceled');
-    //     }
-    // },  
+     add: function (e, data) {
+         jqXHR = data.submit()
+         $('.cancel').removeAttr('disabled')
+     },  
     start: function(){
       console.log("started upload")
       $(this).parent().next().next().find('.progress-bar')
@@ -273,7 +271,7 @@ function setup_west_pane()
     progressall: function (e, data) {
         console.log(data)
         var progress = parseInt(data.loaded / data.total * 100, 10);
-         $(this).parent().next().next().find('.progress-bar').css(
+         $(this).parent().next().next().next().find('.progress-bar').css(
             'width',
             progress + '%'
         );
@@ -281,19 +279,18 @@ function setup_west_pane()
     done: function() {
       refresh_datasets_tables();
       refresh_datatables();
-    }
+    },
 
-  // }).error(function (jqXHR, textStatus, errorThrown) {
-  //       if (errorThrown === 'abort') {
-  //         console.log("cancelled upload")
-  //         $(this).parent().next().next().find('.progress-bar')
-  //           .css('width','0');
-  //       }
-  //   });
-  // console.log(jqXHR)
-//   $('.cancel').click(function (e) {
-//     // jqXHR.abort();
- });
+   fail: function() {
+           console.log("cancelled upload")
+           $(this).parent().next().next().find('.progress-bar')
+             .css('width','0');
+            }
+     });
+   console.log(jqXHR)
+   $('.cancel').click(function (e) {
+      jqXHR.abort();
+    });
   
 }
 
