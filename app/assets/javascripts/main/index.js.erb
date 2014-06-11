@@ -9,37 +9,36 @@ $(document).ready(function() {
   refresh_datasets_tables()
 });
 
- function check_algorithm_checkbox(algo_checkbox)
+ function check_algorithm_checkbox()
  {
   var found_check = false
   var algorithm_id
 
-  $(algo_checkbox).each(function(index, check_box){
+  $(".algorithm_checkbox").each(function(index, check_box){
     algorithm_id = $(check_box).attr("algorithm_id")
-      if($(check_box).is(':checked')){
-        
+      if($(check_box).is(':checked')){        
         found_check= true
-        $(' input:checked+label').css({'background-color':'lightgreen','color':'green'})
+        $('input:checked+label').css({'background-color':'green','color':'yellow'})
         $("h3.algorithm_"+algorithm_id).show()
       }
       else{
-        $('[type="checkbox"]:not(:checked) + label').css({'background-color':'#FFCACA','color':'red'})
+        $('[type="checkbox"]:not(:checked) + label').css({'background':'none','color':'black'})
         $(".algorithm_"+algorithm_id).hide()
       }
-      });
-    if (found_check){
-      
-      $('#tabs').tabs("enable",1)
+  });
 
-       if(($("table#dataset_table tr:last").index()+1)!=0 )
-         $('#tabs').tabs("enable",2)
-       else
-         $('#tabs').tabs("disable",2)
-    }
-    else{
-      
-      $('#tabs').tabs("option", "disabled",[1,2])
-    }
+  if (found_check){
+    // enable configuration tab
+    $('#tabs').tabs("enable",1)
+
+    if($("table#dataset_table tbody tr").length > 0)
+      $('#tabs').tabs("enable",2)
+    else
+      $('#tabs').tabs("disable",2)
+  }
+  else{
+    $('#tabs').tabs("option", "disabled",[1,2])
+  }
  }
 
 function refresh_datatables()
@@ -54,6 +53,7 @@ function refresh_datasets_tables()
   $.getJSON("/datasets", function(data){
     refresh_datasets_table(data.claims, 'claims')
     refresh_datasets_table(data.ground, 'ground')
+    check_algorithm_checkbox()  // may need to disable run tab
   })
 }
 
@@ -205,7 +205,7 @@ function setup_west_pane()
   $.each(algorithms, function(index, algorithm) {
     var params =""
     $.each(algorithm.params, function(pindex, param){
-      params += "<tr><td width='100%'><span>" + param.name
+      params += "<tr><td width='100%'><span class='param-name'>" + param.name
         + "</span><span class='info-icon ui-icon ui-icon-info' title='"
         + param.desc + "'></span> </td><td><input class='spinner' min='"
         + param.min+"' max='"+param.max+"' value='"+param.value
@@ -233,7 +233,7 @@ function setup_west_pane()
     if(index!= 0)
     html += "<input type='checkbox' id='algorithm_checkbox_"+algorithm.id+"' algorithm_id='"
   +algorithm.id+
-  "' class='algorithm_checkbox color_on_check color_on_uncheck'/><label style='background:none;background-color:lightpink;color:red;' class='algorithm_checkbox_label' title='"
+  "' class='algorithm_checkbox color_on_check color_on_uncheck'/><label style='background: none;' class='algorithm_checkbox_label' title='"
   +algorithm.description+"' for='algorithm_checkbox_"+algorithm.id+"'>"+algorithm.name +"</label>"
   });
   container.append(html);
@@ -243,11 +243,9 @@ function setup_west_pane()
     .button({icons: {primary: 'ui-icon-closethick'}})
     .change(function(){
       $(this).button("option", "icons", {primary: $(this).is(':checked') ? 'ui-icon-check' : 'ui-icon-closethick'})
-     check_algorithm_checkbox(".algorithm_checkbox")
-
+      check_algorithm_checkbox()
     });
     
-  
   // create the accordion
   $( ".accordion" ).accordion({
     collapsible: true,
@@ -259,38 +257,37 @@ function setup_west_pane()
   var jqXHR= null;
   $('.fileupload').fileupload({
     dataType: 'json',
-     add: function (e, data) {
-         jqXHR = data.submit()
-         $('.cancel').removeAttr('disabled')
-     },  
+    add: function (e, data) {
+      jqXHR = data.submit()
+      $(this).parent().next().next().removeAttr('disabled')
+    },  
     start: function(){
-      console.log("started upload")
-      $(this).parent().next().next().find('.progress-bar')
+      // console.log("started upload")
+      $(this).parent().next().next().next().find('.progress-bar')
         .css('width','0');
     },
     progressall: function (e, data) {
-        console.log(data)
-        var progress = parseInt(data.loaded / data.total * 100, 10);
-         $(this).parent().next().next().next().find('.progress-bar').css(
-            'width',
-            progress + '%'
-        );
+      // console.log(data)
+      var progress = parseInt(data.loaded / data.total * 100, 10);
+       $(this).parent().next().next().next().find('.progress-bar')
+        .css('width', progress + '%');
     },
     done: function() {
+      $(this).parent().next().next().attr('disabled', 'disabled')
       refresh_datasets_tables();
       refresh_datatables();
     },
+    fail: function() {
+      // console.log("cancelled upload")
+      $(this).parent().next().next().attr('disabled', 'disabled')
+      $(this).parent().next().next().next().find('.progress-bar')
+        .css('width','0');
+    }
+  });
 
-   fail: function() {
-           console.log("cancelled upload")
-           $(this).parent().next().next().find('.progress-bar')
-             .css('width','0');
-            }
-     });
-   console.log(jqXHR)
-   $('.cancel').click(function (e) {
-      jqXHR.abort();
-    });
+  $('.cancel').click(function (e) {
+    jqXHR.abort();
+  });
   
 }
 
