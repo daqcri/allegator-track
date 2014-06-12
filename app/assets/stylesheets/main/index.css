@@ -40,7 +40,10 @@
 
 .info-icon{
   display: inline-block;
-  margin-left: 10px;   
+}
+
+.param-name {
+  margin-right: 10px;
 }
 
 .algorithm_checkbox_label {
