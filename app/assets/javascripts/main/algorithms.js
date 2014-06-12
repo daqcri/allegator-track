@@ -2,6 +2,8 @@ var algorithms = [
   {id:1, name: "General Parameters", description: "Parameters needed for all Truth Discovery Algorithms", params: [
     {name: 'Convergence test threshold', value: 0.001, dataType: 'double', min: 0, max: 0.1, desc: 'The difference of source truthworthiness cosine similarity between two successive iterations should be less than the user-defined threshold.'},
     {name: 'Initial sources truthworthiness', value: 0.8, dataType: 'double' , min: 0, max: 1.0, desc: 'The initial value for all sources truthworthiness.'},
+    {name: 'Starting Confidence', hidden: true, value: 1, dataType: 'double', min: 0, max: 1.0, desc: "The initial confidence for all properties values."},
+    {name: 'Starting Error Factor', hidden: true, value: 0.4, dataType: 'double' , min: 0, max: 1.0, desc: "The initial value's error factor for all properties values."},
   ]},
   {id:2, name: "Cosine", description: "Heuristic approach for estimating a value confidence and source trustworthiness, based on the cosine similarity measure.", params: [
     {name: 'Starting Confidence', value: 1, dataType: 'double', min: 0, max: 1.0, desc: "The initial confidence for all properties values."},
