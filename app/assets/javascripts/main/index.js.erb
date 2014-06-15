@@ -1,12 +1,35 @@
 var pageLayout
 var searchResultsLayout
 var datatable, source_table, object_table
+var config_data = {}
+var checked_algo = []
 
 $(document).ready(function() {
   setup_layout()
   setup_west_pane()
   setup_datatables()
   refresh_datasets_tables()
+
+  $("#start_button").click(function(){
+    checked_algo = []
+    var algorithm_id
+    $('.algorithm_checkbox').each(function(index, check_box){
+      algorithm_id = $(check_box).attr("algorithm_id")
+      if($(check_box).is(':checked')){
+        checked_algo.push(algorithm_id)
+      }
+    });
+    
+     $.ajax({
+      type: "POST",
+      url : "/dataset_rows",
+      data: {checked_algo:checked_algo, config_data:config_data},
+      success: function(){
+        console.log("Array submited")
+      }
+
+     });
+  });
 });
 
  function check_algorithm_checkbox()
@@ -204,23 +227,37 @@ function setup_west_pane()
   var html = ""
   $.each(algorithms, function(index, algorithm) {
     var params =""
+    var order = 0
     $.each(algorithm.params, function(pindex, param){
       params += "<tr><td width='100%'><span class='param-name'>" + param.name
         + "</span><span class='info-icon ui-icon ui-icon-info' title='"
         + param.desc + "'></span> </td><td><input class='spinner' min='"
         + param.min+"' max='"+param.max+"' value='"+param.value
-        + "'></input></td></tr>" 
+        + "' algorithm_id='"+algorithm.id+"' order= '"+order+"' ></input></td></tr>" 
+        order ++
     });
     html += "<h3 class='algorithm_"+algorithm.id+"'>" + algorithm.name + "</h3><div class='algorithm_"+algorithm.id+"'><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
       + params + "</table></div>"
   }); 
   container.append(html)
-
+  $.each(algorithms, function(index, algorithm_obj){
+    config_data[algorithm_obj.id] = []
+    $.each(algorithm_obj.params, function(pindex, parameter){
+      config_data[algorithm_obj.id].push(parameter.value)
+    });
+  });
   // create spinners
   $(".spinner").spinner({
       step: 0.1,
       numberFormat: "n",
-    }).each(function(){
+    })
+  .on("spinchange", function(){
+    var value = $(this).spinner('value')
+    var algo_id = $(this).attr('algorithm_id')
+    var order_val = $(this).attr('order')
+    config_data[algo_id].splice(order_val,1,value)
+  })
+  .each(function(){
       $(this).spinner('option', 'min', parseFloat($(this).attr("min")));
       $(this).spinner('option', 'max', parseFloat($(this).attr("max")));
     });
