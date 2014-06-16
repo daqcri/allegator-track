@@ -74,3 +74,6 @@
 .dataTables_filter {
   margin-top: 10px;
 } 
+#start_button{
+  width: 100px;
+}

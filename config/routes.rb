@@ -6,8 +6,10 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
   root 'main#index'
   get 'index(.:format)' => 'main#index'
+  post 'run(.:format)' => 'main#run'
 
   resources :datasets
+
   resources :dataset_rows
 
   # Example of regular route:

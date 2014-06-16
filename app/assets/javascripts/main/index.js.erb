@@ -22,7 +22,7 @@ $(document).ready(function() {
     
      $.ajax({
       type: "POST",
-      url : "/dataset_rows",
+      url : "/run",
       data: {checked_algo:checked_algo, config_data:config_data},
       success: function(){
         console.log("Array submited")
@@ -228,24 +228,23 @@ function setup_west_pane()
   $.each(algorithms, function(index, algorithm) {
     var params =""
     var order = 0
+     config_data[algorithm.id] = []
     $.each(algorithm.params, function(pindex, param){
-      params += "<tr><td width='100%'><span class='param-name'>" + param.name
+      if(param.hidden != true){
+        params += "<tr><td width='100%'><span class='param-name'>" + param.name
         + "</span><span class='info-icon ui-icon ui-icon-info' title='"
         + param.desc + "'></span> </td><td><input class='spinner' min='"
         + param.min+"' max='"+param.max+"' value='"+param.value
         + "' algorithm_id='"+algorithm.id+"' order= '"+order+"' ></input></td></tr>" 
-        order ++
+      }
+      order ++
+      config_data[algorithm.id].push(param.value)
     });
     html += "<h3 class='algorithm_"+algorithm.id+"'>" + algorithm.name + "</h3><div class='algorithm_"+algorithm.id+"'><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
       + params + "</table></div>"
   }); 
   container.append(html)
-  $.each(algorithms, function(index, algorithm_obj){
-    config_data[algorithm_obj.id] = []
-    $.each(algorithm_obj.params, function(pindex, parameter){
-      config_data[algorithm_obj.id].push(parameter.value)
-    });
-  });
+
   // create spinners
   $(".spinner").spinner({
       step: 0.1,
