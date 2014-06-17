@@ -228,19 +228,20 @@ function setup_west_pane()
   $.each(algorithms, function(index, algorithm) {
     var params =""
     var order = 0
-     config_data[algorithm.id] = []
+     config_data[algorithm.name] = []
     $.each(algorithm.params, function(pindex, param){
       if(param.hidden != true){
         params += "<tr><td width='100%'><span class='param-name'>" + param.name
         + "</span><span class='info-icon ui-icon ui-icon-info' title='"
         + param.desc + "'></span> </td><td><input class='spinner' min='"
         + param.min+"' max='"+param.max+"' value='"+param.value
-        + "' algorithm_id='"+algorithm.id+"' order= '"+order+"' ></input></td></tr>" 
+        + "' algorithm_id='"+algorithm.name+"' order= '"+order+"' ></input></td></tr>" 
       }
       order ++
-      config_data[algorithm.id].push(param.value)
+      config_data[algorithm.name].push(param.value)
     });
-    html += "<h3 class='algorithm_"+algorithm.id+"'>" + algorithm.name + "</h3><div class='algorithm_"+algorithm.id+"'><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
+    html += "<h3 class='algorithm_"+algorithm.name+"'>" + algorithm.name + 
+    "</h3><div class='algorithm_"+algorithm.name+"'><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
       + params + "</table></div>"
   }); 
   container.append(html)
@@ -267,10 +268,10 @@ function setup_west_pane()
 
   $.each(algorithms, function(index, algorithm){
     if(index!= 0)
-    html += "<input type='checkbox' id='algorithm_checkbox_"+algorithm.id+"' algorithm_id='"
-  +algorithm.id+
+    html += "<input type='checkbox' id='algorithm_checkbox_"+algorithm.name+"' algorithm_id='"
+  +algorithm.name+
   "' class='algorithm_checkbox color_on_check color_on_uncheck'/><label style='background: none;' class='algorithm_checkbox_label' title='"
-  +algorithm.description+"' for='algorithm_checkbox_"+algorithm.id+"'>"+algorithm.name +"</label>"
+  +algorithm.description+"' for='algorithm_checkbox_"+algorithm.name+"'>"+algorithm.name +"</label>"
   });
   container.append(html);
 
