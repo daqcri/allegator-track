@@ -233,7 +233,7 @@ function setup_west_pane()
       if(param.hidden != true){
         params += "<tr><td width='100%'><span class='param-name'>" + param.name
         + "</span><span class='info-icon ui-icon ui-icon-info' title='"
-        + param.desc + "'></span> </td><td><input class='spinner' min='"
+        + param.desc + "'></span> </td><td><input step='"+param.step+"' type= '"param.dataType"' class='spinner' min='"
         + param.min+"' max='"+param.max+"' value='"+param.value
         + "' algorithm_id='"+algorithm.name+"' order= '"+order+"' ></input></td></tr>" 
       }
@@ -247,10 +247,8 @@ function setup_west_pane()
   container.append(html)
 
   // create spinners
-  $(".spinner").spinner({
-      step: 0.1,
-      numberFormat: "n",
-    })
+  
+  $(".spinner").spinner()
   .on("spinchange", function(){
     var value = $(this).spinner('value')
     var algo_id = $(this).attr('algorithm_id')
@@ -258,9 +256,21 @@ function setup_west_pane()
     config_data[algo_id].splice(order_val,1,value)
   })
   .each(function(){
-      $(this).spinner('option', 'min', parseFloat($(this).attr("min")));
-      $(this).spinner('option', 'max', parseFloat($(this).attr("max")));
-    });
+    var step = $(this).attr('step')
+    var type = $(this).attr('dataType')
+
+    if(typeof step != 'undefined')
+    {
+      $(this).spinner('option', 'numberFormat', 'n')
+      $(this).spinner('option', 'step', parseFloat(step))
+    }
+    else if (type == 'double') {
+      $(this).spinner('option', 'numberFormat', 'n')
+      $(this).spinner('option', 'step', 0.1)
+    }
+    $(this).spinner('option', 'min', parseFloat($(this).attr("min")));
+    $(this).spinner('option', 'max', parseFloat($(this).attr("max")));
+  });
 
   // create Algorithm section in tab-1 under 3rd header
   var container = $("#algo_pane")
