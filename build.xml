@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project DAFNA-EA">
+    <property name="base" location="DAFNA-EA"/>
+    <property name="src" location="${base}/qcri.dafna"/>
+    <property name="bin" location="${base}/bin"/>
+    <property name="lib" location="${base}/lib"/>
+    <property name="dist"  location="${base}"/>
+    
+    <target name="init">
+        <!-- Create the bin directory structure used by compile -->
+        <mkdir dir="${bin}"/>
+    </target>
+
+    <target name="compile" depends="init"
+        description="compile the source " >
+        <!-- Compile the java code from ${src} into ${bin} -->
+        <javac srcdir="${src}" destdir="${bin}">
+          <classpath>
+            <fileset dir="${lib}">
+                <include name="commons-io-2.4.jar"/>
+                <include name="commons-math3-3.2.jar"/>
+                <include name="independance-vldb2010-solomon-cleaner.jar"/>
+                <include name="json-path-0.9.0.jar"/>
+                <include name="opencsv-2.3.jar"/>
+                <include name="pojava-2.9.0.jar"/>
+                <include name="simmetrics_jar_v1_6_2_d07_02_07.jar"/>
+            </fileset>
+          </classpath>
+        </javac>
+    </target>
+            
+    <target name="create_run_jar" depends="compile">
+        <jar destfile="${dist}/DAFNA-EA.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="qcri.dafna.main.UIMain"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ commons-io-2.4.jar commons-math3-3.2.jar independance-vldb2010-solomon-cleaner.jar json-path-0.9.0.jar opencsv-2.3.jar pojava-2.9.0.jar simmetrics_jar_v1_6_2_d07_02_07.jar"/>
+            </manifest>
+
+            <fileset dir="${bin}"/>
+
+            <zipfileset src="${lib}/jar-in-jar-loader.zip"/>
+            <zipfileset dir="${lib}" includes="commons-io-2.4.jar"/>
+            <zipfileset dir="${lib}" includes="commons-math3-3.2.jar"/>
+            <zipfileset dir="${lib}" includes="independance-vldb2010-solomon-cleaner.jar"/>
+            <zipfileset dir="${lib}" includes="json-path-0.9.0.jar"/>
+            <zipfileset dir="${lib}" includes="opencsv-2.3.jar"/>
+            <zipfileset dir="${lib}" includes="pojava-2.9.0.jar"/>
+            <zipfileset dir="${lib}" includes="simmetrics_jar_v1_6_2_d07_02_07.jar"/>
+        </jar>
+    </target>
+
+    <target name="clean"
+        description="clean up" >
+        <!-- Delete the ${bin} and ${dist} directory trees -->
+        <delete dir="${bin}"/>
+        <delete file="${dist}/DAFNA-EA.jar"/>
+    </target>
+
+</project>

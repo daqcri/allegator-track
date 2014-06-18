@@ -10,20 +10,20 @@ $(document).ready(function() {
   setup_datatables()
   refresh_datasets_tables()
 
-  $("#start_button").click(function(){
-    checked_algo = []
+  $("#start_button").button().click(function(){
+    checked_algo = {}
     var algorithm_id
     $('.algorithm_checkbox').each(function(index, check_box){
       algorithm_id = $(check_box).attr("algorithm_id")
       if($(check_box).is(':checked')){
-        checked_algo.push(algorithm_id)
+        checked_algo[algorithm_id] = config_data[algorithm_id]
       }
     });
     
      $.ajax({
       type: "POST",
       url : "/run",
-      data: {checked_algo:checked_algo, config_data:config_data},
+      data: {checked_algo: checked_algo, general_config: config_data["General Parameters"]},
       success: function(){
         console.log("Array submited")
       }

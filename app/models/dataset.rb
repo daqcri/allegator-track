@@ -3,6 +3,7 @@ require './app/uploaders/csv_uploader.rb'
 class Dataset < ActiveRecord::Base
   belongs_to :user
   has_many :dataset_rows, dependent: :destroy, autosave: true
+  has_and_belongs_to_many :runs
 
   mount_uploader :upload, CsvUploader
 
@@ -20,6 +21,16 @@ class Dataset < ActiveRecord::Base
 
   def row_count
     self.dataset_rows.count
+  end
+
+  def export(path)
+    require 'csv'
+    CSV.open(path, "wb") do |csv|
+      csv << DatasetRow.export_header
+      dataset_rows.each do |row|
+        csv << row.export
+      end
+    end
   end
 
   def as_json(options={})

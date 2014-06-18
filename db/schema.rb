@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140608095208) do
+ActiveRecord::Schema.define(version: 20140618065142) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,6 +38,36 @@ ActiveRecord::Schema.define(version: 20140608095208) do
   end
 
   add_index "datasets", ["user_id"], name: "index_datasets_on_user_id", using: :btree
+
+  create_table "datasets_runs", id: false, force: true do |t|
+    t.integer "dataset_id"
+    t.integer "run_id"
+  end
+
+  create_table "delayed_jobs", force: true do |t|
+    t.integer  "priority",   default: 0, null: false
+    t.integer  "attempts",   default: 0, null: false
+    t.text     "handler",                null: false
+    t.text     "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.string   "queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
+
+  create_table "runs", force: true do |t|
+    t.string   "algorithm"
+    t.string   "general_config"
+    t.string   "config"
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "users", force: true do |t|
     t.string   "email",                  default: "", null: false

@@ -8,12 +8,17 @@ class MainController < ApplicationController
   end
  
   def run
-  	logger.debug(params[:config_data]["1"])
-  	params[:checked_algo].each do |algo|
-  		logger.debug(params[:config_data][algo])
+  	params[:checked_algo].each do |algo_name, algo_params|
+  		logger.debug("algorithm: #{algo_name} with params: #{algo_params}")
+      run = Run.create algorithm: algo_name,
+        general_config: params[:general_config].join(" "),
+        config: algo_params.join(" "),
+        user: current_user
+      run.datasets = current_user.datasets
+
+      run.delay.start
   	end
 
-  	logger.debug("Hello this is Zahbia #{10*20}")	
   	render json: {status: 'OK'}
   end
 

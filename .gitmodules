@@ -1,0 +1,3 @@
+[submodule "DAFNA-EA"]
+	path = DAFNA-EA
+	url = https://github.com/Qatar-Computing-Research-Institute/DAFNA-EA
