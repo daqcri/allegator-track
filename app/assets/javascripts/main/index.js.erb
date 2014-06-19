@@ -248,7 +248,9 @@ function setup_west_pane()
 
   // create spinners
   
-  $(".spinner").spinner()
+  $(".spinner").spinner({
+    step: 0.000001
+  })
   .on("spinchange", function(){
     var value = $(this).spinner('value')
     var algo_id = $(this).attr('algorithm_id')
@@ -270,10 +272,14 @@ function setup_west_pane()
       $(this).spinner('option', 'numberFormat', 'n')
       $(this).spinner('option', 'step', 0.1)
     }
-    else 
+    else {
       console.log("integer data type")
+      $(this).spinner('option', 'step', 1)
+    }
     $(this).spinner('option', 'min', parseFloat($(this).attr("min")));
     $(this).spinner('option', 'max', parseFloat($(this).attr("max")));
+    // $(this).spinner('option', 'value', parseFloat($(this).attr("value")));
+
   });
 
   // create Algorithm section in tab-1 under 3rd header
