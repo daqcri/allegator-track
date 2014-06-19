@@ -1,6 +1,6 @@
 var algorithms = [
   {name: "General Parameters", description: "Parameters needed for all Truth Discovery Algorithms", params: [
-    {name: 'Convergence test threshold', step:0.001 value: 0.001, dataType: 'double', min: 0, max: 0.1, desc: 'The difference of source truthworthiness cosine similarity between two successive iterations should be less than the user-defined threshold.'},
+    {name: 'Convergence test threshold', step: 0.001, value: 0.001, dataType: 'double', min: 0, max: 0.1, desc: 'The difference of source truthworthiness cosine similarity between two successive iterations should be less than the user-defined threshold.'},
     {name: 'Initial sources truthworthiness', value: 0.8, dataType: 'double' , min: 0, max: 1.0, desc: 'Initialization of all sources truthworthiness.'},
     {name: 'Initial Value Confidence', hidden: true, value: 1, dataType: 'double', min: 0, max: 1.0, desc: "Initialization of value confidence for all properties values."},
     {name: 'Initial Error Factor', hidden: true, value: 0.4, dataType: 'double' , min: 0, max: 1.0, desc: "Initialization of error factor for all properties values."},

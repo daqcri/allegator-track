@@ -233,7 +233,7 @@ function setup_west_pane()
       if(param.hidden != true){
         params += "<tr><td width='100%'><span class='param-name'>" + param.name
         + "</span><span class='info-icon ui-icon ui-icon-info' title='"
-        + param.desc + "'></span> </td><td><input step='"+param.step+"' type= '"param.dataType"' class='spinner' min='"
+        + param.desc + "'></span> </td><td><input step='"+(param.step||'')+"' dataType= '"+param.dataType+"' class='spinner' min='"
         + param.min+"' max='"+param.max+"' value='"+param.value
         + "' algorithm_id='"+algorithm.name+"' order= '"+order+"' ></input></td></tr>" 
       }
@@ -257,17 +257,21 @@ function setup_west_pane()
   })
   .each(function(){
     var step = $(this).attr('step')
-    var type = $(this).attr('dataType')
+    var dataType = $(this).attr('dataType')
 
-    if(typeof step != 'undefined')
+    if (step != '')
     {
+      console.log("step defined: ", step, parseFloat(step), $(this).attr("algorithm_id"), $(this).attr('order'))
       $(this).spinner('option', 'numberFormat', 'n')
       $(this).spinner('option', 'step', parseFloat(step))
     }
-    else if (type == 'double') {
+    else if (dataType == 'double') {
+      console.log("default step of 0.1")
       $(this).spinner('option', 'numberFormat', 'n')
       $(this).spinner('option', 'step', 0.1)
     }
+    else 
+      console.log("integer data type")
     $(this).spinner('option', 'min', parseFloat($(this).attr("min")));
     $(this).spinner('option', 'max', parseFloat($(this).attr("max")));
   });
