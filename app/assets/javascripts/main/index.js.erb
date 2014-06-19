@@ -1,6 +1,6 @@
 var pageLayout
 var searchResultsLayout
-var datatable, source_table, object_table
+var datatable, source_table, object_table, runtable
 var config_data = {}
 var checked_algo = []
 
@@ -10,6 +10,17 @@ $(document).ready(function() {
   setup_datatables()
   refresh_datasets_tables()
 
+  runtable = $('#run_table').DataTable({
+    dom: 'tif',  
+    data: [{'Timestamp': '2014-19-6 14:00:00' , 'Algorithm name':'Cosine (0.9, 1, 0.1, 0.2)' , 'status icon':'icon', 'duration':'4 minutes'}],
+       "columns": [
+       {data: 'Timestamp'},
+       {data: 'Algorithm name'},
+       {data: 'status icon'},
+       {data: 'duration'}
+       ]
+  });
+
   $("#start_button").button().click(function(){
     checked_algo = {}
     var algorithm_id
@@ -18,18 +29,19 @@ $(document).ready(function() {
       if($(check_box).is(':checked')){
         checked_algo[algorithm_id] = config_data[algorithm_id]
       }
-    });
-    
+    });    
      $.ajax({
       type: "POST",
       url : "/run",
       data: {checked_algo: checked_algo, general_config: config_data["General Parameters"]},
       success: function(){
         console.log("Array submited")
+        runtable.draw()
       }
-
      });
+     
   });
+
 });
 
  function check_algorithm_checkbox()
@@ -53,7 +65,6 @@ $(document).ready(function() {
   if (found_check){
     // enable configuration tab
     $('#tabs').tabs("enable",1)
-
     if($("table#dataset_table tbody tr").length > 0)
       $('#tabs').tabs("enable",2)
     else
@@ -138,7 +149,7 @@ function setup_datatables() {
       "sRowSelect": "os",
       "fnRowSelected": function ( nodes ) {
         var data = datatable.row(nodes[0]).data()
-        $("#details").html("You have selected claim with id: " + data.claim_id+"")
+        $("#details").html("You have selected claim with id: " + data.claim_id)
       },
       "fnRowDeselected": function ( nodes ) {
         $("#details").html("")
