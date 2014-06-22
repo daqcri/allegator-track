@@ -14,11 +14,11 @@ class DatasetRow < ActiveRecord::Base
   end
 
   def self.export_header
-    %w(ClaimID Remove ObjectID PropertyID PropertyValue SourceID TimeStamp)
+    %w(ClaimID ObjectID PropertyID PropertyValue SourceID TimeStamp)
   end
 
   def export
-    [claim_id, "", object_key, property_key, property_value, source_id, timestamp||"null"]
+    [claim_id, object_key, property_key, property_value, source_id, timestamp||"null"]
   end
 
   def as_json(options={})
