@@ -17,8 +17,11 @@
   float: left;
 }
 
-.spinner {
+span.spinner {
   width: 40px;
+  background-image: url(<%= image_path 'indicator.gif' %>);
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
 .ui-tabs .ui-tabs-nav li {
@@ -74,8 +77,12 @@
 .dataTables_filter {
   margin-top: 10px;
 } 
+
 #start_button{
-  width: 100px;
+  width: 100%;
+  margin: 10px 0 20px 0;
+  padding: 20px 0 20px 0;
+  font-size: 32px;
 }
 
 .ui-accordion .ui-accordion-content{
@@ -84,4 +91,8 @@
 
 .ui-tabs .ui-tabs-panel{
   padding: 0.5em 0.5em;
+}
+
+.action-cancel, .action-delete {
+  cursor: pointer;
 }

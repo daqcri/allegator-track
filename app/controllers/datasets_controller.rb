@@ -24,7 +24,7 @@ class DatasetsController < ApplicationController
   end
 
   def index
-    datasets = current_user.datasets.where(kind: params[:kind]).order(:created_at)
+    datasets = current_user.datasets.where(kind: params[:kind]).order(created_at: :desc)
     start = params[:start].to_i
     length = params[:length].to_i
     length = total if length == -1

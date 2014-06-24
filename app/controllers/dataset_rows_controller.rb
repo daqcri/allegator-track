@@ -33,10 +33,7 @@ class DatasetRowsController < ApplicationController
     query = query.distinct
     filtered = query.count(params[:extra_only].blank? ? "claim_id" : params[:extra_only])
 
-    start = params[:start].to_i
-    length = params[:length].to_i
-    length = total if length == -1
-    query = query.offset(start).limit(length)
+    query = limit_query(query)
 
     query = query.pluck(params[:extra_only]).map{|f| [f]} unless params[:extra_only].blank?
 

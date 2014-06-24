@@ -37,3 +37,9 @@ Rails.application.configure do
 
   config.action_mailer.default_url_options = { host: 'localhost', port: '4000' }
 end
+
+require 'pusher'
+
+Pusher.app_id = '79143'
+Pusher.key = 'a4d26cf5ed2c3d1833fe'
+Pusher.secret = '849b5870eb050380d99f'
