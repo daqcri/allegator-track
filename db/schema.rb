@@ -11,10 +11,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140623152409) do
+ActiveRecord::Schema.define(version: 20140624120751) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "claim_results", force: true do |t|
+    t.integer "run_id"
+    t.string  "claim_id"
+    t.float   "confidence"
+    t.boolean "is_true"
+  end
+
+  add_index "claim_results", ["run_id"], name: "index_claim_results_on_run_id", using: :btree
 
   create_table "dataset_rows", force: true do |t|
     t.integer "dataset_id"
@@ -70,6 +79,14 @@ ActiveRecord::Schema.define(version: 20140623152409) do
     t.datetime "started_at"
     t.datetime "finished_at"
   end
+
+  create_table "source_results", force: true do |t|
+    t.integer "run_id"
+    t.string  "source_id"
+    t.float   "trustworthiness"
+  end
+
+  add_index "source_results", ["run_id"], name: "index_source_results_on_run_id", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "email",                  default: "", null: false

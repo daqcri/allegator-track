@@ -1,6 +1,7 @@
 class RunsController < ApplicationController
 
   before_filter :authenticate_user!
+  load_and_authorize_resource :except => [:create, :index]
 
   def create
     params[:checked_algo].each do |algo_name, algo_params|
@@ -16,7 +17,7 @@ class RunsController < ApplicationController
 
     render json: {status: 'OK'}
   end
-  
+
   def index
     query = current_user.runs.order(created_at: :desc)
 
@@ -31,5 +32,7 @@ class RunsController < ApplicationController
   end
 
   def destroy
+    @run.destroy
+    render json: {status: 'OK'}
   end
 end

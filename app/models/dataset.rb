@@ -13,7 +13,8 @@ class Dataset < ActiveRecord::Base
 
   def parse_upload
     require 'csv'
-    CSV.parse(self.upload.read, {:headers => true, :return_headers => false, :header_converters => :symbol, :converters => :all}) do |row|
+    csv_opts = {:headers => true, :return_headers => false, :header_converters => :symbol, :converters => :all}
+    CSV.parse(self.upload.read, csv_opts) do |row|
       DatasetRow.initialize_from_row(row, self)
     end
     self.save!
@@ -39,6 +40,14 @@ class Dataset < ActiveRecord::Base
       :methods => [:row_count]
     }.merge(options)
     super(options)
+  end
+
+  def destroy
+    # overriding destroy to be more efficient by issuing only 3 SQL deletes
+    # rather than 1 + dataset_rows.count !
+    conn = ActiveRecord::Base.connection
+    conn.execute("DELETE FROM dataset_rows WHERE dataset_id = #{self.id}")    
+    super # continue from super to call all after_destroy callbacks
   end
 
 end

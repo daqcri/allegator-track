@@ -1,6 +1,8 @@
 class Run < ActiveRecord::Base
   has_and_belongs_to_many :datasets
   belongs_to :user
+  has_many :source_results, dependent: :destroy, autosave: true
+  has_many :claim_results, dependent: :destroy, autosave: true
 
   @@JAR_PATH = Rails.root.join("DAFNA-EA/DAFNA-EA.jar")
 
@@ -14,11 +16,32 @@ class Run < ActiveRecord::Base
     system("java -jar #{@@JAR_PATH} #{self.algorithm} #{datasets_claims_dir} #{datasets_grounds_dir} #{output_dir} #{self.general_config} #{self.config}")
 
     # import results
-    puts "Check these dirs: #{datasets_claims_dir}, #{datasets_grounds_dir}, #{output_dir}"
+    import_results output_dir
+    logger.info "Run #{self.id} finished, check these dirs: #{datasets_claims_dir}, #{datasets_grounds_dir}, #{output_dir}"
 
-    # File.read(output_dir + "/XXXX")
     # clean: not necessary on heroku
     # FileUtils.rm_rf(datasets_claims_dir, datasets_grounds_dir, output_dir)
+  end
+
+  def import_results(output_dir)    
+    require 'csv'
+    csv_opts = {:headers => true, :return_headers => false, :header_converters => :symbol, :converters => :all}
+
+    # parse source results
+    CSV.parse(File.read(Pathname(output_dir).join("Trustworthiness.csv")), csv_opts) do |row|
+      SourceResult.initialize_from_row(row, self)
+    end
+    # commit to database
+    self.updated_at = Time.now
+    self.save!
+
+    # parse claim results
+    CSV.parse(File.read(Pathname(output_dir).join("Confidences.csv")), csv_opts) do |row|
+      ClaimResult.initialize_from_row(row, self)
+    end
+    # commit to database
+    self.updated_at = Time.now
+    self.save!
   end
 
   def display
@@ -55,6 +78,15 @@ class Run < ActiveRecord::Base
       :methods => [:display, :status, :duration]
     }.merge(options)
     super(options)
+  end
+
+  def destroy
+    # overriding destroy to be more efficient by issuing only 3 SQL deletes
+    # rather than 1 + source_results.count + claim_results.count !
+    conn = ActiveRecord::Base.connection
+    conn.execute("DELETE FROM source_results WHERE run_id = #{self.id}")    
+    conn.execute("DELETE FROM claim_results WHERE run_id = #{self.id}")    
+    super # continue from super to call all after_destroy callbacks
   end
 
 end
