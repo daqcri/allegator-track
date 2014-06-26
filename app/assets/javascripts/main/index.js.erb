@@ -78,7 +78,8 @@ function setup_runtable()
       var url = "/runs";
       $.getJSON(url, data, function(response){
         callback(response)
-        $(".action-cancel", obj).unbind().click(function(){
+        $(".action-cancel", obj).unbind().click(function(event){
+          event.stopPropagation(); // stop the click from propagating to the tr to select/deselcet
           // if(confirm("Sorry, not implemented yet, just keep calm and stay tuned!")) {
           if(alert("Sorry, not implemented yet, just keep calm and stay tuned!")) {
             console.log("Cancelling...")
@@ -91,9 +92,12 @@ function setup_runtable()
             // });
           }
         });
-        $(".action-delete", obj).unbind().click(function(){
+        $(".action-delete", obj).unbind().click(function(event){
+          event.stopPropagation(); // stop the click from propagating to the tr to select/deselcet
           if(confirm("Are you sure you want to delete this run?")) {
-            console.log("Deleting...")
+            var tr = $(this).parent().parent()
+            console.log("deselecting", tr)
+            runtable_tools.fnDeselect(tr[0])
             $.ajax({
               url: '/runs/'+$(this).attr("run_id"),
               type: "DELETE",
