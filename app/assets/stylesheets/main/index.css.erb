@@ -61,10 +61,11 @@ span.spinner {
   cursor: pointer;
 }
 
-.dataTable td {
+.dataTable td, .dataTable th {
   max-width: 10px; /* the number per se is not used but it is there to get the overflow properties work! */
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #source_id_datatable_filter input, #object_key_datatable_filter input {

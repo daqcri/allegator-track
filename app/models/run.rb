@@ -45,7 +45,7 @@ class Run < ActiveRecord::Base
   end
 
   def display
-    "#{algorithm} (#{general_config.gsub(' ', ',')}; #{config.gsub(' ', ',')})"
+    "[#{id}] #{algorithm} (#{general_config.gsub(' ', ',')}; #{config.gsub(' ', ',')})"
   end
   alias_method :to_s, :display
 
@@ -74,7 +74,7 @@ class Run < ActiveRecord::Base
 
   def as_json(options={})
     options = {
-      :only => [:id, :created_at],
+      :only => [:id, :algorithm, :created_at],
       :methods => [:display, :status, :duration]
     }.merge(options)
     super(options)

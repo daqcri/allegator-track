@@ -4,6 +4,7 @@ var datatable, source_table, object_table, runtable, claims_dt, ground_dt;
 var runtable_tools
 var config_data = {}
 var checked_algo = []
+var selected_runs = []
 
 $(document).ready(function() {
   setup_layout()
@@ -158,13 +159,18 @@ function setup_runtable()
     tableTools: {
       "sRowSelect": "multi",  // "os" doesn't allow fnPreRowSelect to work!
       "fnRowSelected": function ( nodes ) {
-        // TODO apply results for selected nodes
-        // var data = runtable_tools.fnGetSelectedData()
-        console.log("Applying results", nodes)
+        var run = runtable.row(nodes[0]).data()
+        selected_runs.push(run);
+        destroy_datatables()
+        setup_datatables()
       },
       "fnRowDeselected": function ( nodes ) {
-        // TODO or just remove results for deselected algorithms
-        console.log("Removing results", nodes)
+        var run = runtable.row(nodes[0]).data()
+        var found_at = -1;
+        $.each(selected_runs, function(i, srun){if(srun.id == run.id) found_at = i})
+        selected_runs.splice(found_at, 1);
+        destroy_datatables()
+        setup_datatables()
       },
       "fnPreRowSelect": function ( ev, nodes ) {
         var status = runtable.row(nodes[0]).data().status;
@@ -271,14 +277,31 @@ function refresh_datatables()
   object_table.draw()
 }
 
+function destroy_datatables()
+{
+  source_table.destroy();
+  object_table.destroy();
+  datatable.destroy();
+}
+
 function setup_datatables() {
   datatable_excess = 100
   var height = searchResultsLayout.state.center.innerHeight - datatable_excess
 
-  source_table = setup_single_datatable("source_id", height)
-  object_table = setup_single_datatable("object_key", height)
-   
-  datatable = $('#datatable').DataTable({
+  source_table = setup_single_datatable("source_id", selected_runs, height)
+  object_table = setup_single_datatable("object_key", [], height)
+
+  var obj = $('#datatable')
+
+  obj.empty().append($("<thead><tr></tr></thead>"))
+  var thead = $("thead tr", obj)
+  var cols = []
+  $.each(["claim_id", "object_key", "property_key", "property_value", "source_id", "timestamp"], function(id, field_name){
+    thead.append("<th>"+field_name+"</th>")
+    cols.push({data: field_name})
+  })
+
+  datatable = obj.DataTable({
     "serverSide": true,
     "scrollY": height,
     "dom": '<"toolbar"T>tSif',
@@ -290,14 +313,7 @@ function setup_datatables() {
         callback(response)
       })
     },
-    "columns": [
-      {data: 'claim_id'},
-      {data: 'object_key'},
-      {data: 'property_key'},
-      {data: 'property_value'},
-      {data: 'source_id'},
-      {data: 'timestamp'}
-    ],
+    "columns": cols,
     "destroy": true,  // destroy first if reinitializing
     "scroller": {
       loadingIndicator: false
@@ -316,20 +332,33 @@ function setup_datatables() {
   });
 }
 
-function setup_single_datatable(field_name, height)
+function setup_single_datatable(field_name, runs, height)
 {
+  console.log("in setup_single_datatable", field_name, runs)
   var obj = $("#"+field_name+"_datatable")
+
+  obj.empty().append($("<thead><tr></tr></thead>"))
+  var thead = $("thead tr", obj)
+  thead.append("<th>"+field_name+"</th>")
+  var cols = [{data: field_name}]
+  $.each(runs, function(i, run){
+    thead.append("<th>["+run.id + "] " + run.algorithm+"</th>")
+    cols.push({data: 'r'+run.id})
+  })
+
   var dt = obj.DataTable({
     "serverSide": true,
     "scrollY": height,
     "ajax": function (data, callback, settings) {
       var url = "/dataset_rows"
       data.extra_only = field_name
+      data.extra_run_ids = $.map(runs, function(run){return run.id})
       if (typeof datatable != 'undefined') datatable.draw()
       $.getJSON(url, data, function(response){
         callback(response)
       })
     },
+    "columns": cols,
     dom: 'T<"clear">tSif',
     "language": {
       "info": "_START_-_END_/_TOTAL_",
