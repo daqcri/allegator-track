@@ -8,7 +8,4 @@
   <packaging>pom</packaging>
   <name>dafna-viz Maven Project</name>
 
-  <modules>
-    <module>DAFNA-EA</module>
-  </modules>
 </project>

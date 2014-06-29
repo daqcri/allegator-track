@@ -4,7 +4,7 @@ class Run < ActiveRecord::Base
   has_many :source_results, dependent: :destroy, autosave: true
   has_many :claim_results, dependent: :destroy, autosave: true
 
-  @@JAR_PATH = Rails.root.join("DAFNA-EA/target/DAFNA-EA-1.0-jar-with-dependencies.jar")
+  @@JAR_PATH = Rails.root.join("vendor/DAFNA-EA-1.0-jar-with-dependencies.jar")
 
   def start
     # export datasets to csv files
