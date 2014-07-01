@@ -11,9 +11,10 @@
     <!-- DIV for tabs -->
   <div id="tabs">
     <ul>
-      <li> <a href="#tab-1">Input</a> </li>
-      <li>  <a href="#tab-2">Configuration</a>  </li>
-      <li>  <a href="#tab-3">Run </a> </li>
+      <li> <a href="#tab-1">Upload</a> </li>
+      <li>  <a href="#tab-2">Configure and Run</a>  </li>
+      <li>  <a href="#tab-3">Visualize </a> </li>
+      <li> <a href="#tab-4"> Allegate </a> </li>
     </ul>
            <!-- This is tab 1 -->
     <div id="tab-1"> 
@@ -43,7 +44,7 @@
             <tbody id= 'datasets_claims_tbody'>   </tbody>
           </table>
         </div>
-        <h3 id="upload_ground_header">Upload Ground Truth Datasets</h3>
+        <h3 id="upload_ground_header">Upload Ground Truth Datasets (optional)</h3>
         <div>
           <span class="btn btn-success fileinput-button">
             <span>Select files...</span>
@@ -66,30 +67,22 @@
             <tbody id="datasets_ground_tbody"></tbody>
           </table>
         </div>
-        <h3>Truth Discovery Algorithms</h3>
+        <h3>Select one (or more) algorithm(s):</h3>
         <div id="algo_pane">
-          <p>Select one or more algorithms:</p>
+          <p></p>
         </div>
       </div>
     </div>
 
     <!-- This is tab 2 -->
-    <div id="tab-2"> <div id ="tab_pane" class="accordion"> </div> </div>
+    <div id="tab-2"> <div id ="tab_pane" class="accordion"> </div> 
+      <button id="start_button">START!</button>
+    </div>
     <!-- This is tab 3 -->
     <div id="tab-3"> 
       <div>
-        <button id="start_button">START!</button>
-        <table id = "run_table" class="display" cellspacing="0" width="100%">
-          <thead>
-            <tr>
-              <th>Started at</th>
-              <th>Algorithm</th>
-              <th>Status</th>
-              <th>Duration</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-        </table>
+        
+        
       </div>
     </div>  
   </div>
@@ -110,8 +103,17 @@
     </div>  
   
   <div class= "ui-layout-south">
-    <p id="details">
-    </p>
+    <table id = "run_table" class="display" cellspacing="0" width="100%">
+          <thead>
+            <tr>
+              <th> Run ID </th>
+              <th>Started at</th>
+              <th>Algorithm</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+        </table>
   </div>
 </div>
 

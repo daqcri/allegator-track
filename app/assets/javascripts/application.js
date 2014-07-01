@@ -24,3 +24,4 @@
 //= require jstree.min
 //= require moment.min
 //= require pusher.min
+//= require dataTables.colVis.min

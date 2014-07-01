@@ -17,5 +17,7 @@
  *= require dataTables.scroller.min
  *= require jquery.fileupload
  *= require jstree-themes/default/style.min
+ *= require dataTables.colvis.jqueryui
+ *= require dataTables.colVis.min
  *= require_self
  */
