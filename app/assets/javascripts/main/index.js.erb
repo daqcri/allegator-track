@@ -303,8 +303,12 @@ function setup_datatables() {
   var datatable_excess = 122
   var height = searchResultsLayout.state.center.innerHeight - datatable_excess
 
-  source_table = setup_single_datatable("source_id", selected_runs, height)
-  object_table = setup_single_datatable("object_key", [], height)
+  source_table = setup_single_datatable("source_id", selected_runs, height,
+    typeof source_table != 'undefined' ? source_table.search() : '')
+  object_table = setup_single_datatable("object_key", [], height,
+    typeof object_table != 'undefined' ? object_table.search() : '')
+
+  var filter = typeof datatable != 'undefined' ? datatable.search() : ''
 
   var obj = $('#datatable')
 
@@ -348,9 +352,12 @@ function setup_datatables() {
       "aButtons": []
     }
   });
+
+  $("#datatable_filter input").val(filter)
+  if (filter) datatable.search(filter).draw()
 }
 
-function setup_single_datatable(field_name, runs, height)
+function setup_single_datatable(field_name, runs, height, filter)
 {
   console.log("in setup_single_datatable", field_name, runs)
   var obj = $("#"+field_name+"_datatable")
@@ -394,7 +401,12 @@ function setup_single_datatable(field_name, runs, height)
      aButtons: []
     }
   });
-  $("#"+field_name+"_datatable_filter input").attr("placeholder", "Search")
+  $("#"+field_name+"_datatable_filter input")
+    .attr("placeholder", "Search")
+    .val(filter)
+
+  if (filter) dt.search(filter).draw();
+
   return dt;
 }
 

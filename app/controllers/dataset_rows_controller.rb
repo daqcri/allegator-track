@@ -41,11 +41,11 @@ class DatasetRowsController < ApplicationController
         # filtering
         if params[:search][:value].present?
           criteria = params[:search][:value]
-          fields = params[:extra_only].blank? ? %w(claim_id object_id source_id property_key propery_value timestamp) : [params[:extra_only]]
+          fields = params[:extra_only].blank? ? %w(claim_id object_key source_id property_key property_value timestamp) : [params[:extra_only]]
           where += " AND (" + fields.map{|f| "LOWER(r#{r1}.#{f}) like LOWER('%#{criteria}%')"}.join(" OR ") + ")"
         end
-        criteria = params[:extra_object_id_criteria]
-        where += " AND (LOWER(object_id) like LOWER('%#{criteria}%'))" unless criteria.blank?
+        criteria = params[:extra_object_key_criteria]
+        where += " AND (LOWER(object_key) like LOWER('%#{criteria}%'))" unless criteria.blank?
         criteria = params[:extra_source_id_criteria]
         where += " AND (LOWER(source_id) like LOWER('%#{criteria}%'))" unless criteria.blank?
 
@@ -90,11 +90,11 @@ class DatasetRowsController < ApplicationController
     # FILTERING
     if params[:search][:value].present?
       criteria = params[:search][:value]
-      fields = params[:extra_only].blank? ? %w(claim_id object_id source_id property_key propery_value timestamp) : [params[:extra_only]]
+      fields = params[:extra_only].blank? ? %w(claim_id object_key source_id property_key property_value timestamp) : [params[:extra_only]]
       query = query.where fields.map{|f| "LOWER(#{f}) like LOWER('%#{criteria}%')"}.join(" OR ")
     end
-    criteria = params[:extra_object_id_criteria]
-    query = query.where "LOWER(object_id) like LOWER('%#{criteria}%')" unless criteria.blank?
+    criteria = params[:extra_object_key_criteria]
+    query = query.where "LOWER(object_key) like LOWER('%#{criteria}%')" unless criteria.blank?
     criteria = params[:extra_source_id_criteria]
     query = query.where "LOWER(source_id) like LOWER('%#{criteria}%')" unless criteria.blank?
 
