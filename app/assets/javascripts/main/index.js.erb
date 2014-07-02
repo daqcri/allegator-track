@@ -317,6 +317,7 @@ function setup_datatables() {
   var filter = typeof datatable != 'undefined' ? datatable.search() : ''
 
   var obj = $('#datatable')
+  obj.removeData("last_filter")
 
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
@@ -377,6 +378,7 @@ function setup_datatables() {
 function setup_single_datatable(field_name, runs, height, filter, search_callback)
 {
   var obj = $("#"+field_name+"_datatable")
+  obj.removeData("last_filter")
 
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
