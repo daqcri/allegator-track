@@ -577,5 +577,24 @@ function setup_west_pane()
     jqXHR.abort();
   });
   
+  dialog_box('#claim_icon','#claim_dialog')
+  dialog_box('#ground_icon','#ground_dialog')
 }
 
+function dialog_box(dataset_icon, dialog_id){
+  $(dialog_id).dialog({
+    autoOpen: false,
+    show:{
+      effect:"blind",
+    },
+    hide:{
+      effect: "explore",
+      duration:1000
+    }
+  });
+
+  $(dataset_icon).click(function(){
+    $(dialog_id).dialog('open')
+
+  });
+}
