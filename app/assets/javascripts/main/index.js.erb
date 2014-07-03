@@ -307,7 +307,8 @@ function setup_datatables() {
     "serverSide": true,
     "scrollY": height,
     jQueryUI: true,
-    "dom": 'C<"toolbar"T>tSif',
+    "stateSave": true,
+    "dom": 'C<"toolbar"T>JtSif',
     "colVis": {
       "exclude": []
     },
@@ -356,6 +357,7 @@ function setup_single_datatable(field_name, runs, height)
     "serverSide": true,
     "scrollY": height,
     jQueryUI: true,
+    "stateSave": true,
     "ajax": function (data, callback, settings) {
       var url = "/dataset_rows"
       data.extra_only = field_name
@@ -366,7 +368,7 @@ function setup_single_datatable(field_name, runs, height)
       })
     },
     "columns": cols,
-    dom: 'T<"clear">tSif',
+    dom: 'T<"clear">JtSif',
     "language": {
       "info": "_START_-_END_/_TOTAL_",
       "infoFiltered": " (_MAX_ total)",
@@ -422,8 +424,8 @@ function setup_layout()
     spacing_closed:     0, // hide resizer/slider bar when closed
     autoReopen:       true,  // auto-open panes that were previously auto-closed due to 'no room'
     center__onresize: function() {
-      setup_datatables()
       setup_runtable()
+      setup_datatables()
       setup_claims_dataset_table()
       setup_ground_dataset_table()
     }
