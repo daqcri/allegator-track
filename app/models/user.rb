@@ -6,7 +6,8 @@ class User < ActiveRecord::Base
 
   has_many :datasets
   has_many :dataset_rows, through: :datasets
-  has_many :runs
+  has_many :runsets
+  has_many :runs, through: :runsets
   
   def to_s
     email

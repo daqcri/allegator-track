@@ -1,22 +1,7 @@
 class RunsController < ApplicationController
 
   before_filter :authenticate_user!
-  load_and_authorize_resource :except => [:create, :index]
-
-  def create
-    params[:checked_algo].each do |algo_name, algo_params|
-      logger.debug("algorithm: #{algo_name} with params: #{algo_params}")
-      run = Run.create algorithm: algo_name,
-        general_config: params[:general_config].join(" "),
-        config: algo_params.join(" "),
-        user: current_user
-      run.datasets = current_user.datasets
-
-      run.delay.start
-    end
-
-    render json: {status: 'OK'}
-  end
+  load_and_authorize_resource :except => [:index]
 
   def index
     query = current_user.runs.order(created_at: :desc)

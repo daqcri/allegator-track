@@ -1,8 +1,8 @@
 class Run < ActiveRecord::Base
-  has_and_belongs_to_many :datasets
-  belongs_to :user
+  belongs_to :runset
   has_many :source_results, dependent: :destroy, autosave: true
   has_many :claim_results, dependent: :destroy, autosave: true
+  has_many :datasets, :through => :runset
 
   @@JAR_PATH = Rails.root.join("vendor/DAFNA-EA-1.0-jar-with-dependencies.jar")
 
@@ -52,13 +52,13 @@ class Run < ActiveRecord::Base
   def before
     self.started_at = Time.now
     self.save
-    Pusher.trigger_async("user_#{user.id}", 'run_change', self)
+    Pusher.trigger_async("user_#{runset.user.id}", 'run_change', self)
   end
   
   def after
     self.finished_at = Time.now
     self.save
-    Pusher.trigger_async("user_#{user.id}", 'run_change', self)
+    Pusher.trigger_async("user_#{runset.user.id}", 'run_change', self)
   end
 
   def status
@@ -74,7 +74,7 @@ class Run < ActiveRecord::Base
 
   def as_json(options={})
     options = {
-      :only => [:id, :algorithm, :created_at],
+      :only => [:id, :algorithm, :created_at, :runset_id],
       :methods => [:display, :status, :duration]
     }.merge(options)
     super(options)

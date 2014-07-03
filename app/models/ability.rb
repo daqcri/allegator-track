@@ -7,7 +7,8 @@ class Ability
 
     can :manage, Dataset, :user_id => user.id    
     can :manage, DatasetRow, {:dataset => {:user_id => user.id}}
-    can :manage, Run, :user_id => user.id    
+    can :manage, Runset, :user_id => user.id    
+    can :manage, Run, {:runset => {:user_id => user.id}}
 
     # Define abilities for the passed in user here. For example:
     #

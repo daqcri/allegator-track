@@ -3,7 +3,7 @@ require './app/uploaders/csv_uploader.rb'
 class Dataset < ActiveRecord::Base
   belongs_to :user
   has_many :dataset_rows, dependent: :destroy, autosave: true
-  has_and_belongs_to_many :runs
+  has_and_belongs_to_many :runsets
 
   mount_uploader :upload, CsvUploader
 

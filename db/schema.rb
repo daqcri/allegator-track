@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140624120751) do
+ActiveRecord::Schema.define(version: 20140703080114) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -53,6 +53,14 @@ ActiveRecord::Schema.define(version: 20140624120751) do
     t.integer "run_id"
   end
 
+  create_table "datasets_runsets", id: false, force: true do |t|
+    t.integer "dataset_id"
+    t.integer "runset_id"
+  end
+
+  add_index "datasets_runsets", ["dataset_id"], name: "index_datasets_runsets_on_dataset_id", using: :btree
+  add_index "datasets_runsets", ["runset_id"], name: "index_datasets_runsets_on_runset_id", using: :btree
+
   create_table "delayed_jobs", force: true do |t|
     t.integer  "priority",   default: 0, null: false
     t.integer  "attempts",   default: 0, null: false
@@ -73,12 +81,22 @@ ActiveRecord::Schema.define(version: 20140624120751) do
     t.string   "algorithm"
     t.string   "general_config"
     t.string   "config"
-    t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "started_at"
     t.datetime "finished_at"
+    t.integer  "runset_id"
   end
+
+  add_index "runs", ["runset_id"], name: "index_runs_on_runset_id", using: :btree
+
+  create_table "runsets", force: true do |t|
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "runsets", ["user_id"], name: "index_runsets_on_user_id", using: :btree
 
   create_table "source_results", force: true do |t|
     t.integer "run_id"

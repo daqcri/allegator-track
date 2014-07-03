@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   resources :datasets
   resources :dataset_rows
   resources :runs
+  resources :runsets
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
