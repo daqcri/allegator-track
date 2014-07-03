@@ -75,7 +75,7 @@ function setup_runtable()
   var obj = $('#run_table')
   selected_runs = []
   runtable = obj.DataTable({
-    dom: 'tST',
+    dom: 'tJST',
     serverSide : true,
     jQueryUI: true,
     destroy: true,
@@ -184,7 +184,7 @@ function setup_runtable()
       },
       "aButtons": []
     }
-  }).colResize();
+  });
   runtable_tools = TableTools.fnGetInstance('run_table');
 }
 
@@ -260,7 +260,7 @@ function setup_ground_dataset_table()
         $('[type="checkbox"]:not(:checked) + label').css({'background':'none','color':'black'})
         $(".algorithm_"+algorithm_id).hide()
       }
-  }).colResize();
+  });
 
   if (found_check){
     // enable configuration tab
@@ -290,21 +290,10 @@ function setup_datatables() {
   var datatable_excess = 122
   var height = searchResultsLayout.state.center.innerHeight - datatable_excess
 
-  source_table = setup_single_datatable("source_id", selected_runs, height,
-    typeof source_table != 'undefined' ? source_table.search() : '', function(){
-      object_table.draw()
-      datatable.draw()
-    })
-  object_table = setup_single_datatable("object_key", [], height,
-    typeof object_table != 'undefined' ? object_table.search() : '', function(){
-      source_table.draw()
-      datatable.draw()
-    })
-
-  var filter = typeof datatable != 'undefined' ? datatable.search() : ''
+  source_table = setup_single_datatable("source_id", selected_runs, height)
+  object_table = setup_single_datatable("object_key", [], height)
 
   var obj = $('#datatable')
-  obj.removeData("last_filter")
 
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
@@ -316,11 +305,11 @@ function setup_datatables() {
 
   datatable = obj.DataTable({
     "serverSide": true,
-    "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
     "scrollY": height,
+    jQueryUI: true,
     "dom": 'C<"toolbar"T>tSif',
     "colVis": {
-      "exclude": []
+      "exclude": [0]
     },
     "ajax": function (data, callback, settings) {
       var url = "/dataset_rows"
@@ -329,12 +318,6 @@ function setup_datatables() {
       $.getJSON(url, data, function(response){
         callback(response)
       })
-      // manually handle search filter change to update other tables
-      if (obj.data("last_filter") != datatable.search()) {
-        obj.data("last_filter", datatable.search())
-        source_table.draw()
-        object_table.draw()
-      }
     },
     "columns": cols,
     "destroy": true,  // destroy first if reinitializing
@@ -353,19 +336,12 @@ function setup_datatables() {
       "aButtons": []
     }
   });
-
-  $("#datatable_filter input").val(filter)
-
-  if (filter) datatable.search(filter).draw()
-
-  source_table.draw()
-  object_table.draw()
 }
 
-function setup_single_datatable(field_name, runs, height, filter, search_callback)
+function setup_single_datatable(field_name, runs, height)
 {
+  console.log("in setup_single_datatable", field_name, runs)
   var obj = $("#"+field_name+"_datatable")
-  obj.removeData("last_filter")
 
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
@@ -378,23 +354,16 @@ function setup_single_datatable(field_name, runs, height, filter, search_callbac
 
   var dt = obj.DataTable({
     "serverSide": true,
-    "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
     "scrollY": height,
+    jQueryUI: true,
     "ajax": function (data, callback, settings) {
       var url = "/dataset_rows"
       data.extra_only = field_name
       data.extra_run_ids = $.map(runs, function(run){return run.id})
-      data.extra_source_id_criteria = source_table.search()
-      data.extra_object_key_criteria = object_table.search()
-      data.extra_criteria = datatable.search()
+      if (typeof datatable != 'undefined') datatable.draw()
       $.getJSON(url, data, function(response){
         callback(response)
       })
-      // manually handle search filter change to update other tables
-      if (obj.data("last_filter") != dt.search()) {
-        obj.data("last_filter", dt.search())
-        search_callback()
-      }
     },
     "columns": cols,
     dom: 'T<"clear">tSif',
@@ -414,12 +383,7 @@ function setup_single_datatable(field_name, runs, height, filter, search_callbac
      aButtons: []
     }
   });
-  $("#"+field_name+"_datatable_filter input")
-    .attr("placeholder", "Search")
-    .val(filter)
-
-  if (filter) dt.search(filter)
-
+  $("#"+field_name+"_datatable_filter input").attr("placeholder", "Search")
   return dt;
 }
 
@@ -427,7 +391,7 @@ function setup_layout()
 {
   pageLayout = $('body').layout({
     applyDefaultStyles: true,
-    west__size: "35%",
+    west__size: "30%",
     west__minSize: "10%",
     west__maxSize: "50%",
     west__onresize: function() {
