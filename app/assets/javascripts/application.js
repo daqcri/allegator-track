@@ -18,6 +18,7 @@
 //= require jquery.dataTables
 //= require dataTables.tableTools.min
 //= require dataTables.scroller.min
+//= require dataTables.colResize
 //= require jquery.fileupload
 //= require jquery.iframe-transport
 //= require jquery.mousewheel
@@ -25,3 +26,4 @@
 //= require moment.min
 //= require pusher.min
 //= require dataTables.colVis.min
+

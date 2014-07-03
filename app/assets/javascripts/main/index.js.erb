@@ -80,6 +80,7 @@ function setup_runtable()
     jQueryUI: true,
     destroy: true,
     ordering: false,
+    deferRender:true,
     "scrollY": height,
     "ajax": function (data, callback, settings) {
       var url = "/runs";
@@ -139,16 +140,6 @@ function setup_runtable()
           return '<span class="'+class_attrib+'" title="'+status+'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
         }
       },
-      // {
-      //   'data': 'duration',
-      //   'render': function (duration, type, full, meta){
-      //     switch(full.status){
-      //       case 'scheduled': return ""; break;
-      //       case 'started': return ""; break;
-      //       case 'finished': return moment.duration(duration).humanize(); break;
-      //     }          
-      //   }
-      // },
       {
         'data': 'id',
         'render': function (id, type, full, meta){
@@ -193,7 +184,7 @@ function setup_runtable()
       },
       "aButtons": []
     }
-  });
+  }).colResize();
   runtable_tools = TableTools.fnGetInstance('run_table');
 }
 
@@ -216,6 +207,7 @@ function setup_ground_dataset_table()
     scrollY: '200px',
     destroy: true,
     ordering: false,
+    "stateSave": true,
     ajax: function (data, callback, settings) {
       var url = "/datasets?kind="+dataset_kind
       $.getJSON(url, data, function(response){
@@ -248,7 +240,7 @@ function setup_ground_dataset_table()
       }
     }
     ]
-  });
+  }).colResize();
    return dt;
  }
 
@@ -268,20 +260,15 @@ function setup_ground_dataset_table()
         $('[type="checkbox"]:not(:checked) + label').css({'background':'none','color':'black'})
         $(".algorithm_"+algorithm_id).hide()
       }
-  });
+  }).colResize();
 
   if (found_check){
     // enable configuration tab
     $('#tabs').tabs("enable",1)
-
-    // if($("table#claims_datasets_table tbody tr").length > 0)
-    //   enableButton($("#start_button"))
-    // else
-    //   disableButton($("#start_button"))
   }
   else{
     $('#tabs').tabs("option", "disabled",[1])
-    //disableButton($("#start_button"))
+
   }
  }
 
@@ -321,7 +308,7 @@ function setup_datatables() {
     "scrollY": height,
     "dom": 'C<"toolbar"T>tSif',
     "colVis": {
-      "exclude": [0]
+      "exclude": []
     },
     "ajax": function (data, callback, settings) {
       var url = "/dataset_rows"
@@ -402,7 +389,7 @@ function setup_layout()
 {
   pageLayout = $('body').layout({
     applyDefaultStyles: true,
-    west__size: "30%",
+    west__size: "35%",
     west__minSize: "10%",
     west__maxSize: "50%",
     west__onresize: function() {
@@ -414,6 +401,8 @@ function setup_layout()
     west__onclose: function() {
       datatable.columns.adjust();
       runtable.columns.adjust();
+      claims_dt.columns.adjust();
+      ground_dt.columns.adjust();
     }
   });
   
@@ -433,6 +422,8 @@ function setup_layout()
     center__onresize: function() {
       setup_datatables()
       setup_runtable()
+      setup_claims_dataset_table()
+      setup_ground_dataset_table()
     }
   });
 }
