@@ -1,28 +1,49 @@
 == README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+* apt-get install curl libpq-dev postgresql git sendmail
 
-Things you may want to cover:
+* curl -sSL https://get.rvm.io | bash -s stable --ruby=2.1.2
 
-* Ruby version
+* gem install bundler
 
-* System dependencies
+* git clone ...
 
-* Configuration
+* cd dafna-viz && bundle
 
-* Database creation
+* setup database role:
+sudo -u postgres psql postgres
+create role dafnaviz with createdb login password 'dafnaviz';
 
-* Database initialization
+* for production, create .env containing environment, database url and secret salt, example:
+RACK_ENV=production
+DATABASE_URL=postgres://dafnaviz:dafnaviz@localhost:5432/dafnaviz
+SECRET_KEY_BASE=1a1fbde43bca15444e77a646c8b1a9da50cb6fedd73769e93725b86b36d045e16c7df39e2b93621939bfa79aff906c77a8a29997eab3b479cb8c3b923619f08e
 
-* How to run the test suite
+* for development, just change database role name/password to match config/database.yml development section
 
-* Services (job queues, cache servers, search engines, etc.)
+* foreman run rake db:setup
 
-* Deployment instructions
+* Start the app:
+foreman start web=m,worker=n
+where m is the number of web workers (factor of how many concurrent user requests the app can handle), for low traffic it is 1
+and n is the number of concurrent workers that run the algorithms,
+the larger, the more paralellism, but the more memory and cpu used,
+use profiling tools to identify how many workers your system can run simultaneously
 
-* ...
+* to update:
+Stop foreman (Ctrl+C)
+git pull
+bundle
+foreman run rake db:migrate
+foreman run rake assets:precompile
+
+Start again:
+foreman start ...
 
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+* whenever you update in the DAFNA-EA core, just run there:
+mvn clean install
+then copy the generated target/DAFNA-EA-1.0-jar-with-dependencies.jar into vendor/DAFNA-EA-1.0-jar-with-dependencies.jar
+
+
+
