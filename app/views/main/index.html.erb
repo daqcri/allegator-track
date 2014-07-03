@@ -7,12 +7,13 @@
 
 <%= javascript_include_tag  'main/index.js' %>
 
-<div class="ui-layout-north">
-  <img border="0" src="/Logo.jpg" height="180px">
-</div>
+
 <div class="ui-layout-west">
+<div>
+  <img border="0" src="/Logo.jpg" width="100%">
+</div>
     <!-- DIV for tabs -->
-  <div id="tabs">
+  <div class="ui-layout-content" id="tabs">
     <ul>
       <li> <a href="#tab-1">Upload</a> </li>
       <li>  <a href="#tab-2">Configure and Run</a>  </li>
@@ -29,7 +30,6 @@
             <!-- The file input field used as target for the file upload widget -->
             <input class="fileupload" type="file" name="csv" data-url="/datasets?kind=claims" multiple>
           </span>
-           <!-- <a href="/example.csv"> -->
            <span class='info-icon ui-icon ui-icon-info' id='claim_icon' title='Download example file'>
              <div id='claim_dialog' title='Download Example'>
                <p><a href="/example.csv">Book</a></p>
@@ -37,7 +37,6 @@
                <p><a href="/weather1.csv">Weather</a></p>
              </div>
            </span>
-           <!-- </a> -->
            <button type="button" class="btn btn-warning cancel" disabled="disabled">Cancel upload</button>
           <!-- The global progress bar -->
           <div class="progress">
@@ -109,6 +108,8 @@
     <div class="ui-layout-west">
       <table class="display" id="source_id_datatable" >
       </table>
+
+        <input type="checkbox" value="source_nrmalize"> Normalize Truthworthiness & Confidence
     </div>
     <div class="ui-layout-center">
       <table class="display" id="object_key_datatable" >
@@ -117,6 +118,7 @@
     <div class="ui-layout-east">
       <table id="datatable" class="display" cellspacing="0" width="100%">
       </table>
+        <input type="checkbox" value="datatable_normalize"> Normalize Truthworthiness & Confidence
     </div>  
   
   <div class= "ui-layout-south">
