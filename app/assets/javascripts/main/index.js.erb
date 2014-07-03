@@ -290,10 +290,21 @@ function setup_datatables() {
   var datatable_excess = 122
   var height = searchResultsLayout.state.center.innerHeight - datatable_excess
 
-  source_table = setup_single_datatable("source_id", selected_runs, height)
-  object_table = setup_single_datatable("object_key", [], height)
+  source_table = setup_single_datatable("source_id", selected_runs, height,
+    typeof source_table != 'undefined' ? source_table.search() : '', function(){
+      object_table.draw()
+      datatable.draw()
+    })
+  object_table = setup_single_datatable("object_key", [], height,
+    typeof object_table != 'undefined' ? object_table.search() : '', function(){
+      source_table.draw()
+      datatable.draw()
+    })
+
+  var filter = typeof datatable != 'undefined' ? datatable.search() : ''
 
   var obj = $('#datatable')
+  obj.removeData("last_filter")
 
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
@@ -305,6 +316,7 @@ function setup_datatables() {
 
   datatable = obj.DataTable({
     "serverSide": true,
+    "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
     "scrollY": height,
     "dom": 'C<"toolbar"T>tSif',
     "colVis": {
@@ -317,6 +329,12 @@ function setup_datatables() {
       $.getJSON(url, data, function(response){
         callback(response)
       })
+      // manually handle search filter change to update other tables
+      if (obj.data("last_filter") != datatable.search()) {
+        obj.data("last_filter", datatable.search())
+        source_table.draw()
+        object_table.draw()
+      }
     },
     "columns": cols,
     "destroy": true,  // destroy first if reinitializing
@@ -335,12 +353,19 @@ function setup_datatables() {
       "aButtons": []
     }
   });
+
+  $("#datatable_filter input").val(filter)
+
+  if (filter) datatable.search(filter).draw()
+
+  source_table.draw()
+  object_table.draw()
 }
 
-function setup_single_datatable(field_name, runs, height)
+function setup_single_datatable(field_name, runs, height, filter, search_callback)
 {
-  console.log("in setup_single_datatable", field_name, runs)
   var obj = $("#"+field_name+"_datatable")
+  obj.removeData("last_filter")
 
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
@@ -353,15 +378,23 @@ function setup_single_datatable(field_name, runs, height)
 
   var dt = obj.DataTable({
     "serverSide": true,
+    "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
     "scrollY": height,
     "ajax": function (data, callback, settings) {
       var url = "/dataset_rows"
       data.extra_only = field_name
       data.extra_run_ids = $.map(runs, function(run){return run.id})
-      if (typeof datatable != 'undefined') datatable.draw()
+      data.extra_source_id_criteria = source_table.search()
+      data.extra_object_key_criteria = object_table.search()
+      data.extra_criteria = datatable.search()
       $.getJSON(url, data, function(response){
         callback(response)
       })
+      // manually handle search filter change to update other tables
+      if (obj.data("last_filter") != dt.search()) {
+        obj.data("last_filter", dt.search())
+        search_callback()
+      }
     },
     "columns": cols,
     dom: 'T<"clear">tSif',
@@ -381,7 +414,12 @@ function setup_single_datatable(field_name, runs, height)
      aButtons: []
     }
   });
-  $("#"+field_name+"_datatable_filter input").attr("placeholder", "Search")
+  $("#"+field_name+"_datatable_filter input")
+    .attr("placeholder", "Search")
+    .val(filter)
+
+  if (filter) dt.search(filter)
+
   return dt;
 }
 

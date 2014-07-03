@@ -41,11 +41,11 @@ class DatasetRowsController < ApplicationController
         # filtering
         if params[:search][:value].present?
           criteria = params[:search][:value]
-          fields = params[:extra_only].blank? ? %w(claim_id object_id source_id property_key propery_value timestamp) : [params[:extra_only]]
+          fields = params[:extra_only].blank? ? %w(claim_id object_key source_id property_key property_value timestamp) : [params[:extra_only]]
           where += " AND (" + fields.map{|f| "LOWER(r#{r1}.#{f}) like LOWER('%#{criteria}%')"}.join(" OR ") + ")"
         end
-        criteria = params[:extra_object_id_criteria]
-        where += " AND (LOWER(object_id) like LOWER('%#{criteria}%'))" unless criteria.blank?
+        criteria = params[:extra_object_key_criteria]
+        where += " AND (LOWER(object_key) like LOWER('%#{criteria}%'))" unless criteria.blank?
         criteria = params[:extra_source_id_criteria]
         where += " AND (LOWER(source_id) like LOWER('%#{criteria}%'))" unless criteria.blank?
 
@@ -88,15 +88,20 @@ class DatasetRowsController < ApplicationController
     end
 
     # FILTERING
+    fields = %w(claim_id object_key source_id property_key property_value timestamp)
+    # search by applying search criteria from the current table on the visible fields
     if params[:search][:value].present?
       criteria = params[:search][:value]
-      fields = params[:extra_only].blank? ? %w(claim_id object_id source_id property_key propery_value timestamp) : [params[:extra_only]]
-      query = query.where fields.map{|f| "LOWER(#{f}) like LOWER('%#{criteria}%')"}.join(" OR ")
+      qfields = params[:extra_only].blank? ? fields : [params[:extra_only]]
+      query = query.where qfields.map{|f| "LOWER(#{f}) like LOWER('%#{criteria}%')"}.join(" OR ")
     end
-    criteria = params[:extra_object_id_criteria]
-    query = query.where "LOWER(object_id) like LOWER('%#{criteria}%')" unless criteria.blank?
+    # search by applying search criteria from other tables
+    criteria = params[:extra_object_key_criteria]
+    query = query.where "LOWER(object_key) like LOWER('%#{criteria}%')" if criteria.present?
     criteria = params[:extra_source_id_criteria]
-    query = query.where "LOWER(source_id) like LOWER('%#{criteria}%')" unless criteria.blank?
+    query = query.where "LOWER(source_id) like LOWER('%#{criteria}%')" if criteria.present?
+    criteria = params[:extra_criteria]
+    query = query.where fields.map{|f| "LOWER(#{f}) like LOWER('%#{criteria}%')"}.join(" OR ") if criteria.present?
 
     # DISTINCT ROWS
     query = query.distinct
