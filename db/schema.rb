@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140703080114) do
+ActiveRecord::Schema.define(version: 20140706080952) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,8 +21,12 @@ ActiveRecord::Schema.define(version: 20140703080114) do
     t.string  "claim_id"
     t.float   "confidence"
     t.boolean "is_true"
+    t.float   "normalized"
   end
 
+  add_index "claim_results", ["claim_id"], name: "index_claim_results_on_claim_id", using: :btree
+  add_index "claim_results", ["confidence"], name: "index_claim_results_on_confidence", using: :btree
+  add_index "claim_results", ["normalized"], name: "index_claim_results_on_normalized", using: :btree
   add_index "claim_results", ["run_id"], name: "index_claim_results_on_run_id", using: :btree
 
   create_table "dataset_rows", force: true do |t|
@@ -102,9 +106,13 @@ ActiveRecord::Schema.define(version: 20140703080114) do
     t.integer "run_id"
     t.string  "source_id"
     t.float   "trustworthiness"
+    t.float   "normalized"
   end
 
+  add_index "source_results", ["normalized"], name: "index_source_results_on_normalized", using: :btree
   add_index "source_results", ["run_id"], name: "index_source_results_on_run_id", using: :btree
+  add_index "source_results", ["source_id"], name: "index_source_results_on_source_id", using: :btree
+  add_index "source_results", ["trustworthiness"], name: "index_source_results_on_trustworthiness", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "email",                  default: "", null: false

@@ -23,27 +23,6 @@ class Run < ActiveRecord::Base
     # FileUtils.rm_rf(datasets_claims_dir, datasets_grounds_dir, output_dir)
   end
 
-  def import_results(output_dir)    
-    require 'csv'
-    csv_opts = {:headers => true, :return_headers => false, :header_converters => :symbol, :converters => :all}
-
-    # parse source results
-    CSV.parse(File.read(Pathname(output_dir).join("Trustworthiness.csv")), csv_opts) do |row|
-      SourceResult.initialize_from_row(row, self)
-    end
-    # commit to database
-    self.updated_at = Time.now
-    self.save!
-
-    # parse claim results
-    CSV.parse(File.read(Pathname(output_dir).join("Confidences.csv")), csv_opts) do |row|
-      ClaimResult.initialize_from_row(row, self)
-    end
-    # commit to database
-    self.updated_at = Time.now
-    self.save!
-  end
-
   def display
     "#{algorithm} (#{general_config.gsub(' ', ',')}; #{config.gsub(' ', ',')})"
   end
@@ -89,4 +68,36 @@ class Run < ActiveRecord::Base
     super # continue from super to call all after_destroy callbacks
   end
 
+private
+
+  def import_results(output_dir)
+    require 'csv'
+    csv_opts = {:headers => true, :return_headers => false, :header_converters => :symbol, :converters => :all}
+
+    # parse source results
+    CSV.parse(File.read(Pathname(output_dir).join("Trustworthiness.csv")), csv_opts) do |row|
+      SourceResult.initialize_from_row(row, self)
+    end
+    # commit to database
+    self.updated_at = Time.now
+    self.save!
+    self.normalize(source_results, "trustworthiness")
+
+    # parse claim results
+    CSV.parse(File.read(Pathname(output_dir).join("Confidences.csv")), csv_opts) do |row|
+      ClaimResult.initialize_from_row(row, self)
+    end
+    # commit to database
+    self.updated_at = Time.now
+    self.save!
+    self.normalize(claim_results, "confidence")
+  end
+
+  def normalize(associtation, attribute)
+    # get min/max
+    min = associtation.minimum(attribute)
+    max = associtation.maximum(attribute)
+    # calculate/update normalized
+    associtation.update_all("normalized = (#{attribute} - #{min}) / (#{max} - #{min})") if min && max
+  end
 end

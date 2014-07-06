@@ -10,7 +10,8 @@ class DatasetRowsController < ApplicationController
       if params[:extra_only] == "source_id"
         # attach source trustworthiness
         r1 = run_ids.first
-        select = run_ids.map{|r| "round (r#{r}.trustworthiness * 10000)/10000 r#{r}"}.join(',')
+        col = params[:extra_normalized].present? ? "normalized" : "trustworthiness"
+        select = run_ids.map{|r| "round (r#{r}.#{col} * 10000)/10000 r#{r}"}.join(',')
         from = "FROM source_results r#{r1}"
         # remove the first run id
         run_ids.delete_at(0)

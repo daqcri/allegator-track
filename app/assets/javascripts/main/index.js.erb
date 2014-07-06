@@ -13,7 +13,6 @@ $(document).ready(function() {
   setup_start_button()
   setup_runtable()
   setup_pusher()
-
 });
 
 function setup_pusher()
@@ -287,19 +286,19 @@ function destroy_datatables()
 }
 
 function setup_datatables() {
-  var datatable_excess = 122
+  var datatable_excess = 125
   var height = searchResultsLayout.state.center.innerHeight - datatable_excess
 
   source_table = setup_single_datatable("source_id", selected_runs, height,
     typeof source_table != 'undefined' ? source_table.search() : '', function(){
       object_table.draw()
       datatable.draw()
-    })
+    }, true)
   object_table = setup_single_datatable("object_key", [], height,
     typeof object_table != 'undefined' ? object_table.search() : '', function(){
       source_table.draw()
       datatable.draw()
-    })
+    }, false)
 
   var filter = typeof datatable != 'undefined' ? datatable.search() : ''
 
@@ -309,6 +308,7 @@ function setup_datatables() {
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
   var cols = []
+  // TODO: APPEND (NORMALIZED) RUN RESULTS
   $.each(["claim_id", "object_key", "property_key", "property_value", "source_id", "timestamp"], function(id, field_name){
     thead.append("<th>"+field_name+"</th>")
     cols.push({data: field_name})
@@ -365,7 +365,7 @@ function setup_datatables() {
 
 }
 
-function setup_single_datatable(field_name, runs, height, filter, search_callback)
+function setup_single_datatable(field_name, runs, height, filter, search_callback, normalize)
 {
   console.log("in setup_single_datatable", field_name, runs)
   var obj = $("#"+field_name+"_datatable")
@@ -380,10 +380,13 @@ function setup_single_datatable(field_name, runs, height, filter, search_callbac
     cols.push({data: 'r'+run.id})
   })
 
+  var has_normailze_checkbox = normalize && runs.length > 0;
+  var checkbox = $("#"+field_name+"_normalize");
+
   var dt = obj.DataTable({
     "serverSide": true,
     "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
-    "scrollY": height,
+    "scrollY": has_normailze_checkbox ? height - 30 : height,
     jQueryUI: true,
     "stateSave": true,
     "ajax": function (data, callback, settings) {
@@ -393,6 +396,8 @@ function setup_single_datatable(field_name, runs, height, filter, search_callbac
       data.extra_source_id_criteria = source_table.search()
       data.extra_object_key_criteria = object_table.search()
       data.extra_criteria = datatable.search()
+      if (has_normailze_checkbox && checkbox.find("input").is(":checked"))
+        data.extra_normalized = 1
       $.getJSON(url, data, function(response){
         callback(response)
       })
@@ -426,6 +431,19 @@ function setup_single_datatable(field_name, runs, height, filter, search_callbac
 
   if (filter) dt.search(filter)
 
+
+  if (has_normailze_checkbox) {
+    // append checkbox
+    checkbox
+      .show()
+      .unbind()
+      .find("input")
+      .change(function(){
+        dt.draw()
+      })
+  }
+  else
+    checkbox.hide()
   return dt;
 }
 
