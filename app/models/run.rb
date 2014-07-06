@@ -81,7 +81,7 @@ private
     # commit to database
     self.updated_at = Time.now
     self.save!
-    self.normalize(source_results, "trustworthiness")
+    normalize(source_results, "trustworthiness")
 
     # parse claim results
     CSV.parse(File.read(Pathname(output_dir).join("Confidences.csv")), csv_opts) do |row|
@@ -90,7 +90,7 @@ private
     # commit to database
     self.updated_at = Time.now
     self.save!
-    self.normalize(claim_results, "confidence")
+    normalize(claim_results, "confidence")
   end
 
   def normalize(associtation, attribute)
