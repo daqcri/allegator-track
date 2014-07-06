@@ -24,11 +24,7 @@ SECRET_KEY_BASE=1a1fbde43bca15444e77a646c8b1a9da50cb6fedd73769e93725b86b36d045e1
 * foreman run rake db:setup
 
 * Start the app:
-foreman start web=m,worker=n
-where m is the number of web workers (factor of how many concurrent user requests the app can handle), for low traffic it is 1
-and n is the number of concurrent workers that run the algorithms,
-the larger, the more paralellism, but the more memory and cpu used,
-use profiling tools to identify how many workers your system can run simultaneously
+foreman start
 
 * to update:
 Stop foreman (Ctrl+C)
@@ -38,12 +34,8 @@ foreman run rake db:migrate
 foreman run rake assets:precompile
 
 Start again:
-foreman start ...
-
+foreman start
 
 * whenever you update in the DAFNA-EA core, just run there:
 mvn clean install
 then copy the generated target/DAFNA-EA-1.0-jar-with-dependencies.jar into vendor/DAFNA-EA-1.0-jar-with-dependencies.jar
-
-
-
