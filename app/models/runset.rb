@@ -5,7 +5,13 @@ class Runset < ActiveRecord::Base
 
   def as_json(options={})
     options = {
-      :only => [:id, :created_at]
+      :only => [:id, :created_at],
+      :include => {
+        :runs => {
+          :only => [:id, :algorithm, :created_at],
+          :methods => [:display, :status, :duration]
+        }
+      }
     }.merge(options)
     super(options)
   end

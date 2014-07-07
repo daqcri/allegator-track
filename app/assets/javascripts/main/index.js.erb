@@ -4,17 +4,64 @@ var datatable, source_table, object_table, runtable, claims_dt, ground_dt;
 var runtable_tools
 var config_data = {}
 var checked_algo = []
-var selected_runs = []
+var runsets = ["claims", "ground"]
 
 $(document).ready(function() {
   setup_layout()
   setup_west_pane()
   setup_datasets_dialog()
+  setup_data_selector()
   setup_datatables()
   setup_start_button()
   setup_runtable()
   setup_pusher()
 });
+
+function activate_runset_tab(runset_id)
+{
+  // find corresponding tab
+  $.each(runsets, function(id, runset){
+    if (id > 1 && runset.id == runset_id) {
+      $("#data-selector").tabs("option", "active", id)
+      // TODO show runset info
+      return
+    }
+  })
+}
+
+function add_runset_in_tabs(tabs, runset)
+{
+  var label = "Runset " + runset.id
+  tabs.find( ".ui-tabs-nav" )
+    .append("<li> <a href='#tab-common'>"+label+"</a> </li>");
+  runsets.push(runset)
+}
+
+function add_runset(runset)
+{
+  var tabs = $("#data-selector").tabs()
+  add_runset_in_tabs(tabs, runset)
+  tabs.tabs( "refresh" );
+}
+
+function setup_data_selector()
+{
+  // initialize tabs
+  var tabs = $("#data-selector").tabs({
+    activate: function(event, ui) {
+      // TODO: show runset info
+      destroy_datatables()
+      setup_datatables()
+    }
+  })
+  // append tab for each runset
+  $.getJSON('/runsets', function(runsets){
+    $.each(runsets, function(id, runset){
+      add_runset_in_tabs(tabs, runset)
+    })
+    tabs.tabs( "refresh" );
+  })
+}
 
 function setup_pusher()
 {
@@ -49,8 +96,10 @@ function setup_start_button()
       type: "POST",
       url : "/runsets",
       data: {checked_algo: checked_algo, general_config: config_data["General Parameters"]},
-      success: function(){
+      success: function(runset){
         runtable.draw()
+        add_runset(runset)
+        activate_runset_tab(runset.id)
       }
      });
   });
@@ -73,7 +122,6 @@ function setup_runtable()
   var height = searchResultsLayout.state.south.innerHeight - runtable_excess
   console.log(height)
   var obj = $('#run_table')
-  selected_runs = []
   runtable = obj.DataTable({
     dom: 'tJST',
     serverSide : true,
@@ -107,7 +155,6 @@ function setup_runtable()
               url: '/runs/'+$(this).attr("run_id"),
               type: "DELETE",
               success: function(){
-                selected_runs = [];
                 destroy_datatables()
                 setup_datatables()
                 runtable.draw();
@@ -162,26 +209,17 @@ function setup_runtable()
       }
     ],
     tableTools: {
-      "sRowSelect": "multi",  // "os" doesn't allow fnPreRowSelect to work!
+      "sRowSelect": "single",  // "os" doesn't allow fnPreRowSelect to work!
       "fnRowSelected": function ( nodes ) {
         var run = runtable.row(nodes[0]).data()
-        selected_runs.push(run);
-        destroy_datatables()
-        setup_datatables()
+        console.log("selected run", run)
+        activate_runset_tab(run.runset_id)
       },
-      "fnRowDeselected": function ( nodes ) {
-        console.log("runtable deselected", nodes)
-        var run = runtable.row(nodes[0]).data()
-        var found_at = -1;
-        $.each(selected_runs, function(i, srun){if(srun.id == run.id) found_at = i})
-        selected_runs.splice(found_at, 1);
-        destroy_datatables()
-        setup_datatables()
-      },
-      "fnPreRowSelect": function ( ev, nodes ) {
-        var status = runtable.row(nodes[0]).data().status;
-        return status == "finished";
-      },
+      // "fnPreRowSelect": function ( ev, nodes ) {
+      //   console.log("in preselect", ev, nodes)
+      //   var status = runtable.row(nodes[0]).data().status;
+      //   return status == "finished";
+      // },
       "aButtons": []
     }
   });
@@ -287,15 +325,20 @@ function destroy_datatables()
 }
 
 function setup_datatables() {
-  var datatable_excess = 125
+  var datatable_excess = 135
   var height = searchResultsLayout.state.center.innerHeight - datatable_excess
 
-  source_table = setup_single_datatable("source_id", selected_runs, height,
+  var data_selector = $("#data-selector").tabs("option", "active")
+
+  var showing_inputs = data_selector <= 1
+  var runset = runsets[data_selector]
+
+  source_table = setup_single_datatable("source_id", showing_inputs, runset, height,
     typeof source_table != 'undefined' ? source_table.search() : '', function(){
       object_table.draw()
       datatable.draw()
     }, true)
-  object_table = setup_single_datatable("object_key", [], height,
+  object_table = setup_single_datatable("object_key", true, runset == 'ground' ? runset : runsets[0], height,
     typeof object_table != 'undefined' ? object_table.search() : '', function(){
       source_table.draw()
       datatable.draw()
@@ -326,7 +369,14 @@ function setup_datatables() {
       "exclude": []
     },
     "ajax": function (data, callback, settings) {
-      var url = "/dataset_rows"
+      var url
+      if (showing_inputs) {
+        url = "/dataset_rows"
+        data.extra_kind = runset
+      }
+      else {
+        url = "/runsets/" + runset.id + "/results"
+      }
       data.extra_source_id_criteria = source_table.search()
       data.extra_object_key_criteria = object_table.search()
       $.getJSON(url, data, function(response){
@@ -366,9 +416,9 @@ function setup_datatables() {
 
 }
 
-function setup_single_datatable(field_name, runs, height, filter, search_callback, normalize)
+function setup_single_datatable(field_name, showing_inputs, runset, height, filter, search_callback, normalize)
 {
-  console.log("in setup_single_datatable", field_name, runs)
+  console.log("in setup_single_datatable", field_name)
   var obj = $("#"+field_name+"_datatable")
   obj.removeData("last_filter")
 
@@ -376,13 +426,19 @@ function setup_single_datatable(field_name, runs, height, filter, search_callbac
   var thead = $("thead tr", obj)
   thead.append("<th>"+field_name+"</th>")
   var cols = [{data: field_name}]
-  $.each(runs, function(i, run){
-    thead.append("<th>["+run.id + "] " + run.algorithm+"</th>")
-    cols.push({data: 'r'+run.id})
-  })
 
-  var has_normailze_checkbox = normalize && runs.length > 0;
+  var has_normailze_checkbox = false;
   var checkbox = $("#"+field_name+"_normalize");
+
+  if (!showing_inputs) {
+    var finished_runs = $.grep(runset.runs, function(run){return run.status == 'finished'})
+    console.log("finished runs for runset ", runset.id, finished_runs)
+    $.each(finished_runs, function(i, run){
+      thead.append("<th>["+run.id + "] " + run.algorithm+"</th>")
+      cols.push({data: 'r'+run.id})
+    })
+    has_normailze_checkbox = normalize && finished_runs.length > 0;
+  }
 
   var dt = obj.DataTable({
     "serverSide": true,
@@ -391,9 +447,15 @@ function setup_single_datatable(field_name, runs, height, filter, search_callbac
     jQueryUI: true,
     "stateSave": true,
     "ajax": function (data, callback, settings) {
-      var url = "/dataset_rows"
+      var url
+      if (showing_inputs) {
+        url = "/dataset_rows"
+        data.extra_kind = runset
+      }
+      else {
+        url = "/runsets/" + runset.id + "/results"
+      }
       data.extra_only = field_name
-      data.extra_run_ids = $.map(runs, function(run){return run.id})
       data.extra_source_id_criteria = source_table.search()
       data.extra_object_key_criteria = object_table.search()
       data.extra_criteria = datatable.search()
