@@ -9,6 +9,7 @@ var selected_runs = []
 $(document).ready(function() {
   setup_layout()
   setup_west_pane()
+  setup_datasets_dialog()
   setup_datatables()
   setup_start_button()
   setup_runtable()
@@ -630,25 +631,26 @@ function setup_west_pane()
   $('.cancel').click(function (e) {
     jqXHR.abort();
   });
-  
-  dialog_box('#claim_icon','#claim_dialog')
-  dialog_box('#ground_icon','#ground_dialog')
 }
 
-function dialog_box(dataset_icon, dialog_id){
-  $(dialog_id).dialog({
+function setup_datasets_dialog(dataset_icon_selector){
+  var dialog_div = $("#datasets_dialog")
+  var datasets = ["books", "flights", "population", "weather"]
+
+  var html = "<ol>"
+  $.each(datasets, function(id, dataset){
+    html += "<li><a href='http://allegatortrack.s3-website-us-east-1.amazonaws.com/datasets/"
+      +dataset+".zip'>"+dataset+"</a></li>"
+  })
+
+  html += "</ol>"
+
+  dialog_div.empty().append(html).dialog({
     autoOpen: false,
-    show:{
-      effect:"blind",
-    },
-    hide:{
-      effect: "explore",
-      duration:1000
-    }
+    modal: true
   });
 
-  $(dataset_icon).click(function(){
-    $(dialog_id).dialog('open')
-
+  $(".download-datasets").click(function(){
+    dialog_div.dialog('open')
   });
 }

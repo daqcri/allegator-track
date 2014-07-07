@@ -30,11 +30,8 @@
             <!-- The file input field used as target for the file upload widget -->
             <input class="fileupload" type="file" name="csv" data-url="/datasets?kind=claims" multiple>
           </span>
-           <span class='info-icon ui-icon ui-icon-info' id='claim_icon' title='Download example file'>
-             <div id='claim_dialog' title='Download Example'>
-               <p><a href="/example.csv">Book</a></p>
-               <p><a href="/flight1.csv">Flight</a></p>
-               <p><a href="/weather1.csv">Weather</a></p>
+           <span class='download-datasets info-icon ui-icon ui-icon-info' title='Download example datasets...'>
+             <div id='datasets_dialog' title='Download example datasets...'>
              </div>
            </span>
            <button type="button" class="btn btn-warning cancel" disabled="disabled">Cancel upload</button>
@@ -61,12 +58,7 @@
             <!-- The file input field used as target for the file upload widget -->
             <input class="fileupload" type="file" name="csv" data-url="/datasets?kind=ground" multiple>
           </span>
-           <span class='info-icon ui-icon ui-icon-info' id='ground_icon' title='Download Example File'>
-            <div id='ground_dialog' title='Download Example'>
-              <p><a href="/book_golden.csv">Book</a></p>
-               <p><a href="/example.csv">Flight</a></p>
-               <p><a href="/example.csv">Weather</a></p>
-            </div>
+           <span class='download-datasets info-icon ui-icon ui-icon-info' title='Download example datasets...'>
           </span>
           <button type="button" class="btn btn-warning cancel" disabled="disabled">Cancel upload</button>
           <!-- The global progress bar -->
