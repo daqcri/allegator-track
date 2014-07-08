@@ -9,7 +9,11 @@ Rails.application.routes.draw do
 
   resources :datasets
   resources :dataset_rows
-  resources :runs
+  resources :runs do
+    member do
+      get 'visualize'
+    end
+  end
   resources :runsets
 
   # Example of regular route:

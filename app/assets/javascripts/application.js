@@ -26,4 +26,5 @@
 //= require moment.min
 //= require pusher.min
 //= require dataTables.colVis.min
-
+//= require d3.min
+//= require sankey

@@ -49,5 +49,4 @@ class Dataset < ActiveRecord::Base
     conn.execute("DELETE FROM dataset_rows WHERE dataset_id = #{self.id}")    
     super # continue from super to call all after_destroy callbacks
   end
-
 end

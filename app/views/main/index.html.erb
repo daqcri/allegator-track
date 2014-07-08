@@ -1,5 +1,6 @@
 <%= stylesheet_link_tag     'main/index.css', media: 'all' %>
 <%= javascript_include_tag  'main/algorithms.js' %>
+<%= javascript_include_tag  'main/visualize.js' %>
 
 <script>
   var current_user_id = <%= @current_user.id %>
@@ -96,10 +97,10 @@
     </div>
     <!-- This is tab 3 -->
     <div id="tab-3"> 
-      <div>
-        
-        
-      </div>
+      <p>Reasonable Chart Below</p>
+      <p id="chart"></p>
+    </div>
+    <div id="tab-4"> 
     </div>  
   </div>
 </div>

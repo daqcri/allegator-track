@@ -12,6 +12,7 @@ $(document).ready(function() {
   setup_datatables()
   setup_start_button()
   setup_runtable()
+
   setup_pusher()
 });
 
@@ -197,7 +198,7 @@ function setup_ground_dataset_table()
   ground_dt = setup_dataset_table("ground")
 }
 
-function setup_dataset_table(dataset_kind){
+ function setup_dataset_table(dataset_kind){
   var obj = $('#' + dataset_kind + "_datasets_table")
   var dt = obj.DataTable({
     dom: 'JtS', 
@@ -225,7 +226,7 @@ function setup_dataset_table(dataset_kind){
       });
     },
     'columns':[
-      {'data': 'original_filename'},
+     {'data': 'original_filename'},
       {
         'data': 'created_at',
         'render': function (created_at, type, full, meta){
@@ -302,9 +303,9 @@ function setup_datatables() {
 
   var filter = typeof datatable != 'undefined' ? datatable.search() : ''
 
+
   var obj = $('#datatable')
   obj.removeData("last_filter")
-
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
   var cols = []
@@ -334,8 +335,8 @@ function setup_datatables() {
       // manually handle search filter change to update other tables
       if (obj.data("last_filter") != datatable.search()) {
         obj.data("last_filter", datatable.search())
-        source_table.draw()
-        object_table.draw()
+        source_table.draw();
+        object_table.draw();
       }
     },
     "columns": cols,
@@ -362,8 +363,8 @@ function setup_datatables() {
 
   source_table.draw()
   object_table.draw()
-
 }
+
 
 function setup_single_datatable(field_name, runs, height, filter, search_callback, normalize)
 {
@@ -398,14 +399,16 @@ function setup_single_datatable(field_name, runs, height, filter, search_callbac
       data.extra_criteria = datatable.search()
       if (has_normailze_checkbox && checkbox.find("input").is(":checked"))
         data.extra_normalized = 1
+      if (typeof datatable != 'undefined') datatable.draw()
       $.getJSON(url, data, function(response){
         callback(response)
       })
-      // manually handle search filter change to update other tables
+    // manually handle search filter change to update other tables
       if (obj.data("last_filter") != dt.search()) {
         obj.data("last_filter", dt.search())
         search_callback()
       }
+
     },
     "columns": cols,
     dom: 'T<"clear">JtSif',
@@ -425,13 +428,11 @@ function setup_single_datatable(field_name, runs, height, filter, search_callbac
      aButtons: []
     }
   });
-  $("#"+field_name+"_datatable_filter input")
+$("#"+field_name+"_datatable_filter input")
     .attr("placeholder", "Search")
     .val(filter)
 
   if (filter) dt.search(filter)
-
-
   if (has_normailze_checkbox) {
     // append checkbox
     checkbox
@@ -444,6 +445,8 @@ function setup_single_datatable(field_name, runs, height, filter, search_callbac
   }
   else
     checkbox.hide()
+
+  $("#"+field_name+"_datatable_filter input").attr("placeholder", "Search")
   return dt;
 }
 
@@ -495,6 +498,13 @@ function setup_west_pane()
 {
   $( "#tabs" ).tabs({
     disabled: [1],
+    activate: function(event, ui) {
+      if (ui.newPanel.attr("id") == 'tab-3') {
+        $.getJSON('/runs/40/visualize', function(response){
+          createChart(response)
+        })
+      }
+    }
   })
   
   // create algorithm divs
