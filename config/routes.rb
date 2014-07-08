@@ -14,7 +14,11 @@ Rails.application.routes.draw do
       get 'visualize'
     end
   end
-  resources :runsets
+  resources :runsets do
+    member do
+      get 'results'
+    end
+  end
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
