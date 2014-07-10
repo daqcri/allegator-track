@@ -367,17 +367,19 @@ function setup_datatables() {
 
   var showing_inputs = data_selector <= 1
   var runset = runsets[data_selector]
+  var has_normailze_checkbox = false;
+  var checkbox = $("#claims_normalize");
 
   source_table = setup_single_datatable("source_id", showing_inputs, runset, height,
     typeof source_table != 'undefined' ? source_table.search() : '', function(){
       object_table.draw()
       datatable.draw()
-    }, true)
+    })
   object_table = setup_single_datatable("object_key", true, runset == 'ground' ? runset : runsets[0], height,
     typeof object_table != 'undefined' ? object_table.search() : '', function(){
       source_table.draw()
       datatable.draw()
-    }, false)
+    })
 
   var filter = typeof datatable != 'undefined' ? datatable.search() : ''
 
@@ -387,16 +389,22 @@ function setup_datatables() {
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
   var cols = []
-  // TODO: APPEND (NORMALIZED) RUN RESULTS
-  $.each(["claim_id", "object_key", "property_key", "property_value", "source_id", "timestamp"], function(id, field_name){
+  var basic_fields = ["claim_id", "object_key", "property_key", "property_value", "source_id", "timestamp"]
+  $.each(basic_fields, function(id, field_name){
     thead.append("<th>"+field_name+"</th>")
     cols.push({data: field_name})
   })
 
+  var finished_runs
+  if (!showing_inputs) {
+    finished_runs = append_runs_to_table(runset, thead, cols)
+    has_normailze_checkbox = !showing_inputs && finished_runs.length > 0;
+  }
+
   datatable = obj.DataTable({
     "serverSide": true,
     "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
-    "scrollY": height,
+    "scrollY": has_normailze_checkbox ? height - 50 : height,
     jQueryUI: true,
     "stateSave": true,
     "dom": 'C<"toolbar"T>JtSif',
@@ -414,6 +422,8 @@ function setup_datatables() {
       }
       data.extra_source_id_criteria = source_table.search()
       data.extra_object_key_criteria = object_table.search()
+      if (has_normailze_checkbox && checkbox.find("input").is(":checked"))
+        data.extra_normalized = 1
       $.getJSON(url, data, function(response){
         callback(response)
       })
@@ -425,6 +435,17 @@ function setup_datatables() {
       }
     },
     "columns": cols,
+    "rowCallback": function( row, data ) {
+      // Color the confidences green/red
+      if (!showing_inputs) {
+        $.each(finished_runs, function(id, run){
+          var bool = data["r"+run.id+"_bool"]
+          var td = $("td:eq("+(basic_fields.length+id)+")", row)
+          td.addClass("claim_is_"+bool)
+          console.log("finished_runs", finished_runs)
+        })
+      }
+    },
     "destroy": true,  // destroy first if reinitializing
     "scroller": {
       loadingIndicator: false
@@ -446,11 +467,13 @@ function setup_datatables() {
 
   if (filter) datatable.search(filter).draw()
 
+  toggle_normalize_checkbox(checkbox, has_normailze_checkbox, datatable)
+
   source_table.draw()
   object_table.draw()
 }
 
-function setup_single_datatable(field_name, showing_inputs, runset, height, filter, search_callback, normalize)
+function setup_single_datatable(field_name, showing_inputs, runset, height, filter, search_callback)
 {
   console.log("in setup_single_datatable", field_name)
   var obj = $("#"+field_name+"_datatable")
@@ -465,13 +488,8 @@ function setup_single_datatable(field_name, showing_inputs, runset, height, filt
   var checkbox = $("#"+field_name+"_normalize");
 
   if (!showing_inputs) {
-    var finished_runs = $.grep(runset.runs, function(run){return run.status == 'finished'})
-    console.log("finished runs for runset ", runset.id, finished_runs)
-    $.each(finished_runs, function(i, run){
-      thead.append("<th>["+run.id + "] " + run.algorithm+"</th>")
-      cols.push({data: 'r'+run.id})
-    })
-    has_normailze_checkbox = normalize && finished_runs.length > 0;
+    var finished_runs = append_runs_to_table(runset, thead, cols)
+    has_normailze_checkbox = !showing_inputs && finished_runs.length > 0;
   }
 
   var dt = obj.DataTable({
@@ -524,26 +542,42 @@ function setup_single_datatable(field_name, showing_inputs, runset, height, filt
      aButtons: []
     }
   });
-$("#"+field_name+"_datatable_filter input")
-    .attr("placeholder", "Search")
-    .val(filter)
+
+  $("#"+field_name+"_datatable_filter input")
+      .attr("placeholder", "Search")
+      .val(filter)
 
   if (filter) dt.search(filter)
-  if (has_normailze_checkbox) {
+
+  toggle_normalize_checkbox(checkbox, has_normailze_checkbox, dt)
+
+  return dt;
+}
+
+function toggle_normalize_checkbox(checkbox, visible, datatable)
+{
+  if (visible) {
     // append checkbox
     checkbox
       .show()
       .unbind()
       .find("input")
       .change(function(){
-        dt.draw()
+        datatable.draw()
       })
   }
   else
     checkbox.hide()
+}
 
-  $("#"+field_name+"_datatable_filter input").attr("placeholder", "Search")
-  return dt;
+function append_runs_to_table(runset, thead, cols)
+{
+  var finished_runs = $.grep(runset.runs, function(run){return run.status == 'finished'})
+  $.each(finished_runs, function(i, run){
+    thead.append("<th>["+run.id + "] " + run.algorithm+"</th>")
+    cols.push({data: 'r'+run.id})
+  })
+  return finished_runs
 }
 
 function setup_layout()
