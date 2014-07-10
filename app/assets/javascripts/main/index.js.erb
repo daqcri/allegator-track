@@ -14,7 +14,6 @@ $(document).ready(function() {
   setup_datatables()
   setup_start_button()
   setup_runtable()
-
   setup_pusher()
 });
 
@@ -24,7 +23,6 @@ function activate_runset_tab(runset_id)
   $.each(runsets, function(id, runset){
     if (id > 1 && runset.id == runset_id) {
       $("#data-selector").tabs("option", "active", id)
-      // TODO show runset info
       return
     }
   })
@@ -34,7 +32,7 @@ function add_runset_in_tabs(tabs, runset)
 {
   var label = "Runset " + runset.id
   tabs.find( ".ui-tabs-nav" )
-    .append("<li> <a href='#tab-common'>"+label+"</a> </li>");
+    .append("<li> <a href='#tab-common'>"+label+"</a><span id='"+runset.id+"' class='ui-icon ui-icon-close' role='presentation'></span> </li>");
   runsets.push(runset)
 }
 
@@ -50,18 +48,54 @@ function setup_data_selector()
   // initialize tabs
   var tabs = $("#data-selector").tabs({
     activate: function(event, ui) {
+      var active = tabs.tabs( "option", "active" )
+      if(active > 1)
+        $('#tab-common').show()
+      else
+        $('#tab-common').hide()
+
       // TODO: show runset info
       destroy_datatables()
       setup_datatables()
     }
   })
+
   // append tab for each runset
   $.getJSON('/runsets', function(runsets){
     $.each(runsets, function(id, runset){
       add_runset_in_tabs(tabs, runset)
     })
     tabs.tabs( "refresh" );
+    $('#tab-common').hide()
   })
+  
+
+  // close icon remove runset from server
+  tabs.delegate( "span.ui-icon-close", "click", function() {
+    var span_id = $(this).attr("id")
+    console.log(span_id)
+    $.ajax({
+      url: '/runsets/'+$(this).attr("id"),
+      type: "DELETE",
+      success: function(){
+        // delete item from array
+        runsets = $.grep(runsets,function(value, i){
+          if(i<=1)
+            return value
+          else if(i>1)
+           return value.id !=  span_id
+        })
+        runtable.draw();
+        // activate claim tab 
+        tabs.tabs({active:0})        
+      }
+    });
+    // remove tab when tab is closed
+    var panelId = $( this ).closest( "li" ).remove()
+    $( "#" + panelId ).remove()
+    tabs.tabs( "refresh" )
+  });
+
 }
 
 function setup_pusher()
@@ -516,7 +550,6 @@ function setup_layout()
 {
   pageLayout = $('body').layout({
     applyDefaultStyles: true,
-    north__size: "180px",
     west__size: "30%",
     west__minSize: "10%",
     west__maxSize: "50%",
@@ -531,7 +564,7 @@ function setup_layout()
       runtable.columns.adjust();
       claims_dt.columns.adjust();
       ground_dt.columns.adjust();
-    }
+    },
   });
   
   searchResultsLayout = $(".inner").layout({
@@ -562,8 +595,9 @@ function setup_west_pane()
     disabled: [1],
     activate: function(event, ui) {
       if (ui.newPanel.attr("id") == 'tab-3') {
-        $.getJSON('/runs/40/visualize', function(response){
-          createChart(response)
+        $.getJSON('/runs/65/visualize', function(response){
+          $('#chart').empty()
+          createChart(response, "#chart")
         })
       }
     }

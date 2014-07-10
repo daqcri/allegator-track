@@ -1,4 +1,4 @@
-function createChart( energy ) {
+function createChart( energy , chart_selector ) {
   var margin = {top: 1, right: 1, bottom: 6, left: 1},
       width = 400 - margin.left - margin.right,
       height = 200 - margin.top - margin.bottom;
@@ -7,7 +7,7 @@ function createChart( energy ) {
       format = function(d) { return formatNumber(d) + " tuples"; },
       color = d3.scale.category20();
 
-  var svg = d3.select("#chart").append("svg")
+  var svg = d3.select(chart_selector).append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
     .append("g")
