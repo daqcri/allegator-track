@@ -1,7 +1,7 @@
 function createChart( energy , chart_selector ) {
   var margin = {top: 1, right: 1, bottom: 6, left: 1},
-      width = 400 - margin.left - margin.right,
-      height = 200 - margin.top - margin.bottom;
+      width = $(chart_selector).width() - margin.left - margin.right,
+      height = $(chart_selector).height() - margin.top - margin.bottom;
 
   var formatNumber = d3.format(",.0f"),
       format = function(d) { return formatNumber(d) + " tuples"; },

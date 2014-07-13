@@ -68,7 +68,74 @@ class Run < ActiveRecord::Base
     super # continue from super to call all after_destroy callbacks
   end
 
+  def sankey
+    conn = ActiveRecord::Base.connection
+    sql = "
+      SELECT
+        array_to_string(array_agg(source_id), ';') sources,
+        COUNT(DISTINCT bucket_id) conflicts,
+        array_to_string(array_agg(is_true), ';') booleans
+      FROM claim_results res
+        INNER JOIN dataset_rows cl ON res.claim_id = cl.claim_id 
+      WHERE res.run_id = #{self.id}
+      GROUP BY object_key || property_key"
+
+    sources, links1, links2, max_conflicts = {}, {}, {}, 0
+
+    # TODO: escape ; in sources or use psql arrays
+    conn.select_all(sql).each do |row|
+      conflicts = row["conflicts"].to_i
+      max_conflicts = [max_conflicts, conflicts].max
+      row["sources"].split(";").each do |source_id|
+        sources[source_id] = 1
+        link_id = "#{conflicts}_#{source_id}"
+        links1[link_id] = (links1[link_id] || 0) + 1
+      end
+      row["booleans"].split(";").each do |bool|
+        link_id = "#{conflicts}_#{bool}"
+        links2[link_id] = (links2[link_id] || 0) + 1
+      end
+    end
+
+    source_keys = sources.keys
+    nodes = (source_keys + ["True", "False"] + 1.upto(max_conflicts).to_a.map(&:to_s)).map do |node|
+      {name: node}
+    end
+
+    logger.debug source_keys_order = 0.upto(source_keys.length - 1).to_a
+    logger.debug source_keys_hash = Hash[source_keys.zip(source_keys_order)]
+    logger.debug true_node_id = source_keys.length
+    logger.debug false_node_id = true_node_id + 1
+    logger.debug conflict_nodes_base_id = false_node_id
+
+    links = []
+    create_sankey_link(links1) do |conflicts, node, val|
+      node = source_keys_hash[node]
+      conflicts = conflict_nodes_base_id + conflicts
+      links << {source: node, target: conflicts, value: val}
+    end
+    create_sankey_link(links2) do |conflicts, node, val|
+      node = node == "t" ? true_node_id : false_node_id
+      conflicts = conflict_nodes_base_id + conflicts
+      links << {source: conflicts, target: node, value: val}
+    end
+
+    {nodes: nodes, links: links}
+  end
+
 private
+
+  def create_sankey_link(links)
+    links.each do |link_id, val|
+      arr = link_id.split("_")
+      conflicts = arr.shift.to_i
+      node = arr.join("_")
+      yield conflicts, node, val
+    end
+  end
+
+  def lookup_sankey_node(node)
+  end
 
   def import_results(output_dir)
     require 'csv'

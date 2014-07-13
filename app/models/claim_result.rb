@@ -6,6 +6,7 @@ class ClaimResult < ActiveRecord::Base
     cr.claim_id = row[:claimid]
     cr.confidence = row[:confidence].to_f
     cr.is_true = row[:istrue] == "true"
+    cr.bucket_id = row[:bucketid].to_i
     cr
   end
 

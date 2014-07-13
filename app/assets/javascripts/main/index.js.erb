@@ -442,7 +442,6 @@ function setup_datatables() {
           var bool = data["r"+run.id+"_bool"]
           var td = $("td:eq("+(basic_fields.length+id)+")", row)
           td.addClass("claim_is_"+bool)
-          console.log("finished_runs", finished_runs)
         })
       }
     },
@@ -629,7 +628,7 @@ function setup_west_pane()
     disabled: [1],
     activate: function(event, ui) {
       if (ui.newPanel.attr("id") == 'tab-3') {
-        $.getJSON('/runs/65/visualize', function(response){
+        $.getJSON('/runs/73/visualize', function(response){
           $('#chart').empty()
           createChart(response, "#chart")
         })

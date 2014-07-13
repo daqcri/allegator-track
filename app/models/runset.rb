@@ -1,6 +1,6 @@
 class Runset < ActiveRecord::Base
   belongs_to :user
-  has_many :runs
+  has_many :runs, dependent: :destroy
   has_and_belongs_to_many :datasets
 
   def as_json(options={})

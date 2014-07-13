@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140706080952) do
+ActiveRecord::Schema.define(version: 20140713110712) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -22,8 +22,10 @@ ActiveRecord::Schema.define(version: 20140706080952) do
     t.float   "confidence"
     t.boolean "is_true"
     t.float   "normalized"
+    t.integer "bucket_id"
   end
 
+  add_index "claim_results", ["bucket_id"], name: "index_claim_results_on_bucket_id", using: :btree
   add_index "claim_results", ["claim_id"], name: "index_claim_results_on_claim_id", using: :btree
   add_index "claim_results", ["confidence"], name: "index_claim_results_on_confidence", using: :btree
   add_index "claim_results", ["normalized"], name: "index_claim_results_on_normalized", using: :btree
