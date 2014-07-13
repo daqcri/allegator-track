@@ -10,15 +10,15 @@
 
 
 <div class="ui-layout-west">
-<div>
-  <img border="0" src="/Logo.jpg" width="100%">
+<div id ='Logo'>
+  <img border="0" src="/Logo.jpg" width="100%" title='Click to load defualt page'>
 </div>
     <!-- DIV for tabs -->
   <div class="ui-layout-content" id="tabs">
     <ul>
       <li> <a href="#tab-1">Upload</a> </li>
       <li>  <a href="#tab-2">Configure and Run</a>  </li>
-      <li>  <a href="#tab-3">Visualize </a> </li>
+      <li id='visualize-tab'>  <a href="#tab-3">Visualize </a> </li>
       <li> <a href="#tab-4"> Allegate </a> </li>
     </ul>
            <!-- This is tab 1 -->
@@ -97,19 +97,20 @@
   </div>
 </div>
 
-<div class="ui-layout-center inner">
+<div class="ui-layout-center">
 
-  <div class= "ui-layout-north" id="data-selector">
+  <div id="data-selector">
     <ul>
-      <li> <a href="#tab-common">Claims</a><span class='ui-icon ui-icon-close' role='presentation'></span> </li>
-      <li> <a href="#tab-common">Ground Truths</a><span class='ui-icon ui-icon-close' role='presentation' ></span> </li>
+      <li> <a href="#tab-common">Claims</a></li>
+      <li> <a href="#tab-common">Ground Truths</a></li>
     </ul>
     <div id="tab-common">
       <span class='common-panel'>Export Sources</span>
       <span class='common-panel'>Export Claims</span>
     </div>
   </div>
-
+  
+  <div class="inner">
     <div class="ui-layout-west">
       <table class="display" id="source_id_datatable" >
       </table>
@@ -120,11 +121,10 @@
       </table>
     </div>
     <div class="ui-layout-east">
-      <table id="datatable" class="stripe hover row-border" cellspacing="0" width="100%">
+      <table id="datatable" class="display" cellspacing="0" width="100%">
       </table>
       <label id="claims_normalize"><input type="checkbox"/>&nbsp;Normalize</label>
-    </div>  
-  
+    </div>   
   <div class= "ui-layout-south">
     <table id = "run_table" class="display" cellspacing="0" width="100%">
           <thead>
@@ -139,7 +139,6 @@
         </table>
   </div>
 </div>
-
 <div id="user_nav">
     <% if user_signed_in? %>
         Signed in as <%= current_user %>.

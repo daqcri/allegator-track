@@ -75,7 +75,7 @@ function setup_data_selector()
     var span_id = $(this).attr("id")
     console.log(span_id)
     $.ajax({
-      url: '/runsets/'+$(this).attr("id"),
+      url: '/runsets/'+ span_id,
       type: "DELETE",
       success: function(){
         // delete item from array
@@ -83,7 +83,7 @@ function setup_data_selector()
           if(i<=1)
             return value
           else if(i>1)
-           return value.id !=  span_id
+           return value.id != span_id
         })
         runtable.draw();
         // activate claim tab 
@@ -542,7 +542,6 @@ function setup_single_datatable(field_name, showing_inputs, runset, height, filt
      aButtons: []
     }
   });
-
   $("#"+field_name+"_datatable_filter input")
       .attr("placeholder", "Search")
       .val(filter)
@@ -552,7 +551,7 @@ function setup_single_datatable(field_name, showing_inputs, runset, height, filt
   toggle_normalize_checkbox(checkbox, has_normailze_checkbox, dt)
 
   return dt;
-}
+}  
 
 function toggle_normalize_checkbox(checkbox, visible, datatable)
 {
@@ -582,11 +581,14 @@ function append_runs_to_table(runset, thead, cols)
 
 function setup_layout()
 {
-  pageLayout = $('body').layout({
+  var page_west, inner_west, inner_center, inner_east, inner_south
+  pageLayout = $('body').layout($.extend({
     applyDefaultStyles: true,
     west__size: "30%",
     west__minSize: "10%",
     west__maxSize: "50%",
+    autoResize:       true, 
+    animatePaneSizing: true,
     west__onresize: function() {
       datatable.columns.adjust();
       claims_dt.columns.adjust();
@@ -599,9 +601,9 @@ function setup_layout()
       claims_dt.columns.adjust();
       ground_dt.columns.adjust();
     },
-  });
+  },layoutState.load('pageLayout')));
   
-  searchResultsLayout = $(".inner").layout({
+  searchResultsLayout = $(".inner").layout($.extend({
     applyDefaultStyles: true,
     south__size: "15%",
     south__minSize: "25%",
@@ -620,21 +622,44 @@ function setup_layout()
       setup_claims_dataset_table()
       setup_ground_dataset_table()
     }
-  });
+  },layoutState.load('searchResultsLayout')));
+  page_west = pageLayout.state.west.size
+  inner_east = searchResultsLayout.state.east.size
+  console.log(inner_east)
+  inner_west= searchResultsLayout.state.west.size
+  inner_south = searchResultsLayout.state.south.size
+
+  $(window).unload(function(){ layoutState.save('pageLayout')})
+  $(window).unload(function(){ layoutState.save('searchResultsLayout') })
+
+  $('#Logo').click(function(){
+    pageLayout.sizePane('west', page_west)
+    searchResultsLayout.sizePane('east', inner_east)
+    searchResultsLayout.sizePane('west', inner_west)
+    searchResultsLayout.sizePane('south',inner_south)   
+    
+  })
 }
 
 function setup_west_pane()
 {
+
   $( "#tabs" ).tabs({
     disabled: [1],
     activate: function(event, ui) {
+      var active = $('#tabs').tabs( "option", "active" )
+      // change layout for visualize tab
+      if(active == 2)
+        pageLayout.sizePane('west','50%')
+      else
+        pageLayout.sizePane('west','30%')
       if (ui.newPanel.attr("id") == 'tab-3') {
         $.getJSON('/runs/65/visualize', function(response){
           $('#chart').empty()
           createChart(response, "#chart")
         })
-      }
-    }
+      }       
+     }
   })
   
   // create algorithm divs
