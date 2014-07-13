@@ -57,6 +57,7 @@ function setup_data_selector()
       // TODO: show runset info
       destroy_datatables()
       setup_datatables()
+      refresh_charts()
     }
   })
 
@@ -653,10 +654,7 @@ function setup_west_pane()
       else
         pageLayout.sizePane('west','30%')
       if (ui.newPanel.attr("id") == 'tab-3') {
-        $.getJSON('/runs/73/visualize', function(response){
-          $('#chart').empty()
-          createChart(response, "#chart")
-        })
+        refresh_charts()
       }       
      }
   })
@@ -794,6 +792,37 @@ function setup_west_pane()
   $('.cancel').click(function (e) {
     jqXHR.abort();
   });
+}
+
+function refresh_charts()
+{
+  // list runs of current runset in runs_selector
+  var data_selector = $("#data-selector").tabs("option", "active")
+  var showing_inputs = data_selector <= 1
+  var runset = runsets[data_selector]
+  var select = $("#runs_selector")
+  var options
+
+  if (showing_inputs) {
+    options = ["<option value='-1'>Select a runset from the right to show its runs</option>"]
+  }
+  else {
+    options = ["<option value='-1'>Select a run</option>"]
+      .concat($.map(runset.runs, function(run){
+      return "<option value='"+run.id+"'>"+run.display+"</option>"
+    }))
+  }
+
+  select.html(options.join("\n"))
+    .change(function(){
+      var run_id = $(this).val()
+      if (run_id != "-1") {
+        $.getJSON("/runs/"+run_id+"/visualize", function(response){
+          $('#chart').empty()
+          createChart(response, "#chart")
+        })
+      }
+    })
 }
 
 function setup_datasets_dialog(dataset_icon_selector){
