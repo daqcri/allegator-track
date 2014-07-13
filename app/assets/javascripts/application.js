@@ -15,6 +15,7 @@
 //= require jquery-ui-1.9.2/jquery-ui-1.9.2.min
 //= require turbolinks
 //= require jquery.layout.min-1.3.0-rc
+//= require jquery.layout.state
 //= require jquery.dataTables
 //= require dataTables.tableTools.min
 //= require dataTables.scroller.min
