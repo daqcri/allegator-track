@@ -581,10 +581,14 @@ function append_runs_to_table(runset, thead, cols)
 
 function setup_layout()
 {
-  var page_west, inner_west, inner_center, inner_east, inner_south
+  var page_west = '30%'
+  var inner_west = '15%'
+  var inner_center = '15%'
+  var inner_east =  '70%'
+  var inner_south = '15%'
   pageLayout = $('body').layout($.extend({
     applyDefaultStyles: true,
-    west__size: "30%",
+    west__size: page_west,
     west__minSize: "10%",
     west__maxSize: "50%",
     autoResize:       true, 
@@ -605,12 +609,12 @@ function setup_layout()
   
   searchResultsLayout = $(".inner").layout($.extend({
     applyDefaultStyles: true,
-    south__size: "15%",
+    south__size: inner_south,
     south__minSize: "25%",
     south__maxSize: "75%",
-    west__size: '15%',
-    center__size: '15%',
-    east__size: '70%',
+    west__size: inner_west,
+    center__size: inner_center,
+    east__size: inner_east,
     autoResize:       true,  // try to maintain pane-percentages
     closable:       true,
     togglerLength_open:   0, // hide toggler-buttons
@@ -623,11 +627,6 @@ function setup_layout()
       setup_ground_dataset_table()
     }
   },layoutState.load('searchResultsLayout')));
-  page_west = pageLayout.state.west.size
-  inner_east = searchResultsLayout.state.east.size
-  console.log(inner_east)
-  inner_west= searchResultsLayout.state.west.size
-  inner_south = searchResultsLayout.state.south.size
 
   $(window).unload(function(){ layoutState.save('pageLayout')})
   $(window).unload(function(){ layoutState.save('searchResultsLayout') })
@@ -636,7 +635,7 @@ function setup_layout()
     pageLayout.sizePane('west', page_west)
     searchResultsLayout.sizePane('east', inner_east)
     searchResultsLayout.sizePane('west', inner_west)
-    searchResultsLayout.sizePane('south',inner_south)   
+    searchResultsLayout.sizePane('south', inner_south)   
     
   })
 }
