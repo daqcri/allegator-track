@@ -386,12 +386,12 @@ function setup_datatables() {
   var has_normailze_checkbox = false;
   var checkbox = $("#claims_normalize");
 
-  source_table = setup_single_datatable("source_id", showing_inputs, runset, height,
+  source_table = setup_single_datatable("source_id", "source_id", showing_inputs, runset, height,
     typeof source_table != 'undefined' ? source_table.search() : '', function(){
       object_table.draw()
       datatable.draw()
     })
-  object_table = setup_single_datatable("object_key", true, runset == 'ground' ? runset : runsets[0], height,
+  object_table = setup_single_datatable("object_key", "object_id", true, runset == 'ground' ? runset : runsets[0], height,
     typeof object_table != 'undefined' ? object_table.search() : '', function(){
       source_table.draw()
       datatable.draw()
@@ -405,9 +405,19 @@ function setup_datatables() {
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
   var cols = []
-  var basic_fields = ["claim_id", "object_key", "property_key", "property_value", "source_id", "timestamp"]
-  $.each(basic_fields, function(id, field_name){
-    thead.append("<th>"+field_name+"</th>")
+  var basic_fields = {
+    claim_id: "claim_id",
+    object_key: "object_id",
+    property_key: "property_id",
+    property_value: "property_value",
+    source_id: "source_id",
+    timestamp: "timestamp"
+  }
+  // change basic_fields_length if basic_fields changes
+  var basic_fields_length = 6; 
+
+  $.each(basic_fields, function(field_name, field_display){
+    thead.append("<th>"+field_display+"</th>")
     cols.push({data: field_name})
   })
 
@@ -456,7 +466,7 @@ function setup_datatables() {
       if (!showing_inputs) {
         $.each(finished_runs, function(id, run){
           var bool = data["r"+run.id+"_bool"]
-          var td = $("td:eq("+(basic_fields.length+id)+")", row)
+          var td = $("td:eq("+(basic_fields_length+id)+")", row)
           td.addClass("claim_is_"+bool)
         })
       }
@@ -488,7 +498,7 @@ function setup_datatables() {
   object_table.draw()
 }
 
-function setup_single_datatable(field_name, showing_inputs, runset, height, filter, search_callback)
+function setup_single_datatable(field_name, field_display, showing_inputs, runset, height, filter, search_callback)
 {
   console.log("in setup_single_datatable", field_name)
   var obj = $("#"+field_name+"_datatable")
@@ -496,7 +506,7 @@ function setup_single_datatable(field_name, showing_inputs, runset, height, filt
 
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
-  thead.append("<th>"+field_name+"</th>")
+  thead.append("<th>"+field_display+"</th>")
   var cols = [{data: field_name}]
 
   var has_normailze_checkbox = false;
