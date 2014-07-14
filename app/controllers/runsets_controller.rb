@@ -38,6 +38,7 @@ class RunsetsController < ApplicationController
       table_alias = "r#{r1}"
       col = "trustworthiness"
       joins = run_ids[1..run_ids.length].map{|r| "INNER JOIN source_results r#{r} ON #{table_alias}.source_id = r#{r}.source_id"}.join("\n")
+      table_cols = "id,source_id"
     elsif params[:extra_only].blank?
       # attach claim confidences
       table = "dataset_rows"
@@ -45,6 +46,7 @@ class RunsetsController < ApplicationController
       col = "confidence"
       select_more = run_ids.map{|r| "r#{r}.is_true r#{r}_bool"}.join(',')
       joins = run_ids.map{|r| "INNER JOIN claim_results r#{r} ON #{table_alias}.claim_id = r#{r}.claim_id"}.join("\n")
+      table_cols = "*"
     end
 
     col = params[:extra_normalized].present? ? "normalized" : col
@@ -73,7 +75,7 @@ class RunsetsController < ApplicationController
     limit = length > 0 ? "LIMIT #{length}" : ""
 
     # filtering
-    if params[:search][:value].present?
+    if params[:search].present? && params[:search][:value].present?
       criteria = params[:search][:value]
       fields = params[:extra_only].blank? ? %w(claim_id object_key source_id property_key property_value timestamp) : [params[:extra_only]]
       where << " AND (" + fields.map{|f| "LOWER(#{table_alias}.#{f}) like LOWER('%#{criteria}%')"}.join(" OR ") + ")"
@@ -87,16 +89,33 @@ class RunsetsController < ApplicationController
     filtered = conn.select_value(sql)
 
     #sql = "SELECT #{table_alias}.source_id source_id, #{select + (select_more.present? ? ', ' + select_more : '')}
-    sql = "SELECT #{table_alias}.*, #{select + (select_more.present? ? ', ' + select_more : '')}
+    table_cols = table_cols.split(',').map{|col| "#{table_alias}.#{col}"}.join(",")
+    sql = "SELECT #{table_cols}, #{select + (select_more.present? ? ', ' + select_more : '')}
       #{from} #{joins} #{where} #{order} #{limit} #{offset}"
     data = conn.select_all(sql)
 
-    render json: {
-      draw: params[:draw].to_i,
-      recordsTotal: total,
-      recordsFiltered: filtered,
-      data: data
-    }
+    if params[:export].blank?
+      render json: {
+        draw: params[:draw].to_i,
+        recordsTotal: total,
+        recordsFiltered: filtered,
+        data: data
+      }
+    else
+      require 'csv'
+      if params[:extra_only] == "source_id"
+        filename = "source"
+      else
+        filename = "claim"
+      end
+      csv_string = CSV.generate do |csv|
+        csv << data[0].keys
+        data.each do |row|
+          csv << row.values
+        end
+      end
+      send_data(csv_string, :filename => "#{filename}_results_runset_#{@runset.id}.csv")
+    end
   end
 
 end
