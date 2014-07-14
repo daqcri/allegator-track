@@ -181,6 +181,7 @@ function setup_runtable()
     ordering: false,
     deferRender:true,
     "scrollY": height,
+    "scrollX": true,  // so that table header scrolls with content
     "ajax": function (data, callback, settings) {
       var url = "/runs";
       $.getJSON(url, data, function(response){
@@ -294,6 +295,7 @@ function setup_ground_dataset_table()
     serverSide : true,
     jQueryUI: true,
     scrollY: '200px',
+    scrollX: true,  // so that table header scrolls with content
     destroy: true,
     ordering: false,
     "stateSave": true,
@@ -431,6 +433,7 @@ function setup_datatables() {
     "serverSide": true,
     "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
     "scrollY": has_normailze_checkbox ? height - 50 : height,
+    "scrollX": true,  // so that table header scrolls with content
     jQueryUI: true,
     "stateSave": true,
     "dom": 'C<"toolbar"T>JtSif',
