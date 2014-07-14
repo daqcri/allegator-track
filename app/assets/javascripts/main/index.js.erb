@@ -23,6 +23,8 @@ function activate_runset_tab(runset_id)
   $.each(runsets, function(id, runset){
     if (id > 1 && runset.id == runset_id) {
       $("#data-selector").tabs("option", "active", id)
+      console.log("should activate runset tab", runset_id)
+      refresh_runset()
       return
     }
   })
@@ -43,6 +45,14 @@ function add_runset(runset)
   tabs.tabs( "refresh" );
 }
 
+function refresh_runset()
+{
+  destroy_datatables()
+  setup_datatables()
+  refresh_charts()
+  console.log('refresh_runset called')
+}
+
 function setup_data_selector()
 {
   // initialize tabs
@@ -55,9 +65,7 @@ function setup_data_selector()
         $('#tab-common').hide()
 
       // TODO: show runset info
-      destroy_datatables()
-      setup_datatables()
-      refresh_charts()
+      refresh_runset()
     }
   })
 
@@ -70,7 +78,6 @@ function setup_data_selector()
     $('#tab-common').hide()
   })
   
-
   // close icon remove runset from server
   tabs.delegate( "span.ui-icon-close", "click", function() {
     var span_id = $(this).attr("id")
@@ -103,13 +110,22 @@ function setup_pusher()
 {
   var pusher = new Pusher('<%= Pusher.key %>'); // establishes the connection
   var channel = pusher.subscribe("user_" + current_user_id);
-  channel.bind('run_change', function(data) {
-    console.log("received push", data)
+  channel.bind('run_change', function(run) {
+    console.log("received push", run)
+     var runset = $.grep(runsets,function(runset, i){
+      return runset.id == run.runset_id
+     })[0]
+     var found_run = $.grep(runset.runs, function(run_value,j){
+      return run_value.id == run.id
+     })[0]
+     found_run.status = run.status
+     activate_runset_tab(runset.id)
+
     // update corresponding rows in table
     // find run in table (if any) to update it
-    var row = runtable.row($("#run-" + data.id).parent().parent())
+    var row = runtable.row($("#run-" + run.id).parent().parent())
     if (row.length == 1) {
-      row.data(data)
+      row.data(run)
       $(row.node()).effect("highlight")
     }
   });
@@ -139,17 +155,6 @@ function setup_start_button()
       }
      });
   });
- // disableButton($("#start_button"))
-}
-
-function disableButton(button)
-{
-  button.attr('disabled','disabled').fadeTo("fast", 0.5);
-}
-
-function enableButton(button)
-{
-  button.removeAttr('disabled').fadeTo("fast", 1);
 }
 
 function setup_runtable()
@@ -650,8 +655,10 @@ function setup_west_pane()
       // change layout for visualize tab
       if(active == 2)
         pageLayout.sizePane('west','50%')
-      else
+      else{
         pageLayout.sizePane('west','30%')
+        searchResultsLayout.sizePane('center', '15%')
+      }
       if (ui.newPanel.attr("id") == 'tab-3') {
         refresh_charts()
       }       
