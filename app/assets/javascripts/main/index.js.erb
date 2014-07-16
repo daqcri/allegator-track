@@ -90,30 +90,31 @@ function setup_data_selector()
   
   // close icon remove runset from server
   tabs.delegate( "span.ui-icon-close", "click", function() {
-    var span_id = $(this).attr("id")
-    console.log(span_id)
-    $.ajax({
-      url: '/runsets/'+ span_id,
-      type: "DELETE",
-      success: function(){
-        // delete item from array
-        runsets = $.grep(runsets,function(value, i){
-          if(i<=1)
-            return value
-          else if(i>1)
-           return value.id != span_id
-        })
-        runtable.draw();
-        // activate claim tab 
-        tabs.tabs({active:0})        
-      }
+    if (confirm("Are you sure you want to permanently delete this runset?")) {
+      var span_id = $(this).attr("id")
+      console.log(span_id)
+      $.ajax({
+        url: '/runsets/'+ span_id,
+        type: "DELETE",
+        success: function(){
+          // delete item from array
+          runsets = $.grep(runsets,function(value, i){
+            if(i<=1)
+              return value
+            else if(i>1)
+             return value.id != span_id
+          })
+          runtable.draw();
+          // activate claim tab 
+          tabs.tabs({active:0})        
+        }
+      });
+      // remove tab when tab is closed
+      var panelId = $( this ).closest( "li" ).remove()
+      $( "#" + panelId ).remove()
+      tabs.tabs( "refresh" )
+  }
     });
-    // remove tab when tab is closed
-    var panelId = $( this ).closest( "li" ).remove()
-    $( "#" + panelId ).remove()
-    tabs.tabs( "refresh" )
-  });
-
 }
 
 function setup_pusher()
