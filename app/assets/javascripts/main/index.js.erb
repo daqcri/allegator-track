@@ -92,7 +92,6 @@ function setup_data_selector()
   tabs.delegate( "span.ui-icon-close", "click", function() {
     if (confirm("Are you sure you want to permanently delete this runset?")) {
       var span_id = $(this).attr("id")
-      console.log(span_id)
       $.ajax({
         url: '/runsets/'+ span_id,
         type: "DELETE",
@@ -114,7 +113,7 @@ function setup_data_selector()
       $( "#" + panelId ).remove()
       tabs.tabs( "refresh" )
   }
-    });
+ });
 }
 
 function setup_pusher()
