@@ -90,8 +90,9 @@ function setup_data_selector()
   
   // close icon remove runset from server
   tabs.delegate( "span.ui-icon-close", "click", function() {
-    if (confirm("Are you sure you want to permanently delete this runset?")) {
+    if (confirm("Are you sure you want to permanently delete this runset?")){
       var span_id = $(this).attr("id")
+      console.log(span_id)
       $.ajax({
         url: '/runsets/'+ span_id,
         type: "DELETE",
@@ -112,8 +113,9 @@ function setup_data_selector()
       var panelId = $( this ).closest( "li" ).remove()
       $( "#" + panelId ).remove()
       tabs.tabs( "refresh" )
-  }
- });
+    }
+  });
+
 }
 
 function setup_pusher()
@@ -203,13 +205,21 @@ function setup_runtable()
         $(".action-delete", obj).unbind().click(function(event){
           event.stopPropagation(); // stop the click from propagating to the tr to select/deselcet
           if(confirm("Are you sure you want to delete this run?")) {
+            var run_id = $(this).attr("run_id")
             $.ajax({
-              url: '/runs/'+$(this).attr("run_id"),
+              url: '/runs/'+ run_id,
               type: "DELETE",
               success: function(){
                 destroy_datatables()
                 setup_datatables()
                 runtable.draw();
+                $.each(runsets, function(i, runset){
+                  if(i>1){
+                    runset.runs = $.grep(runset.runs, function(run, index){
+                      return run.id != run_id
+                    })
+                  }
+                })
               }
             });
           }
