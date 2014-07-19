@@ -101,13 +101,18 @@
 
   <div id="data-selector">
     <ul>
-      <li> <a href="#tab-common">Claims</a></li>
-      <li> <a href="#tab-common">Ground Truths</a></li>
+      <li> <a href="#show_input">Claims</a></li>
+      <li> <a href="#show_input">Ground Truths</a></li>
     </ul>
-    <div id="tab-common">
-      <span class='export-command' value="source_id">Export Sources</span>
-      &nbsp;-&nbsp;
-      <span class='export-command' value="">Export Claims</span>
+    <div class='runset_array'>
+      <div id="tab-common">
+        <span class='export-command' value="source_id">Export Sources</span>
+        &nbsp;-&nbsp;
+        <span class='export-command' value="">Export Claims</span>
+      </div>
+      <div id="show_input">
+        Showing Inputs
+      </div>
     </div>
   </div>
   
@@ -126,18 +131,19 @@
       </table>
       <label id="claims_normalize"><input type="checkbox"/>&nbsp;Normalize</label>
     </div>   
-  <div class= "ui-layout-south">
-    <table id = "run_table" class="display" cellspacing="0" width="100%">
-          <thead>
-            <tr>
-              <th>Runset ID</th>
-              <th>Started at</th>
-              <th>Algorithm</th>
-              <th>Duration</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-        </table>
+    <div class= "ui-layout-south">
+      <table id = "run_table" class="display" cellspacing="0" width="100%">
+        <thead>
+          <tr>
+            <th>Runset ID</th>
+            <th>Started at</th>
+            <th>Algorithm</th>
+            <th>Duration</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
   </div>
 </div>
 <div id="user_nav">

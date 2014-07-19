@@ -23,7 +23,6 @@ function activate_runset_tab(runset_id)
   $.each(runsets, function(id, runset){
     if (id > 1 && runset.id == runset_id) {
       $("#data-selector").tabs("option", "active", id)
-      console.log("should activate runset tab", runset_id)
       refresh_runset()
       return
     }
@@ -59,10 +58,14 @@ function setup_data_selector()
   var tabs = $("#data-selector").tabs({
     activate: function(event, ui) {
       var active = tabs.tabs( "option", "active" )
-      if(active > 1)
+      if(active > 1){
+        $('#show_input').hide()
         $('#tab-common').show()
-      else
+      }
+      else{
         $('#tab-common').hide()
+        $('#show_input').show()
+      }
 
       // TODO: show runset info
       refresh_runset()
@@ -86,36 +89,39 @@ function setup_data_selector()
     })
     tabs.tabs( "refresh" );
     $('#tab-common').hide()
+    $('#show_input').show()
   })
   
   // close icon remove runset from server
   tabs.delegate( "span.ui-icon-close", "click", function() {
     if (confirm("Are you sure you want to permanently delete this runset?")){
       var span_id = $(this).attr("id")
-      console.log(span_id)
-      $.ajax({
-        url: '/runsets/'+ span_id,
-        type: "DELETE",
-        success: function(){
-          // delete item from array
-          runsets = $.grep(runsets,function(value, i){
-            if(i<=1)
-              return value
-            else if(i>1)
-             return value.id != span_id
-          })
-          runtable.draw();
-          // activate claim tab 
-          tabs.tabs({active:0})        
-        }
-      });
-      // remove tab when tab is closed
-      var panelId = $( this ).closest( "li" ).remove()
-      $( "#" + panelId ).remove()
-      tabs.tabs( "refresh" )
+       var span_rm = this
+       delete_runset(span_rm, span_id)
     }
   });
+}
 
+function delete_runset(span_rm,span_id){
+  $.ajax({
+    url: '/runsets/'+ span_id,
+    type: "DELETE",
+    success: function(){
+      // delete item from array
+      runsets = $.grep(runsets,function(value, i){
+        if(i<=1)
+          return value
+        else if(i>1)
+          return value.id != span_id
+      })
+      runtable.draw()
+      var panelId = $( span_rm).closest( "li" ).remove()
+      $( "#" + panelId ).remove()
+      $('#data_selector').tabs( "refresh" )
+    }
+  });
+  var tabs = $("#data-selector").tabs()
+  tabs.tabs({active:0}) 
 }
 
 function setup_pusher()
@@ -210,8 +216,6 @@ function setup_runtable()
               url: '/runs/'+ run_id,
               type: "DELETE",
               success: function(){
-                destroy_datatables()
-                setup_datatables()
                 runtable.draw();
                 $.each(runsets, function(i, runset){
                   if(i>1){
@@ -220,6 +224,16 @@ function setup_runtable()
                     })
                   }
                 })
+                runsets = $.grep(runsets,function(value, i){
+                  if(i>1 && value.runs == 0){
+                    delete_runset('span#'+value.id, value.id)
+                    return
+                  }
+                  else
+                    return value
+                })
+                destroy_datatables()
+                setup_datatables()
               }
             });
           }
@@ -624,6 +638,8 @@ function setup_layout()
   var inner_center = '15%'
   var inner_east =  '70%'
   var inner_south = '15%'
+
+
   pageLayout = $('body').layout($.extend({
     applyDefaultStyles: true,
     west__size: page_west,
