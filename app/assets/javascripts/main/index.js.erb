@@ -7,7 +7,7 @@ var checked_algo = []
 var runsets = ["claims", "ground"]
 
 $(document).ready(function() {
-  setup_layout()
+    setup_layout()
   setup_west_pane()
   setup_datasets_dialog()
   setup_data_selector()
@@ -58,11 +58,16 @@ function setup_data_selector()
   var tabs = $("#data-selector").tabs({
     activate: function(event, ui) {
       var active = tabs.tabs( "option", "active" )
+     
       if(active > 1){
         $('#show_input').hide()
         $('#tab-common').show()
       }
       else{
+        // if($("table#datasets_table tbody tr").length > 0)
+        //   $('#ground_tab').hide()
+        // else
+        //   $('ground_tab').show()
         $('#tab-common').hide()
         $('#show_input').show()
       }
@@ -633,12 +638,12 @@ function append_runs_to_table(runset, thead, cols)
 
 function setup_layout()
 {
+  
   var page_west = '30%'
   var inner_west = '15%'
   var inner_center = '15%'
   var inner_east =  '70%'
   var inner_south = '15%'
-
 
   pageLayout = $('body').layout($.extend({
     applyDefaultStyles: true,
@@ -660,7 +665,13 @@ function setup_layout()
       ground_dt.columns.adjust();
     },
   },layoutState.load('pageLayout')));
-  
+
+  inner_height()
+  $('.ui-layout-center').css('padding', '0px')
+  $(window).resize(function(){
+    inner_height()
+  })
+
   searchResultsLayout = $(".inner").layout($.extend({
     applyDefaultStyles: true,
     south__size: inner_south,
@@ -684,6 +695,8 @@ function setup_layout()
 
   $(window).unload(function(){ layoutState.save('pageLayout')})
   $(window).unload(function(){ layoutState.save('searchResultsLayout') })
+
+  
 
   $('#Logo').click(function(){
     pageLayout.sizePane('west', page_west)
@@ -900,4 +913,8 @@ function setup_datasets_dialog(dataset_icon_selector){
   $(".download-datasets").click(function(){
     dialog_div.dialog('open')
   });
+}
+
+function inner_height(){
+  $('.inner').css('height', $(window).height() - $('#data-selector').height())
 }
