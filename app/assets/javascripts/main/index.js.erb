@@ -20,7 +20,7 @@ $(document).ready(function() {
 function ground_tab_hidden(){
   var value = $('#ground_datasets_table').dataTable().fnGetData().length
   console.log(value)
-  if(value == 1 || value == 0 )
+  if (value == 0)
     $('#ground_tab').hide()
   else
     $('#ground_tab').show()
@@ -328,8 +328,6 @@ function setup_claims_dataset_table()
 function setup_ground_dataset_table()
 {
   ground_dt = setup_dataset_table("ground")
-  
-
 }
 
  function setup_dataset_table(dataset_kind){
@@ -347,6 +345,7 @@ function setup_ground_dataset_table()
       var url = "/datasets?kind="+dataset_kind
       $.getJSON(url, data, function(response){
         callback(response)
+        ground_tab_hidden()
         $(".trash-icon", obj).click(function(){
           if(confirm("Are you sure you want to delete this dataset?"))
           $.ajax({
@@ -354,9 +353,7 @@ function setup_ground_dataset_table()
             type: "DELETE",
             success: function(){
               dt.draw()
-              refresh_datatables()
-              ground_tab_hidden()
-              
+              refresh_datatables()              
             }
           });
          });
@@ -839,7 +836,6 @@ function setup_west_pane()
         setup_claims_dataset_table()
       else if (ui.newHeader.attr("id") == "upload_ground_header"){
         setup_ground_dataset_table()
-        ground_tab_hidden()
       }
     }
   })
@@ -869,7 +865,6 @@ function setup_west_pane()
       claims_dt.draw()
       ground_dt.draw()
       refresh_datatables();
-      ground_tab_hidden()
     },
     fail: function() {
       // console.log("cancelled upload")
