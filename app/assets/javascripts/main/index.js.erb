@@ -55,13 +55,6 @@ function add_runset(runset)
 
 function refresh_runset()
 {
-  var row = $('#datatable').dataTable().fnGetNodes()
-  var hidden = []
-  $.each(rows, function(index, value){
-    if($(value).is(':hidden'))
-      console.log(value+ "is hidden")
-  })
-  console.log(rows.length)
   destroy_datatables()
   setup_datatables()
   refresh_charts()
