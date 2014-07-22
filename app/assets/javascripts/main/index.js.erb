@@ -7,7 +7,7 @@ var checked_algo = []
 var runsets = ["claims", "ground"]
 
 $(document).ready(function() {
-    setup_layout()
+  setup_layout()
   setup_west_pane()
   setup_datasets_dialog()
   setup_data_selector()
@@ -16,6 +16,15 @@ $(document).ready(function() {
   setup_runtable()
   setup_pusher()
 });
+
+function ground_tab_hidden(){
+  var value = $('#ground_datasets_table').dataTable().fnGetData().length
+  console.log(value)
+  if(value == 1 || value == 0 )
+    $('#ground_tab').hide()
+  else
+    $('#ground_tab').show()
+}
 
 function activate_runset_tab(runset_id)
 {
@@ -46,6 +55,13 @@ function add_runset(runset)
 
 function refresh_runset()
 {
+  var row = $('#datatable').dataTable().fnGetNodes()
+  var hidden = []
+  $.each(rows, function(index, value){
+    if($(value).is(':hidden'))
+      console.log(value+ "is hidden")
+  })
+  console.log(rows.length)
   destroy_datatables()
   setup_datatables()
   refresh_charts()
@@ -64,10 +80,7 @@ function setup_data_selector()
         $('#tab-common').show()
       }
       else{
-        // if($("table#datasets_table tbody tr").length > 0)
-        //   $('#ground_tab').hide()
-        // else
-        //   $('ground_tab').show()
+        
         $('#tab-common').hide()
         $('#show_input').show()
       }
@@ -315,6 +328,8 @@ function setup_claims_dataset_table()
 function setup_ground_dataset_table()
 {
   ground_dt = setup_dataset_table("ground")
+  
+
 }
 
  function setup_dataset_table(dataset_kind){
@@ -338,8 +353,10 @@ function setup_ground_dataset_table()
             url: '/datasets/'+$(this).attr("dataset_id"),
             type: "DELETE",
             success: function(){
-              dt.draw();
+              dt.draw()
               refresh_datatables()
+              ground_tab_hidden()
+              
             }
           });
          });
@@ -361,6 +378,7 @@ function setup_ground_dataset_table()
       }
     ]
   });
+
    return dt;
  }
 
@@ -644,6 +662,7 @@ function setup_layout()
   var inner_center = '15%'
   var inner_east =  '70%'
   var inner_south = '15%'
+  $('#ground_tab').hide()
 
   pageLayout = $('body').layout($.extend({
     applyDefaultStyles: true,
@@ -818,8 +837,10 @@ function setup_west_pane()
     "activate": function(event, ui) {
       if (ui.newHeader.attr("id") == "upload_claims_header")
         setup_claims_dataset_table()
-      else if (ui.newHeader.attr("id") == "upload_ground_header")
+      else if (ui.newHeader.attr("id") == "upload_ground_header"){
         setup_ground_dataset_table()
+        ground_tab_hidden()
+      }
     }
   })
   setup_claims_dataset_table();
@@ -848,6 +869,7 @@ function setup_west_pane()
       claims_dt.draw()
       ground_dt.draw()
       refresh_datatables();
+      ground_tab_hidden()
     },
     fail: function() {
       // console.log("cancelled upload")
