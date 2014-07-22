@@ -333,7 +333,6 @@ function setup_ground_dataset_table()
     scrollX: true,  // so that table header scrolls with content
     destroy: true,
     ordering: false,
-    "stateSave": true,
     ajax: function (data, callback, settings) {
       var url = "/datasets?kind="+dataset_kind
       $.getJSON(url, data, function(response){
@@ -472,7 +471,6 @@ function setup_datatables() {
     "scrollY": has_normailze_checkbox ? height - 50 : height,
     "scrollX": true,  // so that table header scrolls with content
     jQueryUI: true,
-    "stateSave": true,
     "dom": 'C<"toolbar"T>JtSif',
     "colVis": {
       "exclude": []
@@ -562,7 +560,6 @@ function setup_single_datatable(field_name, field_display, showing_inputs, runse
     "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
     "scrollY": has_normailze_checkbox ? height - 30 : height,
     jQueryUI: true,
-    "stateSave": true,
     "ajax": function (data, callback, settings) {
       var url
       if (showing_inputs) {
