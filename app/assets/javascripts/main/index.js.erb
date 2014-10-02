@@ -5,6 +5,7 @@ var runtable_tools
 var config_data = {}
 var checked_algo = []
 var runsets = ["claims", "ground"]
+var s3_direct_post = {}
 
 $(document).ready(function() {
   setup_layout()
@@ -336,6 +337,7 @@ function setup_ground_dataset_table()
     ajax: function (data, callback, settings) {
       var url = "/datasets?kind="+dataset_kind
       $.getJSON(url, data, function(response){
+        s3_direct_post = response.s3_direct_post
         callback(response)
         ground_tab_hidden()
         $(".trash-icon", obj).click(function(){
@@ -834,8 +836,12 @@ function setup_west_pane()
   // file upload
   var jqXHR= null;
   $('.fileupload').fileupload({
-    dataType: 'json',
     add: function (e, data) {
+      data.dataType = 'XML'
+      data.formData = s3_direct_post.fields
+      data.url = s3_direct_post.url
+      data.method = 'POST'
+      data.paramName = 'file'
       jqXHR = data.submit()
       $(this).parent().next().next().removeAttr('disabled')
     },  
@@ -850,11 +856,20 @@ function setup_west_pane()
        $(this).parent().next().next().next().find('.progress-bar')
         .css('width', progress + '%');
     },
-    done: function() {
+    done: function(e, data) {
       $(this).parent().next().next().attr('disabled', 'disabled')
-      claims_dt.draw()
-      ground_dt.draw()
-      refresh_datatables();
+
+      // extract key and generate URL from response
+      var key = $(data.jqXHR.responseXML).find("Key").text()
+      $.post('/datasets', {
+        s3_key: key,
+        original_filename: key.split("/").pop(),
+        kind: $(this).attr("kind")
+      }, function(){
+        claims_dt.draw()
+        ground_dt.draw()
+        refresh_datatables();
+      })
     },
     fail: function() {
       // console.log("cancelled upload")

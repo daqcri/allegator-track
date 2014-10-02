@@ -41,7 +41,7 @@ gem 'unicorn'
 
 gem 'devise'
 
-gem 'carrierwave-postgresql'
+gem 'aws-sdk'
 
 group :development do
   gem 'foreman'

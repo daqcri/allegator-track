@@ -8,35 +8,32 @@ class DatasetsController < ApplicationController
     # receive uploads
     ds = Dataset.new
     ds.kind = params[:kind] || 'claims'
-    ds.original_filename = params[:csv].original_filename
-    ds.upload = params[:csv]
+    ds.original_filename = params[:original_filename]
+    ds.s3_key = params[:s3_key]
     ds.user = current_user
     ds.save!
 
     # parse
     ds.parse_upload
 
-    # delete upload
-    ds.upload = nil
-    ds.save!
-
     render json: {status: 'OK'}
   end
 
   def index
+    # list all user datasets of a specified kind, generating an s3 presigned url for future uploads
     datasets = current_user.datasets.where(kind: params[:kind]).order(created_at: :desc)
     start = params[:start].to_i
     length = params[:length].to_i
     length = total if length == -1
     datasets = datasets.offset(start).limit(length)
+    s3_direct_post = S3_BUCKET.presigned_post(key: "import/#{SecureRandom.uuid}/${filename}", success_action_status: 201)
     render json: {
       draw: params[:draw].to_i,
       recordsTotal: datasets.length,
       recordsFiltered: datasets.length,
-      data: datasets
+      data: datasets,
+      s3_direct_post: {url: s3_direct_post.url.to_s, fields: s3_direct_post.fields}
     }
-    
-
   end
 
   def destroy

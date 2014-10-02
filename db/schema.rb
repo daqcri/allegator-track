@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140713110712) do
+ActiveRecord::Schema.define(version: 20141002111849) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -45,11 +45,11 @@ ActiveRecord::Schema.define(version: 20140713110712) do
 
   create_table "datasets", force: true do |t|
     t.integer  "user_id"
-    t.integer  "upload"
     t.string   "kind"
     t.string   "original_filename"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "s3_key",            limit: 1024
   end
 
   add_index "datasets", ["user_id"], name: "index_datasets_on_user_id", using: :btree

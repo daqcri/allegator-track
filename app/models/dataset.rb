@@ -1,20 +1,16 @@
-require './app/uploaders/csv_uploader.rb'
-
 class Dataset < ActiveRecord::Base
   belongs_to :user
   has_many :dataset_rows, dependent: :destroy, autosave: true
   has_and_belongs_to_many :runsets
 
-  mount_uploader :upload, CsvUploader
-
   def to_s
-    self.upload.current_path
+    self.original_filename
   end
 
   def parse_upload
     require 'csv'
     csv_opts = {:headers => true, :return_headers => false, :header_converters => :symbol, :converters => :all}
-    CSV.parse(self.upload.read, csv_opts) do |row|
+    CSV.foreach(read_file, csv_opts) do |row|
       DatasetRow.initialize_from_row(row, self)
     end
     self.save!
@@ -48,5 +44,17 @@ class Dataset < ActiveRecord::Base
     conn = ActiveRecord::Base.connection
     conn.execute("DELETE FROM dataset_rows WHERE dataset_id = #{self.id}")    
     super # continue from super to call all after_destroy callbacks
+  end
+
+private
+  
+  def read_file
+    # streaming download from S3
+    file = Tempfile.new("import-#{self.id}-")
+    S3_BUCKET.objects[self.s3_key].read do |chunk|
+      file.write chunk
+    end
+    file.close
+    file.path
   end
 end
