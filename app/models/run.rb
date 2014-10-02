@@ -37,7 +37,7 @@ class Run < ActiveRecord::Base
   def after
     self.finished_at = Time.now
     self.save
-    Pusher.trigger_async("user_#{runset.user.id}", 'run_change', self)
+    Pusher.trigger("user_#{runset.user.id}", 'run_change', self)
   end
 
   def status

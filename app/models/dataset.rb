@@ -7,6 +7,10 @@ class Dataset < ActiveRecord::Base
     self.original_filename
   end
 
+  def before
+    push_status 'processing'
+  end
+
   def parse_upload
     require 'csv'
     csv_opts = {:headers => true, :return_headers => false, :header_converters => :symbol, :converters => :all}
@@ -14,6 +18,15 @@ class Dataset < ActiveRecord::Base
       DatasetRow.initialize_from_row(row, self)
     end
     self.save!
+  end
+  handle_asynchronously :parse_upload, :queue => 'process_uploads'
+
+  def success
+    push_status 'done'
+  end
+
+  def error
+    push_status 'failed'
   end
 
   def row_count
@@ -32,7 +45,7 @@ class Dataset < ActiveRecord::Base
 
   def as_json(options={})
     options = {
-      :only => [:id, :kind, :original_filename, :created_at],
+      :only => [:id, :kind, :original_filename, :created_at, :status],
       :methods => [:row_count]
     }.merge(options)
     super(options)
@@ -56,5 +69,11 @@ private
     end
     file.close
     file.path
+  end
+
+  def push_status(status)
+    self.status = status
+    self.save!
+    Pusher.trigger("user_#{self.user.id}", 'dataset_change', self)
   end
 end
