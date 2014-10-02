@@ -20,7 +20,6 @@ $(document).ready(function() {
 
 function ground_tab_hidden(){
   var value = $('#ground_datasets_table').dataTable().fnGetData().length
-  console.log(value)
   if (value == 0)
     $('#ground_tab').hide()
   else
@@ -453,6 +452,7 @@ function setup_datatables() {
   var data_selector = $("#data-selector").tabs("option", "active")
 
   var showing_inputs = data_selector <= 1
+  var hidden_column = []
   var runset = runsets[data_selector]
   var has_normailze_checkbox = false;
   var checkbox = $("#claims_normalize");
@@ -469,7 +469,6 @@ function setup_datatables() {
     })
 
   var filter = typeof datatable != 'undefined' ? datatable.search() : ''
-
 
   var obj = $('#datatable')
   obj.removeData("last_filter")
@@ -504,10 +503,12 @@ function setup_datatables() {
     "scrollY": has_normailze_checkbox ? height - 50 : height,
     "scrollX": true,  // so that table header scrolls with content
     jQueryUI: true,
+    "bStateSave": true,
     "dom": 'C<"toolbar"T>JtSif',
     "colVis": {
       "exclude": []
     },
+
     "ajax": function (data, callback, settings) {
       var url
       if (showing_inputs) {
@@ -558,6 +559,12 @@ function setup_datatables() {
       "aButtons": []
     }
   });
+  $.each($("#datatable").dataTable().fnSettings().aoColumns, function(c){
+    if($("#datatable").dataTable().fnSettings().aoColumns[c].bVisible == false){
+      hidden_column = hidden_column.concat($("#datatable").dataTable().fnSettings().aoColumns[c].idx)
+    }
+  })
+  console.log(hidden_column)
 
   $("#datatable_filter input").val(filter)
 
@@ -567,6 +574,7 @@ function setup_datatables() {
 
   source_table.draw()
   object_table.draw()
+  
 }
 
 function setup_single_datatable(field_name, field_display, showing_inputs, runset, height, filter, search_callback)
