@@ -53,3 +53,10 @@ gem 'delayed_job_active_record', "~> 4.0.1"
 gem "daemons"
 
 gem 'pusher'
+
+group :production, :demo do
+  # New Relic integration
+  #gem 'newrelic_rpm'
+  # heroku will inject this anyway, better do through Gemfile to supress plugin injection warning
+  gem 'rails_12factor'
+end
