@@ -600,6 +600,7 @@ function setup_single_datatable(field_name, field_display, showing_inputs, runse
     "serverSide": true,
     "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
     "scrollY": has_normailze_checkbox ? height - 30 : height,
+    "scrollX": true,  // so that table header scrolls with content
     jQueryUI: true,
     "ajax": function (data, callback, settings) {
       var url
