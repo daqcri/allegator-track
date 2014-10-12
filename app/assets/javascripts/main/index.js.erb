@@ -68,12 +68,11 @@ function setup_data_selector()
     activate: function(event, ui) {
       var active = tabs.tabs( "option", "active" )
      
-      if(active > 1){
+      if (active > 1) {
         $('#show_input').hide()
         $('#tab-common').show()
       }
-      else{
-        
+      else {
         $('#tab-common').hide()
         $('#show_input').show()
       }
@@ -440,9 +439,9 @@ function refresh_datatables()
 
 function destroy_datatables()
 {
-  source_table.destroy();
-  object_table.destroy();
-  datatable.destroy();
+  source_table.search(''); source_table.destroy();
+  object_table.search(''); object_table.destroy();
+  datatable.search(''); datatable.destroy();
 }
 
 function setup_datatables() {
@@ -468,10 +467,14 @@ function setup_datatables() {
       datatable.draw()
     })
 
-  var filter = typeof datatable != 'undefined' ? datatable.search() : ''
+  // maintain search filter and order across destroy/create
+  var filter = '', order = [[0, 'asc']]
+  if (typeof datatable != 'undefined') {
+    filter = datatable.search()
+    order = datatable.order()
+  }
 
   var obj = $('#datatable')
-  obj.removeData("last_filter")
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
   var cols = []
@@ -503,12 +506,12 @@ function setup_datatables() {
     "scrollY": has_normailze_checkbox ? height - 50 : height,
     "scrollX": true,  // so that table header scrolls with content
     jQueryUI: true,
-    "bStateSave": true,
     "dom": 'C<"toolbar"T>JtSif',
     "colVis": {
       "exclude": []
     },
-
+    "search": {"search": filter},
+    "order": order,
     "ajax": function (data, callback, settings) {
       var url
       if (showing_inputs) {
@@ -566,10 +569,6 @@ function setup_datatables() {
   })
   console.log(hidden_column)
 
-  $("#datatable_filter input").val(filter)
-
-  if (filter) datatable.search(filter).draw()
-
   toggle_normalize_checkbox(checkbox, has_normailze_checkbox, datatable)
 
   source_table.draw()
@@ -581,7 +580,6 @@ function setup_single_datatable(field_name, field_display, showing_inputs, runse
 {
   console.log("in setup_single_datatable", field_name)
   var obj = $("#"+field_name+"_datatable")
-  obj.removeData("last_filter")
 
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
@@ -601,7 +599,8 @@ function setup_single_datatable(field_name, field_display, showing_inputs, runse
     "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
     "scrollY": has_normailze_checkbox ? height - 30 : height,
     "scrollX": true,  // so that table header scrolls with content
-    jQueryUI: true,
+    "jQueryUI": true,
+    "search": {"search": filter},
     "ajax": function (data, callback, settings) {
       var url
       if (showing_inputs) {
@@ -621,7 +620,7 @@ function setup_single_datatable(field_name, field_display, showing_inputs, runse
       $.getJSON(url, data, function(response){
         callback(response)
       })
-    // manually handle search filter change to update other tables
+      // manually handle search filter change to update other tables
       if (obj.data("last_filter") != dt.search()) {
         obj.data("last_filter", dt.search())
         search_callback()
@@ -648,9 +647,6 @@ function setup_single_datatable(field_name, field_display, showing_inputs, runse
   });
   $("#"+field_name+"_datatable_filter input")
       .attr("placeholder", "Search")
-      .val(filter)
-
-  if (filter) dt.search(filter)
 
   toggle_normalize_checkbox(checkbox, has_normailze_checkbox, dt)
 
