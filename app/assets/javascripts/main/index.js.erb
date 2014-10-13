@@ -6,6 +6,8 @@ var config_data = {}
 var checked_algo = []
 var runsets = ["claims", "ground"]
 var s3_direct_post = {}
+var datatable_hidden_columns = []
+var datatable_columns = []
 
 $(document).ready(function() {
   setup_layout()
@@ -439,19 +441,44 @@ function refresh_datatables()
 
 function destroy_datatables()
 {
-  source_table.search(''); source_table.destroy();
-  object_table.search(''); object_table.destroy();
-  datatable.search(''); datatable.destroy();
+  // sources table
+  source_table.search('')
+  source_table.destroy()
+  // objects table
+  object_table.search('')
+  object_table.destroy()
+  // claims table
+  datatable.search('')
+  save_hidden_columns()
+  datatable.destroy()
+}
+
+function save_hidden_columns()
+{
+  // sets datatable_hidden_columns array of hidden columns in datatable
+  var visible_list = datatable.columns().visible()
+  for (var i = 0; i < visible_list.length; i++) {
+    if (!visible_list[i])
+      datatable_hidden_columns.push(datatable_columns[i].data)
+  }
+}
+
+function is_hidden_column(field_name)
+{
+  // returns boolean wheather column is hidden in datatable
+  return $.inArray(field_name, datatable_hidden_columns) > -1
 }
 
 function setup_datatables() {
+
+  if (typeof datatable != 'undefined') save_hidden_columns()
+
   var datatable_excess = 135
   var height = searchResultsLayout.state.center.innerHeight - datatable_excess
 
   var data_selector = $("#data-selector").tabs("option", "active")
 
   var showing_inputs = data_selector <= 1
-  var hidden_column = []
   var runset = runsets[data_selector]
   var has_normailze_checkbox = false;
   var checkbox = $("#claims_normalize");
@@ -477,7 +504,7 @@ function setup_datatables() {
   var obj = $('#datatable')
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
-  var cols = []
+  datatable_columns = []
   var basic_fields = {
     claim_id: "claim_id",
     object_key: "object_id",
@@ -491,12 +518,12 @@ function setup_datatables() {
 
   $.each(basic_fields, function(field_name, field_display){
     thead.append("<th>"+field_display+"</th>")
-    cols.push({data: field_name})
+    push_column_data(datatable_columns, field_name)
   })
 
   var finished_runs
   if (!showing_inputs) {
-    finished_runs = append_runs_to_table(runset, thead, cols)
+    finished_runs = append_runs_to_table(runset, thead, datatable_columns)
     has_normailze_checkbox = !showing_inputs && finished_runs.length > 0;
   }
 
@@ -508,7 +535,8 @@ function setup_datatables() {
     jQueryUI: true,
     "dom": 'C<"toolbar"T>JtSif',
     "colVis": {
-      "exclude": []
+      "exclude": [],
+      "activate": "mouseover"
     },
     "search": {"search": filter},
     "order": order,
@@ -535,7 +563,7 @@ function setup_datatables() {
         object_table.draw();
       }
     },
-    "columns": cols,
+    "columns": datatable_columns,
     "rowCallback": function( row, data ) {
       // Color the confidences green/red
       if (!showing_inputs) {
@@ -562,12 +590,6 @@ function setup_datatables() {
       "aButtons": []
     }
   });
-  $.each($("#datatable").dataTable().fnSettings().aoColumns, function(c){
-    if($("#datatable").dataTable().fnSettings().aoColumns[c].bVisible == false){
-      hidden_column = hidden_column.concat($("#datatable").dataTable().fnSettings().aoColumns[c].idx)
-    }
-  })
-  console.log(hidden_column)
 
   toggle_normalize_checkbox(checkbox, has_normailze_checkbox, datatable)
 
@@ -674,9 +696,14 @@ function append_runs_to_table(runset, thead, cols)
   var finished_runs = $.grep(runset.runs, function(run){return run.status == 'finished'})
   $.each(finished_runs, function(i, run){
     thead.append("<th>["+run.id + "] " + run.algorithm+"</th>")
-    cols.push({data: 'r'+run.id})
+    push_column_data(cols, 'r' + run.id)
   })
   return finished_runs
+}
+
+function push_column_data(cols, field_name)
+{
+  cols.push({data: field_name, visible: !is_hidden_column(field_name)})
 }
 
 function setup_layout()
