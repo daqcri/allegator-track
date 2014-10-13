@@ -537,7 +537,11 @@ function setup_datatables() {
     "dom": 'C<"toolbar"T>JtSif',
     "colVis": {
       "exclude": [],
-      "activate": "mouseover"
+      "activate": "mouseover",
+      "fnStateChange": function ( iColumn, bVisible ) {
+        if (bVisible)
+          datatable.draw()
+      }
     },
     "search": {"search": filter},
     "order": order,
@@ -570,7 +574,7 @@ function setup_datatables() {
       if (!showing_inputs) {
         $.each(finished_runs, function(id, run){
           var bool = data["r"+run.id+"_bool"]
-          var td = $("td:eq("+(basic_fields_length+id)+")", row)
+          var td = $("span.r"+run.id+"_cell", row).parent()
           td.addClass("claim_is_"+bool)
         })
       }
@@ -697,14 +701,20 @@ function append_runs_to_table(runset, thead, cols)
   var finished_runs = $.grep(runset.runs, function(run){return run.status == 'finished'})
   $.each(finished_runs, function(i, run){
     thead.append("<th>["+run.id + "] " + run.algorithm+"</th>")
-    push_column_data(cols, 'r' + run.id)
+    push_column_data(cols, 'r' + run.id, true)
   })
   return finished_runs
 }
 
-function push_column_data(cols, field_name)
+function push_column_data(cols, field_name, wrap_span)
 {
-  cols.push({data: field_name, visible: is_visible_column(field_name)})
+  var coldef = {data: field_name, visible: is_visible_column(field_name)}
+  if (wrap_span)
+    coldef.render = function(field_value, type, full, meta) {
+      return '<span class="'+field_name+'_cell">'+field_value+'</span>'
+    }
+
+  cols.push(coldef)
 }
 
 function setup_layout()
