@@ -6,7 +6,7 @@ var config_data = {}
 var checked_algo = []
 var runsets = ["claims", "ground"]
 var s3_direct_post = {}
-var datatable_hidden_columns = []
+var datatable_columns_visibility = {}
 var datatable_columns = []
 
 $(document).ready(function() {
@@ -449,29 +449,30 @@ function destroy_datatables()
   object_table.destroy()
   // claims table
   datatable.search('')
-  save_hidden_columns()
+  save_columns_visibility()
   datatable.destroy()
+  datatable = undefined // to prevent calling save_columns_visibility again on destroyed table which yields all visible columns
 }
 
-function save_hidden_columns()
+function save_columns_visibility()
 {
-  // sets datatable_hidden_columns array of hidden columns in datatable
+  // sets datatable_columns_visibility array of hidden columns in datatable
   var visible_list = datatable.columns().visible()
   for (var i = 0; i < visible_list.length; i++) {
-    if (!visible_list[i])
-      datatable_hidden_columns.push(datatable_columns[i].data)
+    datatable_columns_visibility[datatable_columns[i].data] = visible_list[i]
   }
 }
 
-function is_hidden_column(field_name)
+function is_visible_column(field_name)
 {
   // returns boolean wheather column is hidden in datatable
-  return $.inArray(field_name, datatable_hidden_columns) > -1
+  return (datatable_columns_visibility[field_name] === true) ||
+    (typeof datatable_columns_visibility[field_name] == 'undefined')
 }
 
 function setup_datatables() {
 
-  if (typeof datatable != 'undefined') save_hidden_columns()
+  if (typeof datatable != 'undefined') save_columns_visibility()
 
   var datatable_excess = 135
   var height = searchResultsLayout.state.center.innerHeight - datatable_excess
@@ -703,7 +704,7 @@ function append_runs_to_table(runset, thead, cols)
 
 function push_column_data(cols, field_name)
 {
-  cols.push({data: field_name, visible: !is_hidden_column(field_name)})
+  cols.push({data: field_name, visible: is_visible_column(field_name)})
 }
 
 function setup_layout()
