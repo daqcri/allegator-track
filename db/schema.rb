@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141002130614) do
+ActiveRecord::Schema.define(version: 20141014082846) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,7 +41,13 @@ ActiveRecord::Schema.define(version: 20141002130614) do
     t.string  "timestamp"
   end
 
+  add_index "dataset_rows", ["claim_id"], name: "index_dataset_rows_on_claim_id", using: :btree
   add_index "dataset_rows", ["dataset_id"], name: "index_dataset_rows_on_dataset_id", using: :btree
+  add_index "dataset_rows", ["object_key"], name: "index_dataset_rows_on_object_key", using: :btree
+  add_index "dataset_rows", ["property_key"], name: "index_dataset_rows_on_property_key", using: :btree
+  add_index "dataset_rows", ["property_value"], name: "index_dataset_rows_on_property_value", using: :btree
+  add_index "dataset_rows", ["source_id"], name: "index_dataset_rows_on_source_id", using: :btree
+  add_index "dataset_rows", ["timestamp"], name: "index_dataset_rows_on_timestamp", using: :btree
 
   create_table "datasets", force: true do |t|
     t.integer  "user_id"
