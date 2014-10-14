@@ -171,6 +171,7 @@ function setup_pusher()
       row.data(dataset)
       bind_dataset_delete($(".trash-icon", row.node()), datatable)
       $(row.node()).effect("highlight")
+      refresh_datatables();
     }
   });
 }
@@ -938,9 +939,8 @@ function setup_west_pane()
         original_filename: key.split("/").pop(),
         kind: $(this).attr("kind")
       }, function(){
-        claims_dt.draw()
-        ground_dt.draw()
-        refresh_datatables();
+        if (typeof claims_dt != 'undefined') claims_dt.draw()
+        if (typeof ground_dt != 'undefined') ground_dt.draw()
       })
     },
     fail: function() {
