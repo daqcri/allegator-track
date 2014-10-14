@@ -60,7 +60,7 @@ function refresh_runset()
   destroy_datatables()
   setup_datatables()
   refresh_charts()
-  console.log('refresh_runset called')
+  // console.log('refresh_runset called')
 }
 
 function setup_data_selector()
@@ -205,7 +205,7 @@ function setup_runtable()
 {
   var runtable_excess = 47
   var height = searchResultsLayout.state.south.innerHeight - runtable_excess
-  console.log(height)
+  // console.log(height)
   var obj = $('#run_table')
   runtable = obj.DataTable({
     dom: 'tJST',
@@ -224,7 +224,7 @@ function setup_runtable()
           event.stopPropagation(); // stop the click from propagating to the tr to select/deselcet
           // if(confirm("Sorry, not implemented yet, just keep calm and stay tuned!")) {
           if(alert("Sorry, not implemented yet, just keep calm and stay tuned!")) {
-            console.log("Cancelling...")
+            // console.log("Cancelling...")
             // $.ajax({
             //   url: '/runs/'+$(this).attr("dataset_id"),
             //   type: "DELETE",
@@ -314,7 +314,7 @@ function setup_runtable()
       "sRowSelect": "single",  // "os" doesn't allow fnPreRowSelect to work!
       "fnRowSelected": function ( nodes ) {
         var run = runtable.row(nodes[0]).data()
-        console.log("selected run", run)
+        // console.log("selected run", run)
         activate_runset_tab(run.runset_id)
       },
       // "fnPreRowSelect": function ( ev, nodes ) {
@@ -605,7 +605,7 @@ function setup_datatables() {
 
 function setup_single_datatable(field_name, field_display, showing_inputs, runset, height, filter, search_callback)
 {
-  console.log("in setup_single_datatable", field_name)
+  // console.log("in setup_single_datatable", field_name)
   var obj = $("#"+field_name+"_datatable")
 
   obj.empty().append($("<thead><tr></tr></thead>"))
@@ -717,6 +717,14 @@ function push_column_data(cols, field_name, wrap_span)
   cols.push(coldef)
 }
 
+function adjust_dt_columns()
+{
+  if (typeof datatable != 'undefined') datatable.columns.adjust();
+  if (typeof claims_dt != 'undefined') claims_dt.columns.adjust();
+  if (typeof ground_dt != 'undefined') ground_dt.columns.adjust();
+  if (typeof runtable != 'undefined') runtable.columns.adjust();
+}
+
 function setup_layout()
 {
   
@@ -734,18 +742,8 @@ function setup_layout()
     west__maxSize: "50%",
     autoResize:       true, 
     animatePaneSizing: true,
-    west__onresize: function() {
-      datatable.columns.adjust();
-      claims_dt.columns.adjust();
-      ground_dt.columns.adjust();
-      runtable.columns.adjust();
-    },
-    west__onclose: function() {
-      datatable.columns.adjust();
-      runtable.columns.adjust();
-      claims_dt.columns.adjust();
-      ground_dt.columns.adjust();
-    },
+    west__onresize: adjust_dt_columns,
+    west__onclose: adjust_dt_columns,
   },layoutState.load('pageLayout')));
 
   inner_height()
