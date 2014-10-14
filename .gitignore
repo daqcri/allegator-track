@@ -20,3 +20,4 @@
 *.sublime-project
 *.sublime-workspace
 .env-production
+/public/assets

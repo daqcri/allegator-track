@@ -21,8 +21,12 @@ SECRET_KEY_BASE=1a1fbde43bca15444e77a646c8b1a9da50cb6fedd73769e93725b86b36d045e1
 
 * for development, just change database role name/password to match config/database.yml development section
 
-* foreman run rake db:setup
+* foreman run rake db:create
+* foreman run rake db:migrate
+* foreman run rake db:seed
 * foreman run rake assets:precompile
+
+Note we don't use db:setup because we have hard-coded indices in migrations that are not reflected in schema.rb
 
 * Start the app:
 foreman start
