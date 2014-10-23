@@ -69,7 +69,7 @@ var algorithms = [
   {name: "MLE", description: "MLE (Maximum Likelihood Estimation) proposed by D. Wang, L. M. Kaplan, H. K. Le, and T. F. Abdelzaher. On Truth Discovery in Social Sensing: a Maximum Likelihood Estimation Approach. In IPSN, pp. 233–244, 2012, is based on the Expectation Maximization (EM) algorithm to quantify the reliability of sources and the correctness of their observations. It only deals with boolean positive attributes observations.", params: [
     {name: 'Prior truth probability', value: 0.5, dataType: 'double', min: 0, max: 1, desc: 'Overall prior probability of the claims being the true claims.'},
     {name: 'r', value: 0.5, dataType: 'double', min: 0, max: 1, desc: 'The probability that a source provides a value for all data items.'},
-  ]},
+  ], multi: true},
   {name: "LTM", description: "LTM (Latent Truth Model) proposed by B. Zhao, B. I. P. Rubinstein, J. Gemmell, and J. Han. A Bayesian Approach to Discovering Truth from Conflicting Sources for Data Integration. PVLDB, 5(6):550–561, 2012, uses Bayesian Networks for estimating the truth. LTM iterates over a fixed number of iterations, and compute the value confidence using Collapsed Gibbs Sampling process.", params: [
     {name: 'Prior truth probability', value: 0.5, dataType: 'double', min: 0.0, max: 1.0, desc: 'Prior probability of how likely each claim is to be true.'},
     {name: 'Prior falsehood probability', value: 0.5, dataType: 'double', min: 0.0, max: 1.0, desc: 'Prior probability of how likely each claim is to be false.'},
@@ -80,5 +80,5 @@ var algorithms = [
     {name: 'Number Of Iterations', value: 500, dataType: 'int', min: 1, max: 10000, desc: 'Number of Iterations.'},
     {name: 'Burn-in', value: 100, dataType: 'int', min: 0, max: 1000, desc: 'Collapsed Gibbs Sampling burn-in period (i.e., the number of discarded first set of iterations). Must be significantly less than the number of iterations.'},
     {name: 'Thinning', value: 9, dataType: 'int', min: 0, max: 1000, desc: 'Collapsed Gibbs Sampling thinning parameter (i.e., the number of iterations to be skipped every time before considering the resul of a selected iteration). Must be significantly less than the number of iterations.'},
-  ]},
+  ], multi: true},
 ]

@@ -11,18 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141002130614) do
+ActiveRecord::Schema.define(version: 20141022133012) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "claim_results", force: true do |t|
     t.integer "run_id"
-    t.string  "claim_id"
     t.float   "confidence"
     t.boolean "is_true"
     t.float   "normalized"
     t.integer "bucket_id"
+    t.integer "claim_id"
   end
 
   add_index "claim_results", ["bucket_id"], name: "index_claim_results_on_bucket_id", using: :btree
@@ -33,12 +33,12 @@ ActiveRecord::Schema.define(version: 20141002130614) do
 
   create_table "dataset_rows", force: true do |t|
     t.integer "dataset_id"
-    t.string  "claim_id"
     t.string  "object_key"
     t.string  "property_key"
     t.string  "property_value"
     t.string  "source_id"
     t.string  "timestamp"
+    t.integer "parent_id"
   end
 
   add_index "dataset_rows", ["dataset_id"], name: "index_dataset_rows_on_dataset_id", using: :btree
@@ -51,6 +51,7 @@ ActiveRecord::Schema.define(version: 20141002130614) do
     t.datetime "updated_at"
     t.string   "s3_key",            limit: 1024
     t.string   "status"
+    t.boolean  "multi",                          default: false
   end
 
   add_index "datasets", ["user_id"], name: "index_datasets_on_user_id", using: :btree

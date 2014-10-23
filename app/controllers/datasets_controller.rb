@@ -14,7 +14,7 @@ class DatasetsController < ApplicationController
     ds.save!
 
     # parse
-    ds.parse_upload
+    ds.delay(queue: 'process_uploads').parse_upload
 
     render json: {status: 'OK'}
   end

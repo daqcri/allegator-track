@@ -5,12 +5,15 @@ class Run < ActiveRecord::Base
   has_many :datasets, :through => :runset
 
   @@JAR_PATH = Rails.root.join("vendor/DAFNA-EA-1.0-jar-with-dependencies.jar")
+  MULTI_VALUED_ALGORITHMS = %w(MLE LTM)
 
   def start
     # export datasets to csv files
     datasets_claims_dir, datasets_grounds_dir, output_dir = Dir.mktmpdir, Dir.mktmpdir, Dir.mktmpdir
     datasets.each do |dataset|
-      dataset.export("#{dataset.kind == 'ground' ? datasets_grounds_dir : datasets_claims_dir}/#{dataset.id}.csv")
+      single_valued_algo = !MULTI_VALUED_ALGORITHMS.include?(algorithm)
+      dir = dataset.kind == 'ground' ? datasets_grounds_dir : datasets_claims_dir
+      dataset.export("#{dir}/#{dataset.id}.csv", single_valued_algo)
     end
     # call the jar
     system("java -jar #{@@JAR_PATH} #{self.algorithm} #{datasets_claims_dir} #{datasets_grounds_dir} #{output_dir} #{self.general_config} #{self.config}")
@@ -165,6 +168,6 @@ private
     min = associtation.minimum(attribute)
     max = associtation.maximum(attribute)
     # calculate/update normalized
-    associtation.update_all("normalized = (#{attribute} - #{min}) / (#{max} - #{min})") if min && max
+    associtation.update_all("normalized = (#{attribute} - #{min}) / (#{max} - #{min})") if min && max && max-min > 1e-10
   end
 end

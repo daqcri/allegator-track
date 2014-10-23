@@ -407,30 +407,36 @@ function bind_dataset_delete(selector, datatable)
 
  function check_algorithm_checkbox()
  {
-  var found_check = false
-  var algorithm_id
+  // returns true if mixing multi-valued and single-valued algorithms 
 
-  $(".algorithm_checkbox").each(function(index, check_box){
+  var algorithm_id
+  var found_single = false, found_multi = false
+
+  $(".algorithm_checkbox").each(function(index, check_box) {
     algorithm_id = $(check_box).attr("algorithm_id")
-      if($(check_box).is(':checked')){        
-        found_check= true
-        $('input:checked+label').css({'background-color':'green','color':'yellow'})
-        $("h3.algorithm_"+algorithm_id).show()
-      }
-      else{
-        $('[type="checkbox"]:not(:checked) + label').css({'background':'none','color':'black'})
-        $(".algorithm_"+algorithm_id).hide()
-      }
+    if ($(check_box).is(':checked')) {
+      $('input:checked+label').css({'background-color':'green','color':'yellow'})
+      $("h3.algorithm_"+algorithm_id).show()
+      if ($(check_box).attr("multi") == "multi")
+        found_multi = true
+      else
+        found_single = true
+    }
+    else {
+      $('[type="checkbox"]:not(:checked) + label').css({'background':'none','color':'black'})
+      $(".algorithm_"+algorithm_id).hide()
+    }
   });
 
-  if (found_check){
+  if (found_single || found_multi){
     // enable configuration tab
     $('#tabs').tabs("enable",1)
   }
   else{
     $('#tabs').tabs("option", "disabled",[1])
-
   }
+
+  return found_single && found_multi
  }
 
 function refresh_datatables()
@@ -515,12 +521,10 @@ function setup_datatables() {
     source_id: "source_id",
     timestamp: "timestamp"
   }
-  // change basic_fields_length if basic_fields changes
-  var basic_fields_length = 6; 
 
   $.each(basic_fields, function(field_name, field_display){
     thead.append("<th>"+field_display+"</th>")
-    push_column_data(datatable_columns, field_name)
+    push_column_data(datatable_columns, field_name, field_name == 'claim_id') // wrap claim_id in span for icons
   })
 
   var finished_runs
@@ -578,6 +582,12 @@ function setup_datatables() {
           var td = $("span.r"+run.id+"_cell", row).parent()
           td.addClass("claim_is_"+bool)
         })
+      }
+      // attach icons for child claims
+      if (data.parent_id && data.parent_id != data.claim_id) {
+        var td = $("span.claim_id_cell", row)
+        td.prepend("<span class='ui-icon ui-icon-arrow-1-se' style='float: left;' " +
+          "title='Claim "+data.claim_id+" is a member of parent multi-valued claim "+data.parent_id+"'" + "></span>")
       }
     },
     "destroy": true,  // destroy first if reinitializing
@@ -826,8 +836,9 @@ function setup_west_pane()
       order ++
       config_data[algorithm.name].push(param.value)
     });
-    html += "<h3 class='algorithm_"+algorithm.name+"'>" + algorithm.name + 
-    "</h3><div class='algorithm_"+algorithm.name+"'><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
+    html += "<h3 class='algorithm_"+algorithm.name+"'>" + algorithm.name
+    if (algorithm.multi) html += "  (multi-valued property values)"
+    html += "</h3><div class='algorithm_"+algorithm.name+"'><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
       + params + "</table></div>"
   }); 
   container.append(html)
@@ -872,11 +883,17 @@ function setup_west_pane()
   var html =""
 
   $.each(algorithms, function(index, algorithm){
-    if(index!= 0)
-    html += "<input type='checkbox' id='algorithm_checkbox_"+algorithm.name+"' algorithm_id='"
-  +algorithm.name+
-  "' class='algorithm_checkbox color_on_check color_on_uncheck'/><label style='background: none;' class='algorithm_checkbox_label' title='"
-  +algorithm.description+"' for='algorithm_checkbox_"+algorithm.name+"'>"+algorithm.name +"</label>"
+    if(index!= 0) {
+      html += "<input type='checkbox' id='algorithm_checkbox_" + 
+        algorithm.name+"' algorithm_id='" + algorithm.name +
+        "' class='algorithm_checkbox color_on_check color_on_uncheck' "
+        if (algorithm.multi) html += "multi='multi'"
+        html += " /><label style='background: none;' class='algorithm_checkbox_label' title='" +
+        algorithm.description+"' for='algorithm_checkbox_"+algorithm.name+"'>" +
+        algorithm.name
+      if (algorithm.multi) html += "  (multi-valued property values)"
+      html += "</label>"
+    }
   });
   container.append(html);
 
@@ -884,8 +901,13 @@ function setup_west_pane()
   $(".algorithm_checkbox")
     .button({icons: {primary: 'ui-icon-closethick'}})
     .change(function(){
+      // Warn if mixing single_valued and multi_valued algorithms
       $(this).button("option", "icons", {primary: $(this).is(':checked') ? 'ui-icon-check' : 'ui-icon-closethick'})
-      check_algorithm_checkbox()
+
+      if (check_algorithm_checkbox()) {
+        alert("Mixing multi-valued algorithms with non-multi-valued algorithms " +
+          "may not display all claims in the runset table!")
+      }
     });
     
   // create the accordion

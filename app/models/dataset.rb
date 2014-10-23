@@ -13,13 +13,16 @@ class Dataset < ActiveRecord::Base
 
   def parse_upload
     require 'csv'
-    csv_opts = {:headers => true, :return_headers => false, :header_converters => :symbol, :converters => :all}
+    csv_opts = {:headers => true, :return_headers => true, :header_converters => :symbol, :converters => :all}
     CSV.foreach(read_file, csv_opts) do |row|
-      DatasetRow.initialize_from_row(row, self)
+      unless row.header_row?
+        DatasetRow.initialize_from_row(row, self)
+      else
+        self.multi = !!row[:propertyvalues] || !!row[:property_values]
+      end
     end
     self.save!
   end
-  handle_asynchronously :parse_upload, :queue => 'process_uploads'
 
   def success
     push_status 'done'
@@ -33,12 +36,16 @@ class Dataset < ActiveRecord::Base
     self.dataset_rows.count
   end
 
-  def export(path)
+  def export(path, single_valued_algo = false)
     require 'csv'
     CSV.open(path, "wb") do |csv|
       csv << DatasetRow.export_header
       dataset_rows.each do |row|
-        csv << row.export
+        if single_valued_algo # e.g. Cosine
+          csv << row.export if row.single_valued?
+        else # e.g. LTM
+          csv << row.export if row.multi_valued?
+        end
       end
     end
   end

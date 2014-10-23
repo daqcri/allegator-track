@@ -45,7 +45,7 @@ class RunsetsController < ApplicationController
       table_alias = "r0"
       col = "confidence"
       select_more = run_ids.map{|r| "r#{r}.is_true r#{r}_bool"}.join(',')
-      joins = run_ids.map{|r| "INNER JOIN claim_results r#{r} ON #{table_alias}.claim_id = r#{r}.claim_id"}.join("\n")
+      joins = run_ids.map{|r| "INNER JOIN claim_results r#{r} ON #{table_alias}.id = r#{r}.claim_id"}.join("\n")
       table_cols = "*"
     end
 
@@ -59,6 +59,7 @@ class RunsetsController < ApplicationController
     if params[:order]
       sort = params[:order]["0"]
       sort_col = params[:columns][sort["column"]]["data"]
+      sort_col = 'r0.id' if sort_col == 'claim_id'  # TODO hack until we rename dataset_rows table to claims
       sort_dir = sort["dir"]
       order = "ORDER BY #{sort_col} #{sort_dir}"
     end
@@ -77,7 +78,7 @@ class RunsetsController < ApplicationController
     # filtering
     if params[:search].present? && params[:search][:value].present?
       criteria = params[:search][:value]
-      fields = params[:extra_only].blank? ? %w(claim_id object_key source_id property_key property_value timestamp) : [params[:extra_only]]
+      fields = params[:extra_only].blank? ? %w(object_key source_id property_key property_value timestamp) : [params[:extra_only]]
       where << " AND (" + fields.map{|f| "LOWER(#{table_alias}.#{f}) like LOWER('%#{criteria}%')"}.join(" OR ") + ")"
     end
     criteria = params[:extra_object_key_criteria]
@@ -90,6 +91,8 @@ class RunsetsController < ApplicationController
 
     #sql = "SELECT #{table_alias}.source_id source_id, #{select + (select_more.present? ? ', ' + select_more : '')}
     table_cols = table_cols.split(',').map{|col| "#{table_alias}.#{col}"}.join(",")
+    # TODO hack until we rename dataset_rows table to claims
+    table_cols = "#{table_cols}, r0.id claim_id" if params[:extra_only].blank?
     sql = "SELECT #{table_cols}, #{select + (select_more.present? ? ', ' + select_more : '')}
       #{from} #{joins} #{where} #{order} #{limit} #{offset}"
     data = conn.select_all(sql)

@@ -1,2 +1,2 @@
 web: bundle exec unicorn -p 4000 -c ./config/unicorn-local.rb
-#worker: bundle exec script/delayed_job run --queue=default
+worker: bundle exec rake jobs:work

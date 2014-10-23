@@ -10,6 +10,7 @@ class DatasetRowsController < ApplicationController
     if params[:order]
       sort = params[:order]["0"]
       sort_col = params[:extra_only] || params[:columns][sort["column"]]["data"]
+      sort_col = 'dataset_rows.id' if sort_col == 'claim_id'  # TODO hack until we rename dataset_rows table to claims
       sort_dir = sort["dir"]
       
       query = query.order("#{sort_col} #{sort_dir}")
@@ -19,13 +20,13 @@ class DatasetRowsController < ApplicationController
     if params[:extra_only].present?
       total = query.select(params[:extra_only]).distinct.count
     elsif params[:extra_kind] == 'claims'
-      total = query.select("claim_id").distinct.count
+      total = query.select("dataset_rows.id").distinct.count
     else
       total = query.distinct.count
     end
 
     # FILTERING
-    fields = %w(claim_id object_key source_id property_key property_value timestamp)
+    fields = %w(object_key source_id property_key property_value timestamp)
     # search by applying search criteria from the current table on the visible fields
     if params[:search][:value].present?
       criteria = params[:search][:value]
@@ -45,7 +46,7 @@ class DatasetRowsController < ApplicationController
 
     # CALCULATING FILTERED COUNT
     filtered = query.count(params[:extra_only].present? ? params[:extra_only] : 
-      (params[:extra_kind] == 'claims' ? 'claim_id' : 'id'))
+      (params[:extra_kind] == 'claims' ? 'dataset_rows.id' : 'id'))
 
     # LIMITING QUERY
     query = limit_query(query)
