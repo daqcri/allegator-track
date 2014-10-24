@@ -26,6 +26,13 @@
       <div class = "accordion" >
         <h3 id="upload_claims_header">Upload Datasets</h3>
         <div> 
+          <div class='upload-hints'>
+            Upload CSV files with a header line having the following
+            column names in any order: <span>ObjectID, PropertyID, PropertyValue, SourceID, TimeStamp</span>. You can replace <span>PropertyValue</span>
+            by <span>PropertyValues</span> and the system will automatically split the
+            contents of this column on the comma when running multi-valued
+            algorithms.
+          </div>
           <span class="btn btn-success fileinput-button">
             <span>Select files...</span>
             <!-- The file input field used as target for the file upload widget -->
@@ -54,6 +61,14 @@
         </div>
         <h3 id="upload_ground_header">Upload Ground Truth Datasets (optional)</h3>
         <div>
+          <div class='upload-hints'>
+            Upload CSV files with a header line having the following
+            column names in any order: <span>ObjectID, PropertyID, PropertyValue
+            </span>. You can replace <span>PropertyValue</span>
+            by <span>PropertyValues</span> and the system will automatically split the
+            contents of this column on the comma when running multi-valued
+            algorithms.
+          </div>
           <span class="btn btn-success fileinput-button">
             <span>Select files...</span>
             <!-- The file input field used as target for the file upload widget -->
