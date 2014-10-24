@@ -36,15 +36,15 @@ class Dataset < ActiveRecord::Base
     self.dataset_rows.count
   end
 
-  def export(path, single_valued_algo = false)
+  def export(path, single_valued_algo = false, value_to_boolean = false)
     require 'csv'
     CSV.open(path, "wb") do |csv|
       csv << DatasetRow.export_header
       dataset_rows.each do |row|
         if single_valued_algo # e.g. Cosine
-          csv << row.export if row.single_valued?
+          csv << row.export(value_to_boolean) if row.single_valued?
         else # e.g. LTM
-          csv << row.export if row.multi_valued?
+          csv << row.export(value_to_boolean) if row.multi_valued?
         end
       end
     end

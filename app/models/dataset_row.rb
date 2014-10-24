@@ -44,8 +44,13 @@ class DatasetRow < ActiveRecord::Base
     %w(ClaimID ObjectID PropertyID PropertyValue SourceID TimeStamp)
   end
 
-  def export
-    [claim_id, object_key, property_key, property_value, source_id, timestamp||"null"]
+  def export(value_to_boolean)
+    k, v = property_key, property_value
+    if value_to_boolean
+      k = "#{k}_#{v}"
+      v = true
+    end
+    [claim_id, object_key, k, v, source_id, timestamp||"null"]
   end
 
   def as_json(options={})

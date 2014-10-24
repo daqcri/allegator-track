@@ -6,14 +6,16 @@ class Run < ActiveRecord::Base
 
   @@JAR_PATH = Rails.root.join("vendor/DAFNA-EA-1.0-jar-with-dependencies.jar")
   MULTI_VALUED_ALGORITHMS = %w(MLE LTM)
+  MULTI_BOOLEAN_ALGORITHMES = %w(MLE)
 
   def start
     # export datasets to csv files
     datasets_claims_dir, datasets_grounds_dir, output_dir = Dir.mktmpdir, Dir.mktmpdir, Dir.mktmpdir
     datasets.each do |dataset|
       single_valued_algo = !MULTI_VALUED_ALGORITHMS.include?(algorithm)
+      value_to_boolean = MULTI_BOOLEAN_ALGORITHMES.include?(algorithm)
       dir = dataset.kind == 'ground' ? datasets_grounds_dir : datasets_claims_dir
-      dataset.export("#{dir}/#{dataset.id}.csv", single_valued_algo)
+      dataset.export("#{dir}/#{dataset.id}.csv", single_valued_algo, value_to_boolean)
     end
     # call the jar
     system("java -jar #{@@JAR_PATH} #{self.algorithm} #{datasets_claims_dir} #{datasets_grounds_dir} #{output_dir} #{self.general_config} #{self.config}")
