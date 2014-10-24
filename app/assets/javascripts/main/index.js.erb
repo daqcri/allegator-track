@@ -880,7 +880,10 @@ function setup_west_pane()
 
   // create Algorithm section in tab-1 under 3rd header
   var container = $("#algo_pane")
-  var html =""
+  var html = ""
+
+  html += "<div class='algo-mix-warn'>WARNING: mixing multi-valued algorithms with non-multi-valued algorithms " +
+          "may not display all claims in the runset table!</div>"
 
   $.each(algorithms, function(index, algorithm){
     if(index!= 0) {
@@ -904,10 +907,10 @@ function setup_west_pane()
       // Warn if mixing single_valued and multi_valued algorithms
       $(this).button("option", "icons", {primary: $(this).is(':checked') ? 'ui-icon-check' : 'ui-icon-closethick'})
 
-      if (check_algorithm_checkbox()) {
-        alert("Mixing multi-valued algorithms with non-multi-valued algorithms " +
-          "may not display all claims in the runset table!")
-      }
+      if (check_algorithm_checkbox())
+        $(".algo-mix-warn").show()
+      else
+        $(".algo-mix-warn").hide()
     });
     
   // create the accordion
