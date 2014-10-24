@@ -112,7 +112,10 @@ class RunsetsController < ApplicationController
         filename = "claim"
       end
       csv_string = CSV.generate do |csv|
-        csv << data[0].keys
+        csv << data[0].keys.map{|key|
+          m = key.match(/^r([\d]+)$/)
+          key + (m ? ": #{Run.find(m[1].to_i).display}" : "")
+        }
         data.each do |row|
           csv << row.values
         end
