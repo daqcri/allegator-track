@@ -1,5 +1,5 @@
 class DatasetsController < ApplicationController
-
+  before_filter :authenticate_user_from_token!
   before_filter :authenticate_user!
 
   load_and_authorize_resource :except => [:create, :index]
