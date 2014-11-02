@@ -10,11 +10,13 @@ class DatasetsController < ApplicationController
     ds.kind = params[:kind] || 'claims'
     ds.original_filename = params[:original_filename]
     ds.s3_key = params[:s3_key]
+    ds.other_url = params[:other_url]
     ds.user = current_user
     ds.save!
 
     # parse
     ds.delay(queue: 'process_uploads').parse_upload
+    #ds.parse_upload
 
     render json: {status: 'OK'}
   end

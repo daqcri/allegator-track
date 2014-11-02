@@ -1,3 +1,5 @@
+require 'open-uri'
+
 class Dataset < ActiveRecord::Base
   belongs_to :user
   has_many :dataset_rows, dependent: :destroy, autosave: true
@@ -70,12 +72,20 @@ private
   
   def read_file
     # streaming download from S3
-    file = Tempfile.new("import-#{self.id}-")
-    S3_BUCKET.objects[self.s3_key].read do |chunk|
-      file.write chunk
+    if(self.s3_key)
+	    S3_BUCKET.objects[self.s3_key].read do |chunk|
+	      file = Tempfile.new("import-#{self.id}-")
+	      file.write chunk
+	      file.close
+	      file.path
+	    end
+	  # streaming download from other locations
+    elsif(self.other_url)
+	    logger.debug "chunk received: #{f.inspect}"
+	      file = open(self.other_url)
+	      file.close
+	      file.path
     end
-    file.close
-    file.path
   end
 
   def push_status(status)
