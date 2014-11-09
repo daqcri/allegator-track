@@ -290,6 +290,11 @@ function setup_runtable()
           return '<span class="'+class_attrib+'" title="'+status+'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
         }
       },
+      {'data': 'precision'},
+      {'data': 'accuracy'},
+      {'data': 'recall'},
+      {'data': 'specificity'},
+      {'data': 'iterations'},
       {
         'data': 'id',
         'render': function (id, type, full, meta){

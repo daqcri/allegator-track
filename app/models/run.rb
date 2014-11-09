@@ -18,14 +18,20 @@ class Run < ActiveRecord::Base
       dataset.export("#{dir}/#{dataset.id}.csv", single_valued_algo, value_to_boolean)
     end
     # call the jar
-    system("java -jar #{@@JAR_PATH} #{self.algorithm} #{datasets_claims_dir} #{datasets_grounds_dir} #{output_dir} #{self.general_config} #{self.config}")
-
-    # import results
-    import_results output_dir
-    logger.info "Run #{self.id} finished, check these dirs: #{datasets_claims_dir}, #{datasets_grounds_dir}, #{output_dir}"
-
+    java_stdout = `java -jar #{@@JAR_PATH} #{self.algorithm} #{datasets_claims_dir} #{datasets_grounds_dir} #{output_dir} #{self.general_config} #{self.config}`
+    if $?.exitstatus == 0
+      logger.info "Run #{self.id} finished, check these dirs: #{datasets_claims_dir}, #{datasets_grounds_dir}, #{output_dir}"
+      # parse java output
+      parse_output java_stdout
+      # import results
+      import_results output_dir
+    else
+      raise "Java exception thrown, please check logs"
+    end
+  ensure
     # clean: not necessary on heroku
-    # FileUtils.rm_rf(datasets_claims_dir, datasets_grounds_dir, output_dir)
+    logger.info "Deleting working dirs, disable me if you can :P"
+    FileUtils.rm_rf [datasets_claims_dir, datasets_grounds_dir, output_dir]
   end
 
   def display
@@ -58,7 +64,7 @@ class Run < ActiveRecord::Base
 
   def as_json(options={})
     options = {
-      :only => [:id, :algorithm, :created_at, :runset_id],
+      :only => [:id, :algorithm, :created_at, :runset_id, :precision, :accuracy, :recall, :specificity, :iterations],
       :methods => [:display, :status, :duration]
     }.merge(options)
     super(options)
@@ -165,11 +171,42 @@ private
     normalize(claim_results, "confidence")
   end
 
+  def parse_output(java_stdout)
+    java_stdout.split(/\n\r|\r\n|\n|\r/).each do |line|   # split whole output to lines
+      key, val = line.split(/\s*:\s*/)  # split line to 'key: val'
+      key.try(:downcase!)
+      case key
+      when 'precision', 'accuracy', 'recall', 'specificity'
+        self.send("#{key}=", val.to_f)
+      when 'number of iterations'
+        self.iterations = val.to_i
+      end
+    end
+    self.save!
+  end
+
   def normalize(associtation, attribute)
     # get min/max
     min = associtation.minimum(attribute)
     max = associtation.maximum(attribute)
     # calculate/update normalized
     associtation.update_all("normalized = (#{attribute} - #{min}) / (#{max} - #{min})") if min && max && max-min > 1e-10
+  end
+
+  # credits: http://stackoverflow.com/a/4459463/441849
+  # this capture_std is perfectly valid but the system command doesn't keep stderr in place, it redirects it to stdout
+  require "stringio"
+  def capture_std
+    # The output stream must be an IO-like object. In this case we capture it in
+    # an in-memory IO object so we can return the string value. You can assign any
+    # IO object here.
+    previous_stderr, $stderr, previous_stdout, $stdout = $stderr, StringIO.new, $stdout, StringIO.new
+    yield
+    logger.debug("captured stderr: #{$stderr.string}, stdout: #{$stdout.string}")
+    return $stdout.string, $stderr.string
+  ensure
+    # Restore the previous value of stderr (typically equal to STDERR).
+    $stdout = previous_stdout
+    $stderr = previous_stderr
   end
 end
