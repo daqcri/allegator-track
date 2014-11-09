@@ -73,18 +73,17 @@ private
   def read_file
     # streaming download from S3
     if(self.s3_key)
+      file = Tempfile.new("import-#{self.id}-")
 	    S3_BUCKET.objects[self.s3_key].read do |chunk|
-	      file = Tempfile.new("import-#{self.id}-")
 	      file.write chunk
-	      file.close
-	      file.path
 	    end
-	  # streaming download from other locations
+      file.close
+      return file.path
     elsif(self.other_url)
-	    logger.debug "chunk received: #{f.inspect}"
-	      file = open(self.other_url)
-	      file.close
-	      file.path
+      # streaming download from other locations
+      file = open(self.other_url)
+      file.close
+      return file.path
     end
   end
 
