@@ -52,6 +52,7 @@ ActiveRecord::Schema.define(version: 20141109100833) do
     t.string   "s3_key",            limit: 1024
     t.string   "status"
     t.boolean  "multi",                          default: false
+    t.string   "other_url"
   end
 
   add_index "datasets", ["user_id"], name: "index_datasets_on_user_id", using: :btree
@@ -140,6 +141,7 @@ ActiveRecord::Schema.define(version: 20141109100833) do
     t.string   "unconfirmed_email"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "authentication_token"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
