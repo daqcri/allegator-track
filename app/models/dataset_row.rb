@@ -40,17 +40,17 @@ class DatasetRow < ActiveRecord::Base
     self.id
   end
 
-  def self.export_header
-    %w(ClaimID ObjectID PropertyID PropertyValue SourceID TimeStamp)
-  end
-
   def export(value_to_boolean)
     k, v = property_key, property_value
     if value_to_boolean
       k = "#{k}_#{v}"
       v = true
     end
-    [claim_id, object_key, k, v, source_id, timestamp||"null"]
+    if self.dataset.kind == 'ground'
+      [object_key, k, v]
+    else
+      [claim_id, object_key, k, v, source_id, timestamp||"null"]
+    end
   end
 
   def as_json(options={})

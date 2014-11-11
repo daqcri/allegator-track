@@ -17,6 +17,7 @@ class Run < ActiveRecord::Base
       dir = dataset.kind == 'ground' ? datasets_grounds_dir : datasets_claims_dir
       dataset.export("#{dir}/#{dataset.id}.csv", single_valued_algo, value_to_boolean)
     end
+    logger.info "Run #{self.id} started, check these dirs: #{datasets_claims_dir}, #{datasets_grounds_dir}, #{output_dir}"
     # call the jar
     java_stdout = `java -jar #{@@JAR_PATH} #{self.algorithm} #{datasets_claims_dir} #{datasets_grounds_dir} #{output_dir} #{self.general_config} #{self.config}`
     if $?.exitstatus == 0

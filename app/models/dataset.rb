@@ -41,7 +41,7 @@ class Dataset < ActiveRecord::Base
   def export(path, single_valued_algo = false, value_to_boolean = false)
     require 'csv'
     CSV.open(path, "wb") do |csv|
-      csv << DatasetRow.export_header
+      csv << export_header
       dataset_rows.each do |row|
         if single_valued_algo # e.g. Cosine
           csv << row.export(value_to_boolean) if row.single_valued?
@@ -49,6 +49,14 @@ class Dataset < ActiveRecord::Base
           csv << row.export(value_to_boolean) if row.multi_valued?
         end
       end
+    end
+  end
+
+  def export_header
+    if self.kind == 'ground'
+      %w(ObjectID PropertyID PropertyValue)
+    else
+      %w(ClaimID ObjectID PropertyID PropertyValue SourceID TimeStamp)
     end
   end
 
