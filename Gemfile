@@ -60,3 +60,5 @@ group :production, :demo do
   # heroku will inject this anyway, better do through Gemfile to supress plugin injection warning
   gem 'rails_12factor'
 end
+
+gem "hirefire-resource"
