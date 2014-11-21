@@ -62,3 +62,5 @@ group :production, :demo do
 end
 
 gem "hirefire-resource"
+
+gem "rails-observers"

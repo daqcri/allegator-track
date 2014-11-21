@@ -160,7 +160,6 @@ private
     # commit to database
     self.updated_at = Time.now
     self.save!
-    normalize(source_results, "trustworthiness")
 
     # parse claim results
     CSV.parse(File.read(Pathname(output_dir).join("Confidences.csv")), csv_opts) do |row|
@@ -169,7 +168,6 @@ private
     # commit to database
     self.updated_at = Time.now
     self.save!
-    normalize(claim_results, "confidence")
   end
 
   def parse_output(java_stdout)
@@ -184,14 +182,6 @@ private
       end
     end
     self.save!
-  end
-
-  def normalize(associtation, attribute)
-    # get min/max
-    min = associtation.minimum(attribute)
-    max = associtation.maximum(attribute)
-    # calculate/update normalized
-    associtation.update_all("normalized = (#{attribute} - #{min}) / (#{max} - #{min})") if min && max && max-min > 1e-10
   end
 
   # credits: http://stackoverflow.com/a/4459463/441849
