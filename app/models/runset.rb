@@ -29,19 +29,4 @@ class Runset < ActiveRecord::Base
     super(options)
   end
 
-  def normalize!
-    normalize_association!(source_results, "trustworthiness")
-    normalize_association!(claim_results, "confidence")
-  end
-
-private
-
-  def normalize_association!(associtation, attribute)
-    # get min/max
-    min = associtation.minimum(attribute)
-    max = associtation.maximum(attribute)
-    # calculate/update normalized
-    associtation.update_all("normalized = (#{attribute} - #{min}) / (#{max} - #{min})") if min && max && max-min > 1e-10
-  end
-
 end
