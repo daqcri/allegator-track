@@ -11,12 +11,14 @@ class Run < ActiveRecord::Base
 
   def start
     # export datasets to csv files
+    has_ground = false
     datasets_claims_dir, datasets_grounds_dir, output_dir = Dir.mktmpdir, Dir.mktmpdir, Dir.mktmpdir
     datasets.each do |dataset|
       single_valued_algo = !MULTI_VALUED_ALGORITHMS.include?(algorithm)
       value_to_boolean = MULTI_BOOLEAN_ALGORITHMES.include?(algorithm)
       dir = dataset.kind == 'ground' ? datasets_grounds_dir : datasets_claims_dir
       dataset.export("#{dir}/#{dataset.id}.csv", single_valued_algo, value_to_boolean)
+      has_ground = true if dataset.kind == 'ground'
     end
     logger.info "Run #{self.id} started, check these dirs: #{datasets_claims_dir}, #{datasets_grounds_dir}, #{output_dir}"
     # call the jar
@@ -24,7 +26,7 @@ class Run < ActiveRecord::Base
     if $?.exitstatus == 0
       logger.info "Run #{self.id} finished, check these dirs: #{datasets_claims_dir}, #{datasets_grounds_dir}, #{output_dir}"
       # parse java output
-      parse_output java_stdout
+      parse_output java_stdout, has_ground
       # import results
       import_results output_dir
     else
@@ -173,13 +175,13 @@ private
     normalize!(claim_results, "confidence")
   end
 
-  def parse_output(java_stdout)
+  def parse_output(java_stdout, has_ground)
     java_stdout.split(/\n\r|\r\n|\n|\r/).each do |line|   # split whole output to lines
       key, val = line.split(/\s*:\s*/)  # split line to 'key: val'
       key.try(:downcase!)
       case key
       when 'precision', 'accuracy', 'recall', 'specificity'
-        self.send("#{key}=", val.to_f)
+        self.send("#{key}=", val.to_f) if has_ground
       when 'number of iterations'
         self.iterations = val.to_i
       end
