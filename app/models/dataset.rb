@@ -15,7 +15,7 @@ class Dataset < ActiveRecord::Base
 
   def parse_upload
     require 'csv'
-    csv_opts = {:headers => true, :return_headers => true, :header_converters => :symbol, :converters => :all}
+    csv_opts = {:headers => true, :return_headers => true, :header_converters => :symbol}
     CSV.foreach(read_file, csv_opts) do |row|
       unless row.header_row?
         DatasetRow.initialize_from_row(row, self)
