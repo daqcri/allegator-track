@@ -7,7 +7,7 @@ class Run < ActiveRecord::Base
   @@JAR_PATH = Rails.root.join("vendor/DAFNA-EA-1.0-jar-with-dependencies.jar")
   MULTI_VALUED_ALGORITHMS = %w(MLE LTM)
   MULTI_BOOLEAN_ALGORITHMES = %w(MLE)
-  NORMALIZABLE_ALGORITHMS = %w(Depen Accu AccuSim AccuNoDep 3-Estimates Cosine)
+  NORMALIZABLE_ALGORITHMS = %w(Depen Accu AccuSim AccuNoDep 3-Estimates Cosine SimpleLCA GuessLCA)
 
   def start
     # export datasets to csv files
