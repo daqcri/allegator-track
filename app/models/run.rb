@@ -91,7 +91,7 @@ class Run < ActiveRecord::Base
         COUNT(DISTINCT bucket_id) conflicts,
         array_to_string(array_agg(is_true), ';') booleans
       FROM claim_results res
-        INNER JOIN dataset_rows cl ON res.claim_id = cl.claim_id 
+        INNER JOIN dataset_rows cl ON res.claim_id = cl.id 
       WHERE res.run_id = #{self.id}
       GROUP BY object_key || property_key"
 
