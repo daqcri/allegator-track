@@ -808,19 +808,6 @@ function setup_west_pane()
 
   $( "#tabs" ).tabs({
     disabled: [1],
-    activate: function(event, ui) {
-      var active = $('#tabs').tabs( "option", "active" )
-      // change layout for visualize tab
-      if(active == 2)
-        pageLayout.sizePane('west','50%')
-      else{
-        pageLayout.sizePane('west','30%')
-        searchResultsLayout.sizePane('center', '15%')
-      }
-      if (ui.newPanel.attr("id") == 'tab-3') {
-        refresh_charts()
-      }       
-     }
   })
   
   // create algorithm divs
@@ -990,28 +977,24 @@ function refresh_charts()
 {
   // list runs of current runset in runs_selector
   var data_selector = $("#data-selector").tabs("option", "active")
-  var showing_inputs = data_selector <= 1
   var runset = runsets[data_selector]
-  var select = $("#runs_selector")
-  var options
+  var options = ["<option value='-1'>Select a run</option>"]
+    .concat($.map(runset.runs, function(run){
+    return "<option value='"+run.id+"'>"+run.display+"</option>"
+  }))
 
-  if (showing_inputs) {
-    options = ["<option value='-1'>Select a runset from the right to show its runs</option>"]
-  }
-  else {
-    options = ["<option value='-1'>Select a run</option>"]
-      .concat($.map(runset.runs, function(run){
-      return "<option value='"+run.id+"'>"+run.display+"</option>"
-    }))
-  }
-
-  select.html(options.join("\n"))
+  $("#runs_selector").html(options.join("\n"))
     .change(function(){
       var run_id = $(this).val()
       if (run_id != "-1") {
-        $.getJSON("/runs/"+run_id+"/visualize", function(response){
-          $('#chart').empty()
-          createChart(response, "#chart")
+        var dialog_id = "visualize-run-"+run_id
+        var dialog = $("#"+dialog_id)
+        if (dialog.length != 1)
+          dialog = $("<div id='"+dialog_id+"'>").appendTo($("body"))
+        
+        dialog.visualizer_dialog({
+          run_id: run_id,
+          title: "[Runset "+runset.id+"] " + $("option:selected", this).text()
         })
       }
     })

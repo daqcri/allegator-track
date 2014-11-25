@@ -18,7 +18,7 @@
     <ul>
       <li> <a href="#tab-1">Upload</a> </li>
       <li>  <a href="#tab-2">Configure and Run</a>  </li>
-      <li id='visualize-tab'>  <a href="#tab-3">Visualize </a> </li>
+      <li id='explain-tab'>  <a href="#tab-3">Explain</a> </li>
       <li> <a href="#tab-4"> Allegate </a> </li>
     </ul>
            <!-- This is tab 1 -->
@@ -104,8 +104,6 @@
     </div>
     <!-- This is tab 3 -->
     <div id="tab-3"> 
-      <p><select id="runs_selector"></select></p>
-      <p id="chart"></p>
     </div>
     <div id="tab-4"> 
     </div>  
@@ -124,6 +122,11 @@
         <span class='export-command' value="source_id">Export Sources</span>
         &nbsp;-&nbsp;
         <span class='export-command' value="">Export Claims</span>
+        &nbsp;-&nbsp;
+        <span class='visualize-command' value="sankey">
+          Visualize
+          <select id="runs_selector"></select>
+        </span>
       </div>
       <div id="show_input">
         Showing Inputs
@@ -173,3 +176,4 @@
         <%= link_to 'Sign out', destroy_user_session_path, :method => :delete %>
     <% end %>
 </div>
+
