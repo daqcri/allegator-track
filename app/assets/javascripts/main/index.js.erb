@@ -20,12 +20,9 @@ $(document).ready(function() {
   setup_pusher()
 });
 
-function ground_tab_hidden(){
+function has_ground(){
   var value = $('#ground_datasets_table').dataTable().fnGetData().length
-  if (value == 0)
-    $('#ground_tab').hide()
-  else
-    $('#ground_tab').show()
+  return value > 0
 }
 
 function activate_runset_tab(runset_id)
@@ -184,9 +181,13 @@ function setup_start_button()
     checked_algo = {}
     var algorithm_id
     $('.algorithm_checkbox').each(function(index, check_box){
-      algorithm_id = $(check_box).attr("algorithm_id")
-      if($(check_box).is(':checked')){
-        checked_algo[algorithm_id] = config_data[algorithm_id]
+      check_box = $(check_box)
+      algorithm_id = check_box.attr("algorithm_id")
+      if(check_box.is(':checked') && !check_box.button("option", "disabled")){
+        if (config_data[algorithm_id].length > 0)
+          checked_algo[algorithm_id] = config_data[algorithm_id]
+        else
+          checked_algo[algorithm_id] = 0  // otherwise, won't be included in params
       }
     });    
      $.ajax({
@@ -344,7 +345,7 @@ function setup_ground_dataset_table()
   ground_dt = setup_dataset_table("ground")
 }
 
- function setup_dataset_table(dataset_kind){
+function setup_dataset_table(dataset_kind){
   var obj = $('#' + dataset_kind + "_datasets_table")
   var dt = obj.DataTable({
     dom: 'JtS', 
@@ -359,7 +360,10 @@ function setup_ground_dataset_table()
       $.getJSON(url, data, function(response){
         s3_direct_post = response.s3_direct_post
         callback(response)
-        ground_tab_hidden()
+        if (has_ground())
+          $('#ground_tab').show()
+        else
+          $('#ground_tab').hide()
         bind_dataset_delete($(".trash-icon", obj), dt)
       });
     },
@@ -392,8 +396,8 @@ function setup_ground_dataset_table()
     ]
   });
 
-   return dt;
- }
+  return dt;
+}
 
 function bind_dataset_delete(selector, datatable)
 {
@@ -415,20 +419,26 @@ function bind_dataset_delete(selector, datatable)
   // returns true if mixing multi-valued and single-valued algorithms 
 
   var algorithm_id
-  var found_single = false, found_multi = false
+  var found_single = 0, found_multi = 0
+  var is_combiner, combiner_checkbox = null
 
   $(".algorithm_checkbox").each(function(index, check_box) {
-    algorithm_id = $(check_box).attr("algorithm_id")
-    if ($(check_box).is(':checked')) {
-      $('input:checked+label').css({'background-color':'green','color':'yellow'})
+    check_box = $(check_box)
+    algorithm_id = check_box.attr("algorithm_id")
+    is_combiner = check_box.attr("combiner") == "combiner"
+    if (is_combiner)
+      combiner_checkbox = check_box
+
+    if (check_box.is(':checked')) {
+      $('input:checked+label').addClass("algorithm_checkbox_on")
       $("h3.algorithm_"+algorithm_id).show()
-      if ($(check_box).attr("multi") == "multi")
-        found_multi = true
-      else
-        found_single = true
+      if (check_box.attr("multi") == "multi")
+        found_multi++
+      else if (!is_combiner)
+        found_single++
     }
     else {
-      $('[type="checkbox"]:not(:checked) + label').css({'background':'none','color':'black'})
+      $('[type="checkbox"]:not(:checked) + label').removeClass("algorithm_checkbox_on")
       $(".algorithm_"+algorithm_id).hide()
     }
   });
@@ -441,7 +451,16 @@ function bind_dataset_delete(selector, datatable)
     $('#tabs').tabs("option", "disabled",[1])
   }
 
-  return found_single && found_multi
+  if (combiner_checkbox) {
+    if (found_single + found_multi > 1 && has_ground()){
+      // enable combiner algorithm
+      combiner_checkbox.button("enable")
+    }
+    else
+      combiner_checkbox.button("disable")
+  }
+
+  return found_single > 0 && found_multi > 0
  }
 
 function refresh_datatables()
@@ -816,7 +835,7 @@ function setup_west_pane()
   $.each(algorithms, function(index, algorithm) {
     var params =""
     var order = 0
-     config_data[algorithm.name] = []
+    config_data[algorithm.name] = []
     $.each(algorithm.params, function(pindex, param){
       if(param.hidden != true){
         params += "<tr><td width='100%'><span class='param-name'>" + param.name
@@ -882,9 +901,10 @@ function setup_west_pane()
       html += "<input type='checkbox' id='algorithm_checkbox_" + 
         algorithm.name+"' algorithm_id='" + algorithm.name +
         "' class='algorithm_checkbox color_on_check color_on_uncheck' "
-        if (algorithm.multi) html += "multi='multi'"
-        html += " /><label style='background: none;' class='algorithm_checkbox_label' title='" +
-        algorithm.description+"' for='algorithm_checkbox_"+algorithm.name+"'>" +
+        if (algorithm.multi) html += "multi='multi' "
+        if (algorithm.combiner) html += "combiner='combiner' disabled='disabled' "
+        html += " /><label style='background: none;' class='algorithm_checkbox_label' "
+        html += "title='" + algorithm.description+"' for='algorithm_checkbox_"+algorithm.name+"'>" +
         algorithm.name
       if (algorithm.multi) html += "  (multi-valued property values)"
       html += "</label>"
@@ -922,6 +942,8 @@ function setup_west_pane()
     }
   })
   setup_claims_dataset_table();
+  // we need initial setup to know if there are ground datasets
+  setup_ground_dataset_table();
 
   // file upload
   var jqXHR= null;

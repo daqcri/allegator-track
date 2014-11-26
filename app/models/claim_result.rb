@@ -10,4 +10,11 @@ class ClaimResult < ActiveRecord::Base
     cr
   end
 
+  def self.export_header
+    %w(ClaimId Confidence IsTrue BucketId)
+  end
+
+  def export
+    [claim_id, confidence, is_true, bucket_id]
+  end
 end

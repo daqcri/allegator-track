@@ -81,4 +81,6 @@ var algorithms = [
     {name: 'Burn-in', value: 100, dataType: 'int', min: 0, max: 1000, desc: 'Collapsed Gibbs Sampling burn-in period (i.e., the number of discarded first set of iterations). Must be significantly less than the number of iterations.'},
     {name: 'Thinning', value: 9, dataType: 'int', min: 0, max: 1000, desc: 'Collapsed Gibbs Sampling thinning parameter (i.e., the number of iterations to be skipped every time before considering the resul of a selected iteration). Must be significantly less than the number of iterations.'},
   ], multi: true},
+  {name: "Combiner", description: "Combines results of other algorithms.", params: [
+  ], combiner: true}
 ]

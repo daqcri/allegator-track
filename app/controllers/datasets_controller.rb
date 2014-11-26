@@ -26,7 +26,7 @@ class DatasetsController < ApplicationController
     datasets = current_user.datasets.where(kind: params[:kind]).order(created_at: :desc)
     start = params[:start].to_i
     length = params[:length].to_i
-    length = total if length == -1
+    length = 10 if length <= 0
     datasets = datasets.offset(start).limit(length)
     s3_direct_post = S3_BUCKET.presigned_post(key: "import/#{SecureRandom.uuid}/${filename}", success_action_status: 201)
     render json: {

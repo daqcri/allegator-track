@@ -6,10 +6,10 @@ class RunsetsController < ApplicationController
   def create
     runset = Runset.create user: current_user, datasets: current_user.datasets
     params[:checked_algo].each do |algo_name, algo_params|
-      runset.runs.create(algorithm: algo_name,
+      run = runset.runs.create(algorithm: algo_name,
         general_config: params[:general_config].join(" "),
-        config: algo_params.join(" "))
-      .delay.start
+        config: algo_params.try(:join, " "))
+      run.delay.start unless run.combiner?
     end
 
     render json: runset

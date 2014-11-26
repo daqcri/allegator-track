@@ -1,3 +1,6 @@
+require 'csv'
+require 'stringio'
+
 class Run < ActiveRecord::Base
   belongs_to :runset
   has_many :source_results, dependent: :destroy, autosave: true
@@ -8,11 +11,13 @@ class Run < ActiveRecord::Base
   MULTI_VALUED_ALGORITHMS = %w(MLE LTM)
   MULTI_BOOLEAN_ALGORITHMES = %w(MLE)
   NORMALIZABLE_ALGORITHMS = %w(Depen Accu AccuSim AccuNoDep 3-Estimates Cosine SimpleLCA GuessLCA)
+  COMBINER_ALGORITHMES = %w(Combiner)
 
   def start
     # export datasets to csv files
     has_ground = false
     datasets_claims_dir, datasets_grounds_dir, output_dir = Dir.mktmpdir, Dir.mktmpdir, Dir.mktmpdir
+    confidence_dirs = []
     datasets.each do |dataset|
       single_valued_algo = !MULTI_VALUED_ALGORITHMS.include?(algorithm)
       value_to_boolean = MULTI_BOOLEAN_ALGORITHMES.include?(algorithm)
@@ -20,11 +25,25 @@ class Run < ActiveRecord::Base
       dataset.export("#{dir}/#{dataset.id}.csv", single_valued_algo, value_to_boolean)
       has_ground = true if dataset.kind == 'ground'
     end
-    logger.info "Run #{self.id} started, check these dirs: #{datasets_claims_dir}, #{datasets_grounds_dir}, #{output_dir}"
+    # prepare extra arguments
+    extra_params = "#{self.general_config} #{self.config}"
+    if combiner?
+      non_combiners = runset.non_combiner_runs
+      extra_params = "0 0 0 0 #{non_combiners.length}"
+      non_combiners.each do |run|
+        confidence_dirs << Dir.mktmpdir
+        file = "#{confidence_dirs.last}/Confidences.#{run.id}.csv"
+        run.export_results file
+        extra_params << " #{file}"
+      end
+    end
+    logger.info "Run #{self.id} started, check these dirs: Claims: #{datasets_claims_dir}, Ground: #{datasets_grounds_dir} and Combiner input confidences: #{confidence_dirs.join(', ')}"
     # call the jar
-    java_stdout = `java -jar #{@@JAR_PATH} #{self.algorithm} #{datasets_claims_dir} #{datasets_grounds_dir} #{output_dir} #{self.general_config} #{self.config}`
+    cmd = "java -jar #{@@JAR_PATH} #{self.algorithm} #{datasets_claims_dir} #{datasets_grounds_dir} #{output_dir} #{extra_params}"
+    logger.info("Running: #{cmd}")
+    java_stdout = `#{cmd}`
     if $?.exitstatus == 0
-      logger.info "Run #{self.id} finished, check these dirs: #{datasets_claims_dir}, #{datasets_grounds_dir}, #{output_dir}"
+      logger.info "Run #{self.id} finished, check this dir: #{output_dir}"
       # parse java output
       parse_output java_stdout, has_ground
       # import results
@@ -36,10 +55,15 @@ class Run < ActiveRecord::Base
     # clean: not necessary on heroku
     logger.info "Deleting working dirs, disable me if you can :P"
     FileUtils.rm_rf [datasets_claims_dir, datasets_grounds_dir, output_dir]
+    FileUtils.rm_rf confidence_dirs if confidence_dirs.length > 0
+  end
+
+  def combiner?
+    COMBINER_ALGORITHMES.include?(algorithm)
   end
 
   def display
-    "#{algorithm} (#{general_config.gsub(' ', ',')}; #{config.gsub(' ', ',')})"
+    "#{algorithm} (#{general_config.gsub(' ', ',')}; #{config.try(:gsub, ' ', ',')})"
   end
   alias_method :to_s, :display
 
@@ -59,6 +83,18 @@ class Run < ActiveRecord::Base
     return "finished" unless self.finished_at.nil? 
     return "started" unless self.started_at.nil? 
     return "scheduled"
+  end
+
+  def finished?
+    status == "finished"
+  end
+
+  def started?
+    status == "started"
+  end
+
+  def scheduled?
+    status == "scheduled"
   end
 
   def duration
@@ -81,6 +117,15 @@ class Run < ActiveRecord::Base
     conn.execute("DELETE FROM source_results WHERE run_id = #{self.id}")    
     conn.execute("DELETE FROM claim_results WHERE run_id = #{self.id}")    
     super # continue from super to call all after_destroy callbacks
+  end
+
+  def export_results(output_file)
+    CSV.open(output_file, "wb") do |csv|
+      csv << ClaimResult.export_header
+      claim_results.each do |row|
+        csv << row.export
+      end
+    end
   end
 
   def sankey
@@ -153,7 +198,6 @@ private
   end
 
   def import_results(output_dir)
-    require 'csv'
     csv_opts = {:headers => true, :return_headers => false, :header_converters => :symbol}
 
     # parse source results
@@ -203,7 +247,6 @@ private
 
   # credits: http://stackoverflow.com/a/4459463/441849
   # this capture_std is perfectly valid but the system command doesn't keep stderr in place, it redirects it to stdout
-  require "stringio"
   def capture_std
     # The output stream must be an IO-like object. In this case we capture it in
     # an in-memory IO object so we can return the string value. You can assign any

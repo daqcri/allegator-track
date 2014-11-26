@@ -1,3 +1,5 @@
+require 'set'
+
 class Runset < ActiveRecord::Base
   belongs_to :user
   has_and_belongs_to_many :datasets
@@ -7,13 +9,27 @@ class Runset < ActiveRecord::Base
   has_many :claim_results, through: :runs
 
   def status
-    run_statuses = self.runs.map(&:status)
+    run_statuses = self.runs.map(&:status).uniq
     # return finished if all runs are finished
-    return "finished" if run_statuses.uniq == ["finished"]
+    return "finished" if run_statuses == ["finished"]
     # return started if at least 1 run started
-    return "started" if run_statuses.include?("started") || run_statuses.include?("finished")
-    # return scheduled otherwise (nothing started)
+    return "started" if run_statuses.include?("started")
+    # return combinable if all scheduled are combiners and all combiners are scheduled
+    return "combinable" if Set.new(scheduled_runs) == Set.new(combiner_runs)
+    # return scheduled otherwise
     return "scheduled"
+  end
+
+  def combiner_runs
+    runs.select &:combiner?
+  end
+
+  def non_combiner_runs
+    runs.reject &:combiner?
+  end
+
+  def scheduled_runs
+    runs.select &:scheduled?
   end
 
   def as_json(options={})

@@ -1,4 +1,5 @@
 require 'open-uri'
+require 'csv'
 
 class Dataset < ActiveRecord::Base
   belongs_to :user
@@ -14,7 +15,6 @@ class Dataset < ActiveRecord::Base
   end
 
   def parse_upload
-    require 'csv'
     csv_opts = {:headers => true, :return_headers => true, :header_converters => :symbol}
     CSV.foreach(read_file, csv_opts) do |row|
       unless row.header_row?
@@ -39,7 +39,6 @@ class Dataset < ActiveRecord::Base
   end
 
   def export(path, single_valued_algo = false, value_to_boolean = false)
-    require 'csv'
     CSV.open(path, "wb") do |csv|
       csv << export_header
       dataset_rows.each do |row|

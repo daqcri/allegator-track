@@ -27,6 +27,6 @@ module DafnaViz
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
-    # config.active_record.observers = :run_observer
+    config.active_record.observers = :run_observer
   end
 end
