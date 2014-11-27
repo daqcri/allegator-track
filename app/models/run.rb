@@ -239,7 +239,7 @@ private
       min = associtation.minimum(attribute)
       max = associtation.maximum(attribute)
       # calculate/update normalized
-      associtation.update_all("normalized = (#{attribute} - #{min}) / (#{max} - #{min})") if min && max && max-min > 1e-10
+      associtation.update_all("normalized = GREATEST(0, LEAST(1, ((#{attribute} - #{min}) / (#{max} - #{min}))))") if min && max && max-min > 1e-10
     else
       associtation.update_all("normalized = #{attribute}")
     end
