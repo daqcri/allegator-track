@@ -63,7 +63,7 @@ class Run < ActiveRecord::Base
   end
 
   def display
-    "#{algorithm} (#{general_config.gsub(' ', ',')}; #{config.try(:gsub, ' ', ',')})"
+    "#{algorithm} (#{general_config.try(:gsub, ' ', ',')}; #{config.try(:gsub, ' ', ',')})"
   end
   alias_method :to_s, :display
 

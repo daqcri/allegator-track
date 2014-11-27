@@ -64,3 +64,6 @@ end
 gem "hirefire-resource"
 
 gem "rails-observers"
+
+# activeadmin Rails 4 support is merged on master, but not yet on rubygems.org as of 27/11/2014
+gem 'activeadmin', github: 'gregbell/active_admin'
