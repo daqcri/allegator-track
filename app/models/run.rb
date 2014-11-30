@@ -63,7 +63,7 @@ class Run < ActiveRecord::Base
   end
 
   def display
-    "#{algorithm} (#{general_config.gsub(' ', ',')}; #{config.try(:gsub, ' ', ',')})"
+    "#{algorithm} (#{general_config.try(:gsub, ' ', ',')}; #{config.try(:gsub, ' ', ',')})"
   end
   alias_method :to_s, :display
 
@@ -181,6 +181,10 @@ class Run < ActiveRecord::Base
     end
 
     {nodes: nodes, links: links}
+  end
+
+  def to_s
+    "Run ##{id}: #{display}"
   end
 
 private

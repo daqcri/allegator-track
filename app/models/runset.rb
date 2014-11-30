@@ -45,4 +45,7 @@ class Runset < ActiveRecord::Base
     super(options)
   end
 
+  def to_s
+    "Runset ##{id}"
+  end
 end
