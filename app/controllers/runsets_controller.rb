@@ -32,7 +32,7 @@ class RunsetsController < ApplicationController
     conn = ActiveRecord::Base.connection
     run_ids = @runset.runs.map(&:id)
     r1 = run_ids.first
-    table, table_alias, col, select_more, joins, total = "", "", "", "", "", 0
+    table, table_alias, col, select_more, joins, sql_counts = "", "", "", "", "", ""
 
     if params[:extra_only] == "source_id"
       # attach source trustworthiness
@@ -41,9 +41,8 @@ class RunsetsController < ApplicationController
       col = "trustworthiness"
       joins = run_ids[1..run_ids.length].map{|r| "INNER JOIN source_results r#{r} ON #{table_alias}.source_id = r#{r}.source_id"}.join("\n")
       table_cols = "id,source_id"
-      # totals
-      logger.info("Counting total")
-      total = Run.find(r1).source_results.count
+      # must use the manual way of inner join in order to specify the table alias so that filter_clauses work on counts and results
+      sql_counts = Run.where(id: r1).joins("INNER JOIN source_results #{table_alias} ON runs.id = #{table_alias}.run_id")
     elsif params[:extra_only].blank?
       # attach claim confidences
       table = "dataset_rows"
@@ -52,11 +51,14 @@ class RunsetsController < ApplicationController
       select_more = run_ids.map{|r| "r#{r}.is_true r#{r}_bool"}.join(',')
       joins = run_ids.map{|r| "INNER JOIN claim_results r#{r} ON #{table_alias}.id = r#{r}.claim_id"}.join("\n")
       table_cols = "*"
-      # totals
-      logger.info("Counting total")
-      total = @runset.dataset_rows.where("datasets.kind = ?", "claims").count
+      sql_counts = @runset.dataset_rows.where("datasets.kind = ?", "claims")
     end
 
+    # totals
+    logger.info("Counting total")
+    total = sql_counts.count
+
+    # construct results query clauses
     col = params[:extra_normalized].present? ? "normalized" : col
     select = run_ids.map{|r| "round (r#{r}.#{col} * 10000)/10000 r#{r}"}.join(',')
 
@@ -74,20 +76,29 @@ class RunsetsController < ApplicationController
 
     # filtering
     filtered = total
+    filter_clauses = []
     logger.info("Counting filtered")
     if params[:search].present? && params[:search][:value].present?
       criteria = params[:search][:value]
       fields = params[:extra_only].blank? ? %w(object_key source_id property_key property_value timestamp) : [params[:extra_only]]
-      where << " AND (" + fields.map{|f| "LOWER(#{table_alias}.#{f}) like LOWER('%#{criteria}%')"}.join(" OR ") + ")"
+      filter_clauses << fields.map{|f| "LOWER(#{table_alias}.#{f}) like LOWER('%#{criteria}%')"}.join(" OR ")
     end
-    criteria = params[:extra_object_key_criteria]
-    where << " AND (LOWER(object_key) like LOWER('%#{criteria}%'))" unless criteria.blank?
-    criteria = params[:extra_source_id_criteria]
-    where << " AND (LOWER(source_id) like LOWER('%#{criteria}%'))" unless criteria.blank?
+    # don't filter on object_id/source_id when showing source results
+    # in object_id case, can't get object_id from source_results without join
+    # in source_id case, the filter has been already used
+    if params[:extra_only].blank?
+      criteria = params[:extra_object_key_criteria]
+      filter_clauses << "(LOWER(object_key) like LOWER('%#{criteria}%'))" if criteria.present?
+      criteria = params[:extra_source_id_criteria]
+      filter_clauses << "(LOWER(source_id) like LOWER('%#{criteria}%'))" if criteria.present?
+    end
 
-    sql = "SELECT COUNT(*) #{from} #{joins} #{where}"
-    #logger.info(sql)
-    #filtered = conn.select_value(sql)
+    filter_clauses.each do |filter|
+      sql_counts = sql_counts.where filter
+      where << " AND (#{filter})"
+    end
+    
+    filtered = sql_counts.count
 
     #sql = "SELECT #{table_alias}.source_id source_id, #{select + (select_more.present? ? ', ' + select_more : '')}
     table_cols = table_cols.split(',').map{|col| "#{table_alias}.#{col}"}.join(",")
