@@ -29,11 +29,13 @@ class RunsetsController < ApplicationController
   end
 
   def results
+    logger.info("Inside RunsetsController#results")
     conn = ActiveRecord::Base.connection
     run_ids = @runset.runs.map(&:id)
     r1 = run_ids.first
     table, table_alias, col, select_more, joins = "", "", "", "", ""
     
+    logger.info("Starting to compose query")
     if params[:extra_only] == "source_id"
       # attach source trustworthiness
       table = "source_results"
@@ -58,6 +60,7 @@ class RunsetsController < ApplicationController
     where = "WHERE " + run_ids.map{|r| "r#{r}.run_id = #{r}"}.join(" AND ")
     order = ""
     # sorting
+    logger.info("Sorting")
     if params[:order]
       sort = params[:order]["0"]
       sort_col = params[:columns][sort["column"]]["data"]
@@ -67,11 +70,13 @@ class RunsetsController < ApplicationController
     end
 
     # totals
+    logger.info("Counting total")
     sql = "SELECT COUNT(*) #{from} #{joins} #{where}"
     total = conn.select_value(sql)
     filtered = total
 
     # filtering
+    logger.info("Counting filtered")
     if params[:search].present? && params[:search][:value].present?
       criteria = params[:search][:value]
       fields = params[:extra_only].blank? ? %w(object_key source_id property_key property_value timestamp) : [params[:extra_only]]
