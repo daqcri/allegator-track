@@ -1,3 +1,5 @@
+require 'csv'
+
 class RunsetsController < ApplicationController
   before_filter :authenticate_user_from_token!
   before_filter :authenticate_user!
@@ -69,12 +71,6 @@ class RunsetsController < ApplicationController
     total = conn.select_value(sql)
     filtered = total
 
-    # limiting
-    start = params[:start].to_i
-    length = params[:length].to_i
-    offset = "OFFSET #{start}"
-    limit = length > 0 ? "LIMIT #{length}" : ""
-
     # filtering
     if params[:search].present? && params[:search][:value].present?
       criteria = params[:search][:value]
@@ -94,10 +90,15 @@ class RunsetsController < ApplicationController
     # TODO hack until we rename dataset_rows table to claims
     table_cols = "#{table_cols}, r0.id claim_id" if params[:extra_only].blank?
     sql = "SELECT #{table_cols}, #{select + (select_more.present? ? ', ' + select_more : '')}
-      #{from} #{joins} #{where} #{order} #{limit} #{offset}"
-    data = conn.select_all(sql)
+      #{from} #{joins} #{where} #{order}"
 
     if params[:export].blank?
+      # showing table, apply offset/limit
+      limit, offset = limit_sql
+      sql = "#{sql} #{limit} #{offset}"
+      logger.info("Rendering results from custom sql: #{sql}")
+      data = conn.select_all(sql)
+
       render json: {
         draw: params[:draw].to_i,
         recordsTotal: total,
@@ -105,7 +106,10 @@ class RunsetsController < ApplicationController
         data: data
       }
     else
-      require 'csv'
+      # exporting csv, retrieve all data at once!
+      logger.info("Exporting results from custom sql: #{sql}")
+      data = conn.select_all(sql)
+
       if params[:extra_only] == "source_id"
         filename = "source"
       else

@@ -4,14 +4,21 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   def limit_query(query)
-    start = params[:start].to_i
-    length = length=ENV['DEFAULT_DATATABLE_LENGTH'].to_i
-    length = params[:length].to_i if params[:length].present?
-    query = query.offset(start)
-    query = query.limit(length) if length > 0
+    query = query.offset(params[:start].to_i)
+    query = query.limit(compute_query_length)
+  end
+
+  def limit_sql
+    offset = "OFFSET #{params[:start].to_i}"
+    limit = "LIMIT #{compute_query_length}"
+    return limit, offset
   end
 
   private
+
+  def compute_query_length
+    (params[:length] || ENV['DEFAULT_DATATABLE_LENGTH']).to_i
+  end
 
   def authenticate_user_from_token!
     user_token = params[:user_token].presence
