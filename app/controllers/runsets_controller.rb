@@ -96,8 +96,9 @@ class RunsetsController < ApplicationController
       # showing table, apply offset/limit
       limit, offset = limit_sql
       sql = "#{sql} #{limit} #{offset}"
-      logger.info("Rendering results from custom sql: #{sql}")
+      logger.info("Retrieving results from custom sql: #{sql}")
       data = conn.select_all(sql)
+      logger.info("Now rendering results in json")
 
       render json: {
         draw: params[:draw].to_i,
@@ -105,10 +106,13 @@ class RunsetsController < ApplicationController
         recordsFiltered: filtered,
         data: data
       }
+
+      logger.info("Results rendered successfully")
     else
       # exporting csv, retrieve all data at once!
       logger.info("Exporting results from custom sql: #{sql}")
       data = conn.select_all(sql)
+      logger.info("Now rendering results in csv")
 
       if params[:extra_only] == "source_id"
         filename = "source"
