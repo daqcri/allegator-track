@@ -7,7 +7,7 @@ class Dataset < ActiveRecord::Base
   has_and_belongs_to_many :runsets
 
   def to_s
-    self.original_filename
+    "Dataset ##{id}: #{original_filename}"
   end
 
   def before

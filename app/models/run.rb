@@ -183,6 +183,10 @@ class Run < ActiveRecord::Base
     {nodes: nodes, links: links}
   end
 
+  def to_s
+    "Run ##{id}: #{display}"
+  end
+
 private
 
   def create_sankey_link(links)

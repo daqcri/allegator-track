@@ -1,18 +1,15 @@
 ActiveAdmin.register ClaimResult do
 
-
-  # See permitted parameters documentation:
-  # https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
-  #
-  # permit_params :list, :of, :attributes, :on, :model
-  #
-  # or
-  #
-  # permit_params do
-  #   permitted = [:permitted, :attributes]
-  #   permitted << :other if resource.something?
-  #   permitted
-  # end
-
+  index do
+    selectable_column
+    id_column
+    column :confidence
+    column :normalized
+    column :is_true
+    column :claim do |claim_result|
+      link_to claim_result.claim_id, admin_dataset_row_path(claim_result.claim_id)
+    end
+    actions
+  end
 
 end
