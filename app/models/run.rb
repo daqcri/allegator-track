@@ -37,25 +37,70 @@ class Run < ActiveRecord::Base
         extra_params << " #{file}"
       end
     end
-    logger.info "Run #{self.id} started, check these dirs: Claims: #{datasets_claims_dir}, Ground: #{datasets_grounds_dir} and Combiner input confidences: #{confidence_dirs.join(', ')}"
+
+    # prepare streams
+    java_stdout, java_stderr = Tempfile.new("java_stdout"), Tempfile.new("java_stderr")
+    java_stdout.close ; java_stdout = java_stdout.path
+    java_stderr.close ; java_stderr = java_stderr.path
+    
     # call the jar
     cmd = "java -jar #{@@JAR_PATH} #{self.algorithm} #{datasets_claims_dir} #{datasets_grounds_dir} #{output_dir} #{extra_params}"
-    logger.info("Running: #{cmd}")
-    java_stdout = `#{cmd}`
-    if $?.exitstatus == 0
-      logger.info "Run #{self.id} finished, check this dir: #{output_dir}"
+    cmd = "#{cmd} 1>#{java_stdout} 2>#{java_stderr}"
+    logger.info "Run #{self.id} started, check these dirs: Claims: #{datasets_claims_dir}, Ground: #{datasets_grounds_dir} and Combiner input confidences: #{confidence_dirs.join(', ')}"
+    logger.info "Forking child processes: #{cmd}..."
+
+    shell_pid = Process.fork {
+      exec(cmd)
+    }
+
+    logger.info "Child forked with pid: #{shell_pid}"
+    Process.wait(shell_pid)
+
+    # child is done, process output
+    java_stdout_s, java_stderr_s = File.read(java_stdout), File.read(java_stderr)
+
+    if java_stderr_s.length == 0
+      logger.info "Run #{self.id} finished, check this dir: #{output_dir}, and stdout: #{java_stdout}"
       # parse java output
-      parse_output java_stdout, has_ground
+      parse_output java_stdout_s, has_ground
       # import results
       import_results output_dir
     else
-      raise "Java exception thrown, please check logs"
+      raise "Java exception thrown: #{java_stderr_s}"
     end
+  rescue SignalException => e
+    logger.info "Received SignalException: #{e.message}, terminating child process #{shell_pid}..."
+    Process.kill("KILL", shell_pid)
+    throw Exception.new "Processing interrupted, restarting shotly"
   ensure
     # clean: not necessary on heroku
-    logger.info "Deleting working dirs, disable me if you can :P"
-    FileUtils.rm_rf [datasets_claims_dir, datasets_grounds_dir, output_dir]
-    FileUtils.rm_rf confidence_dirs if confidence_dirs.length > 0
+    # logger.info "Deleting working dirs, disable me if you can :P"
+    # FileUtils.rm_rf [datasets_claims_dir, datasets_grounds_dir, output_dir] rescue ""
+    # FileUtils.rm_rf confidence_dirs if confidence_dirs.length > 0 rescue ""
+    # FileUtils.rm java_stdout rescue ""
+    # FileUtils.rm java_stderr rescue ""
+  end
+
+  def fake_start
+    puts "Forking child processes..."
+    
+    shell_pid = Process.fork {
+      exec((Rails.root + "lazy_process.sh").to_s + " > /tmp/stdout")
+    }
+
+    puts "Child forked with pid: #{shell_pid}"
+
+    puts "Parent will wait for child..."
+    Process.wait(shell_pid)
+
+    puts "This is the buffered child stdout: #{File.read('/tmp/stdout')}"
+
+  rescue SignalException => e
+    puts "Received SignalException: #{e.message}, terminating child process #{shell_pid}..."
+    Process.kill("KILL", shell_pid)
+    throw Exception.new "Processing interrupted, restarting shotly"
+  ensure
+    puts "Parent is exiting"
   end
 
   def combiner?
@@ -71,6 +116,8 @@ class Run < ActiveRecord::Base
     self.started_at = Time.now
     self.save
     Pusher.trigger_async("user_#{runset.user.id}", 'run_change', self)
+    # destroy old results, in case job was restarted
+    destroy_associations
   end
   
   def after
@@ -108,15 +155,6 @@ class Run < ActiveRecord::Base
       :methods => [:display, :status, :duration]
     }.merge(options)
     super(options)
-  end
-
-  def destroy
-    # overriding destroy to be more efficient by issuing only 3 SQL deletes
-    # rather than 1 + source_results.count + claim_results.count !
-    conn = ActiveRecord::Base.connection
-    conn.execute("DELETE FROM source_results WHERE run_id = #{self.id}")    
-    conn.execute("DELETE FROM claim_results WHERE run_id = #{self.id}")    
-    super # continue from super to call all after_destroy callbacks
   end
 
   def export_results(output_file)
@@ -188,6 +226,15 @@ class Run < ActiveRecord::Base
   end
 
 private
+
+  def destroy_associations
+    # overriding destroy to be more efficient by issuing only 3 SQL deletes
+    # rather than 1 + source_results.count + claim_results.count !
+    conn = ActiveRecord::Base.connection
+    conn.execute("DELETE FROM source_results WHERE run_id = #{self.id}")    
+    conn.execute("DELETE FROM claim_results WHERE run_id = #{self.id}")    
+    super
+  end
 
   def create_sankey_link(links)
     links.each do |link_id, val|

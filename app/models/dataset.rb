@@ -12,6 +12,8 @@ class Dataset < ActiveRecord::Base
 
   def before
     push_status 'processing'
+    # destroy old inputs, in case job was restarted
+    destroy_associations
   end
 
   def parse_upload
@@ -67,7 +69,9 @@ class Dataset < ActiveRecord::Base
     super(options)
   end
 
-  def destroy
+private
+  
+  def destroy_associations
     # overriding destroy to be more efficient by issuing only 3 SQL deletes
     # rather than 1 + dataset_rows.count !
     conn = ActiveRecord::Base.connection
@@ -75,8 +79,6 @@ class Dataset < ActiveRecord::Base
     super # continue from super to call all after_destroy callbacks
   end
 
-private
-  
   def read_file
     # streaming download from S3
     if(self.s3_key)

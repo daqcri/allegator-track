@@ -1,7 +1,7 @@
 Delayed::Worker.destroy_failed_jobs = false
 Delayed::Worker.sleep_delay = Rails.env.development? ? 5 : 3
-Delayed::Worker.max_attempts = 3
-Delayed::Worker.max_run_time = 1.hours
+Delayed::Worker.max_attempts = 5
+Delayed::Worker.max_run_time = 2.hours
 Delayed::Worker.read_ahead = 1
 Delayed::Worker.default_queue_name = 'default'
 Delayed::Worker.delay_jobs = !Rails.env.test?
