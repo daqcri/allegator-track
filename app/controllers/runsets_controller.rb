@@ -86,8 +86,8 @@ class RunsetsController < ApplicationController
     where << " AND (LOWER(source_id) like LOWER('%#{criteria}%'))" unless criteria.blank?
 
     sql = "SELECT COUNT(*) #{from} #{joins} #{where}"
-    logger.info(sql)
-    filtered = conn.select_value(sql)
+    #logger.info(sql)
+    #filtered = conn.select_value(sql)
 
     #sql = "SELECT #{table_alias}.source_id source_id, #{select + (select_more.present? ? ', ' + select_more : '')}
     table_cols = table_cols.split(',').map{|col| "#{table_alias}.#{col}"}.join(",")
