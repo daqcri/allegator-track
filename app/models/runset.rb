@@ -3,6 +3,7 @@ require 'set'
 class Runset < ActiveRecord::Base
   belongs_to :user
   has_and_belongs_to_many :datasets
+  has_many :dataset_rows, through: :datasets
 
   has_many :runs, dependent: :destroy
   has_many :source_results, through: :runs

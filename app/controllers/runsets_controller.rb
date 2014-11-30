@@ -29,13 +29,11 @@ class RunsetsController < ApplicationController
   end
 
   def results
-    logger.info("Inside RunsetsController#results")
     conn = ActiveRecord::Base.connection
     run_ids = @runset.runs.map(&:id)
     r1 = run_ids.first
-    table, table_alias, col, select_more, joins = "", "", "", "", ""
-    
-    logger.info("Starting to compose query")
+    table, table_alias, col, select_more, joins, total = "", "", "", "", "", 0
+
     if params[:extra_only] == "source_id"
       # attach source trustworthiness
       table = "source_results"
@@ -43,6 +41,9 @@ class RunsetsController < ApplicationController
       col = "trustworthiness"
       joins = run_ids[1..run_ids.length].map{|r| "INNER JOIN source_results r#{r} ON #{table_alias}.source_id = r#{r}.source_id"}.join("\n")
       table_cols = "id,source_id"
+      # totals
+      logger.info("Counting total")
+      total = Run.find(r1).source_results.count
     elsif params[:extra_only].blank?
       # attach claim confidences
       table = "dataset_rows"
@@ -51,6 +52,9 @@ class RunsetsController < ApplicationController
       select_more = run_ids.map{|r| "r#{r}.is_true r#{r}_bool"}.join(',')
       joins = run_ids.map{|r| "INNER JOIN claim_results r#{r} ON #{table_alias}.id = r#{r}.claim_id"}.join("\n")
       table_cols = "*"
+      # totals
+      logger.info("Counting total")
+      total = @runset.dataset_rows.where("datasets.kind = ?", "claims").count
     end
 
     col = params[:extra_normalized].present? ? "normalized" : col
@@ -60,7 +64,6 @@ class RunsetsController < ApplicationController
     where = "WHERE " + run_ids.map{|r| "r#{r}.run_id = #{r}"}.join(" AND ")
     order = ""
     # sorting
-    logger.info("Sorting")
     if params[:order]
       sort = params[:order]["0"]
       sort_col = params[:columns][sort["column"]]["data"]
@@ -69,14 +72,8 @@ class RunsetsController < ApplicationController
       order = "ORDER BY #{sort_col} #{sort_dir}"
     end
 
-    # totals
-    logger.info("Counting total")
-    sql = "SELECT COUNT(*) #{from} #{joins} #{where}"
-    logger.info(sql)
-    total = conn.select_value(sql)
-    filtered = total
-
     # filtering
+    filtered = total
     logger.info("Counting filtered")
     if params[:search].present? && params[:search][:value].present?
       criteria = params[:search][:value]
@@ -89,6 +86,7 @@ class RunsetsController < ApplicationController
     where << " AND (LOWER(source_id) like LOWER('%#{criteria}%'))" unless criteria.blank?
 
     sql = "SELECT COUNT(*) #{from} #{joins} #{where}"
+    logger.info(sql)
     filtered = conn.select_value(sql)
 
     #sql = "SELECT #{table_alias}.source_id source_id, #{select + (select_more.present? ? ', ' + select_more : '')}
@@ -104,7 +102,6 @@ class RunsetsController < ApplicationController
       sql = "#{sql} #{limit} #{offset}"
       logger.info("Retrieving results from custom sql: #{sql}")
       data = conn.select_all(sql)
-      logger.info("Now rendering results in json")
 
       render json: {
         draw: params[:draw].to_i,
@@ -112,13 +109,10 @@ class RunsetsController < ApplicationController
         recordsFiltered: filtered,
         data: data
       }
-
-      logger.info("Results rendered successfully")
     else
       # exporting csv, retrieve all data at once!
       logger.info("Exporting results from custom sql: #{sql}")
       data = conn.select_all(sql)
-      logger.info("Now rendering results in csv")
 
       if params[:extra_only] == "source_id"
         filename = "source"
