@@ -1,6 +1,10 @@
 require 'csv'
 
 class RunsetsController < ApplicationController
+
+  # for csv export streaming
+  include ActionController::Live
+
   before_filter :authenticate_user_from_token!
   before_filter :authenticate_user!
   load_and_authorize_resource :except => [:create, :index]
@@ -123,23 +127,33 @@ class RunsetsController < ApplicationController
     else
       # exporting csv, retrieve all data at once!
       logger.info("Exporting results from custom sql: #{sql}")
-      data = conn.select_all(sql)
 
-      if params[:extra_only] == "source_id"
-        filename = "source"
-      else
-        filename = "claim"
-      end
-      csv_string = CSV.generate do |csv|
-        csv << data[0].keys.map{|key|
-          m = key.match(/^r([\d]+)$/)
-          key + (m ? ": #{Run.find(m[1].to_i).display}" : "")
-        }
-        data.each do |row|
-          csv << row.values
+      filename = params[:extra_only] == "source_id" ? "source" : "claim"
+
+      response.headers['Content-Type'] = "text/csv"
+      response.headers['Content-Disposition'] = "attachment; filename=#{filename}_results_runset_#{@runset.id}.csv"
+      response.headers['Cache-Control'] = 'no-cache'
+
+      start, length = 0, 300
+      while start < filtered
+        data = conn.select_all("#{sql} offset #{start} limit #{length}")
+
+        csv_string = CSV.generate do |csv|
+          csv << data[0].keys.map{|key|
+            m = key.match(/^r([\d]+)$/)
+            key + (m ? ": #{Run.find(m[1].to_i).display}" : "")
+          } if start == 0
+
+          data.each do |row|
+            csv << row.values
+          end
+
         end
+        response.stream.write csv_string
+        start += length
       end
-      send_data(csv_string, :filename => "#{filename}_results_runset_#{@runset.id}.csv")
+      response.stream.close
+
     end
   end
 
