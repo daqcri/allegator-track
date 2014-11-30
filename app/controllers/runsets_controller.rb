@@ -72,6 +72,7 @@ class RunsetsController < ApplicationController
     # totals
     logger.info("Counting total")
     sql = "SELECT COUNT(*) #{from} #{joins} #{where}"
+    logger.info(sql)
     total = conn.select_value(sql)
     filtered = total
 
