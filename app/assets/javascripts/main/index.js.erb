@@ -88,7 +88,7 @@ function setup_data_selector()
     var what = $(this).attr("value")
     var checkbox = what == 'source_id' ? $("#source_id_normalize") : $("#claims_normalize");
     var normalized = checkbox.find("input").is(":checked") ? "1" : ""
-    window.location = '/runsets/'+runset.id+'/results?export=1&extra_only='+what+'&extra_normalized='+normalized
+    window.location = '/runsets/'+runset.id+'/results.csv?extra_only='+what+'&extra_normalized='+normalized
   })
 
   // append tab for each runset
@@ -581,7 +581,7 @@ function setup_datatables() {
         data.extra_kind = runset
       }
       else {
-        url = "/runsets/" + runset.id + "/results"
+        url = "/runsets/" + runset.id + "/results.json"
       }
       data.extra_source_id_criteria = source_table.search()
       data.extra_object_key_criteria = object_table.search()
@@ -670,7 +670,7 @@ function setup_single_datatable(field_name, field_display, showing_inputs, runse
         data.extra_kind = runset
       }
       else {
-        url = "/runsets/" + runset.id + "/results"
+        url = "/runsets/" + runset.id + "/results.json"
       }
       data.extra_only = field_name
       data.extra_source_id_criteria = source_table.search()

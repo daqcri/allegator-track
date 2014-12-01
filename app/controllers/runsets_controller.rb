@@ -3,7 +3,7 @@ require 'csv'
 class RunsetsController < ApplicationController
 
   # for csv export streaming
-  include ActionController::Live
+  # include ActionController::Live
 
   before_filter :authenticate_user_from_token!
   before_filter :authenticate_user!
@@ -111,50 +111,56 @@ class RunsetsController < ApplicationController
     sql = "SELECT #{table_cols}, #{select + (select_more.present? ? ', ' + select_more : '')}
       #{from} #{joins} #{where} #{order}"
 
-    if params[:export].blank?
-      # showing table, apply offset/limit
-      limit, offset = limit_sql
-      sql = "#{sql} #{limit} #{offset}"
-      logger.info("Retrieving results from custom sql: #{sql}")
-      data = conn.select_all(sql)
+    respond_to do |format|
+      format.json {
+        # showing table, apply offset/limit
+        limit, offset = limit_sql
+        sql = "#{sql} #{limit} #{offset}"
+        logger.info("Retrieving results from custom sql: #{sql}")
+        data = conn.select_all(sql)
 
-      render json: {
-        draw: params[:draw].to_i,
-        recordsTotal: total,
-        recordsFiltered: filtered,
-        data: data
+        render json: {
+          draw: params[:draw].to_i,
+          recordsTotal: total,
+          recordsFiltered: filtered,
+          data: data
+        }        
       }
-    else
-      # exporting csv, retrieve all data at once!
-      logger.info("Exporting results from custom sql: #{sql}")
+      format.csv {
+        # exporting csv, retrieve all data at once!
+        logger.info("Exporting results from custom sql: #{sql}")
 
-      filename = params[:extra_only] == "source_id" ? "source" : "claim"
+        filename = params[:extra_only] == "source_id" ? "source" : "claim"
 
-      response.headers['Content-Type'] = "text/csv"
-      response.headers['Content-Disposition'] = "attachment; filename=#{filename}_results_runset_#{@runset.id}.csv"
-      response.headers['Cache-Control'] = 'no-cache'
+        headers['Content-Disposition'] = "attachment; filename=#{filename}_results_runset_#{@runset.id}.csv"
+        headers['X-Accel-Buffering'] = 'no'
+        headers['Cache-Control'] = 'no-cache'
 
-      start, length = 0, 300
-      while start < filtered
-        data = conn.select_all("#{sql} offset #{start} limit #{length}")
+        self.response_body = Enumerator.new do |receiver|
+          start, length = 0, 300
+          while start < filtered
+            data = conn.select_all("#{sql} offset #{start} limit #{length}")
 
-        csv_string = CSV.generate do |csv|
-          csv << data[0].keys.map{|key|
-            m = key.match(/^r([\d]+)$/)
-            key + (m ? ": #{Run.find(m[1].to_i).display}" : "")
-          } if start == 0
+            receiver << CSV.generate_line(data[0].keys.map{|key|
+              m = key.match(/^r([\d]+)$/)
+              key + (m ? ": #{Run.find(m[1].to_i).display}" : "")
+            }) if start == 0
 
-          data.each do |row|
-            csv << row.values
+
+            data.each do |row|
+              receiver << CSV.generate_line(row.values)
+            end
+
+            # logger.info "Sleeping 5 seconds..."
+            puts "written chunk of #{length} lines"
+
+            start += length
           end
-
         end
-        response.stream.write csv_string
-        start += length
-      end
-      response.stream.close
 
+      }
     end
+
   end
 
 end
