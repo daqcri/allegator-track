@@ -137,7 +137,7 @@ class RunsetsController < ApplicationController
         headers['Cache-Control'] = 'no-cache'
 
         self.response_body = Enumerator.new do |receiver|
-          start, length = 0, 300
+          start, length = 0, 1000
           while start < filtered
             data = conn.select_all("#{sql} offset #{start} limit #{length}")
 
@@ -152,7 +152,7 @@ class RunsetsController < ApplicationController
             end
 
             # logger.info "Sleeping 5 seconds..."
-            puts "written chunk of #{length} lines"
+            puts "written chunk of #{length} lines starting from #{start}"
 
             start += length
           end
