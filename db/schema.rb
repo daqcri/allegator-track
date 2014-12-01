@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141127054059) do
+ActiveRecord::Schema.define(version: 20141201192323) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -133,6 +133,7 @@ ActiveRecord::Schema.define(version: 20141127054059) do
     t.float    "recall"
     t.float    "specificity"
     t.integer  "iterations"
+    t.string   "last_error"
   end
 
   add_index "runs", ["runset_id"], name: "index_runs_on_runset_id", using: :btree

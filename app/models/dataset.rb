@@ -69,14 +69,18 @@ class Dataset < ActiveRecord::Base
     super(options)
   end
 
+  def destroy
+    destroy_associations!
+    super
+  end
+
 private
   
-  def destroy_associations
+  def destroy_associations!
     # overriding destroy to be more efficient by issuing only 3 SQL deletes
     # rather than 1 + dataset_rows.count !
     conn = ActiveRecord::Base.connection
-    conn.execute("DELETE FROM dataset_rows WHERE dataset_id = #{self.id}")    
-    super # continue from super to call all after_destroy callbacks
+    conn.execute("DELETE FROM dataset_rows WHERE dataset_id = #{self.id}")
   end
 
   def read_file
