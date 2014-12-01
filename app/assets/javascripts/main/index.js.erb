@@ -270,7 +270,16 @@ function setup_runtable()
     },
     'columns': [
       {
-        'data': 'runset_id'
+        'data': 'runset_id',
+        'render': function (id, type, full, meta){
+          var span = id + ""
+          if (full.last_error) {
+            span = "<span class='ui-icon ui-icon-alert ui-icon-with-text' title='Last error: "
+              + full.last_error
+              + "'>"+id+"</span>"
+          }
+          return span
+        }
       },
       {
         'data': 'created_at',

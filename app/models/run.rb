@@ -37,25 +37,78 @@ class Run < ActiveRecord::Base
         extra_params << " #{file}"
       end
     end
-    logger.info "Run #{self.id} started, check these dirs: Claims: #{datasets_claims_dir}, Ground: #{datasets_grounds_dir} and Combiner input confidences: #{confidence_dirs.join(', ')}"
+
+    # prepare streams
+    java_stdout, java_stderr = Tempfile.new("java_stdout"), Tempfile.new("java_stderr")
+    java_stdout.close ; java_stdout = java_stdout.path
+    java_stderr.close ; java_stderr = java_stderr.path
+    
     # call the jar
     cmd = "java -jar #{@@JAR_PATH} #{self.algorithm} #{datasets_claims_dir} #{datasets_grounds_dir} #{output_dir} #{extra_params}"
-    logger.info("Running: #{cmd}")
-    java_stdout = `#{cmd}`
-    if $?.exitstatus == 0
-      logger.info "Run #{self.id} finished, check this dir: #{output_dir}"
+    cmd = "#{cmd} 1>#{java_stdout} 2>#{java_stderr}"
+    logger.info "Run #{self.id} started, check these dirs: Claims: #{datasets_claims_dir}, Ground: #{datasets_grounds_dir} and Combiner input confidences: #{confidence_dirs.join(', ')}"
+    logger.info "Forking child processes: #{cmd}..."
+
+    pid = Process.fork {
+      exec(cmd)
+    }
+
+    # raise Exception.new "Unknown exception here"
+
+    logger.info "Child forked with pid: #{pid}"
+    Process.wait(pid)
+
+    # child is done, process output
+    java_stdout_s, java_stderr_s = File.read(java_stdout), File.read(java_stderr)
+
+    if java_stderr_s.length == 0
+      logger.info "Run #{self.id} finished, check this dir: #{output_dir}, and stdout: #{java_stdout}"
       # parse java output
-      parse_output java_stdout, has_ground
+      parse_output java_stdout_s, has_ground
       # import results
       import_results output_dir
     else
-      raise "Java exception thrown, please check logs"
+      raise "Internal error: #{java_stderr_s}"
     end
+  rescue SignalException => e
+    cleanup pid, e, "Processing interrupted"
+  rescue Delayed::WorkerTimeout => e
+    cleanup pid, e, "Processing reached maximum allowed time"
+  rescue => e
+    cleanup pid, e, "Unexpected error"
   ensure
     # clean: not necessary on heroku
-    logger.info "Deleting working dirs, disable me if you can :P"
-    FileUtils.rm_rf [datasets_claims_dir, datasets_grounds_dir, output_dir]
-    FileUtils.rm_rf confidence_dirs if confidence_dirs.length > 0
+    # logger.info "Deleting working dirs, disable me if you can :P"
+    # FileUtils.rm_rf [datasets_claims_dir, datasets_grounds_dir, output_dir] rescue ""
+    # FileUtils.rm_rf confidence_dirs if confidence_dirs.length > 0 rescue ""
+    # FileUtils.rm java_stdout rescue ""
+    # FileUtils.rm java_stderr rescue ""
+  end
+
+  def fake_start
+    puts "Forking child processes..."
+    
+    pid = Process.fork {
+      exec((Rails.root + "lazy_process.sh").to_s + " > /tmp/stdout")
+    }
+
+    puts "Child forked with pid: #{pid}"
+
+    raise Exception.new "Unknown exception here"
+    
+    puts "Parent will wait for child..."
+    Process.wait(pid)
+
+    puts "This is the buffered child stdout: #{File.read('/tmp/stdout')}"
+
+  rescue SignalException => e
+    cleanup pid, e, "Processing interrupted"
+  rescue Delayed::WorkerTimeout => e
+    cleanup pid, e, "Processing reached maximum allowed time"
+  rescue => e
+    cleanup pid, e, "Unexpected error"
+  ensure
+    puts "Parent is exiting"
   end
 
   def combiner?
@@ -65,14 +118,31 @@ class Run < ActiveRecord::Base
   def display
     "#{algorithm} (#{general_config.try(:gsub, ' ', ',')}; #{config.try(:gsub, ' ', ',')})"
   end
-  alias_method :to_s, :display
 
   def before
     self.started_at = Time.now
+    self.finished_at = nil
     self.save
+    # destroy old results, in case job was restarted
+    destroy_associations
     Pusher.trigger_async("user_#{runset.user.id}", 'run_change', self)
   end
   
+  def success
+    set_last_error! nil
+  end
+
+  def error(job, e)
+    set_last_error! e.message
+  end
+
+  def set_last_error!(message)
+    logger.debug "Setting last_error to #{message}"
+    m = message.try(:match, /<Exception: (.*)>/)
+    self.last_error = m ? m[1] : message
+    save
+  end
+
   def after
     self.finished_at = Time.now
     self.save
@@ -104,19 +174,12 @@ class Run < ActiveRecord::Base
 
   def as_json(options={})
     options = {
-      :only => [:id, :algorithm, :created_at, :runset_id, :precision, :accuracy, :recall, :specificity, :iterations],
+      :only => [:id, :algorithm, :created_at, :runset_id,
+        :precision, :accuracy, :recall, :specificity, :iterations,
+        :last_error],
       :methods => [:display, :status, :duration]
     }.merge(options)
     super(options)
-  end
-
-  def destroy
-    # overriding destroy to be more efficient by issuing only 3 SQL deletes
-    # rather than 1 + source_results.count + claim_results.count !
-    conn = ActiveRecord::Base.connection
-    conn.execute("DELETE FROM source_results WHERE run_id = #{self.id}")    
-    conn.execute("DELETE FROM claim_results WHERE run_id = #{self.id}")    
-    super # continue from super to call all after_destroy callbacks
   end
 
   def export_results(output_file)
@@ -187,7 +250,29 @@ class Run < ActiveRecord::Base
     "Run ##{id}: #{display}"
   end
 
+  def destroy
+    destroy_associations!
+    super
+  end
+
 private
+
+  def cleanup(pid, e, message)
+    # log exception so we have context about what happened
+    logger.info "Received #{e.class.name}: #{e.message}, terminating child process #{pid}..."
+    # terminate the child java process, if any
+    Process.kill("KILL", pid) rescue ""
+    # propagate back a new exception so that job marked as failed
+    throw Exception.new message
+  end
+
+  def destroy_associations!
+    # overriding destroy to be more efficient by issuing only 3 SQL deletes
+    # rather than 1 + source_results.count + claim_results.count !
+    conn = ActiveRecord::Base.connection
+    conn.execute("DELETE FROM source_results WHERE run_id = #{self.id}")    
+    conn.execute("DELETE FROM claim_results WHERE run_id = #{self.id}")    
+  end
 
   def create_sankey_link(links)
     links.each do |link_id, val|
@@ -196,9 +281,6 @@ private
       node = arr.join("_")
       yield conflicts, node, val
     end
-  end
-
-  def lookup_sankey_node(node)
   end
 
   def import_results(output_dir)
