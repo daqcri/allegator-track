@@ -1,7 +1,7 @@
 worker_processes Integer(ENV["WEB_CONCURRENCY"] || 3)
 timeout 300 # for response streaming
 preload_app true
-listen ENV['PORT'].to_i, :tcp_nopush => false
+listen ENV['PORT'].to_i, :tcp_nopush => false, tcp_nodelay: true
 
 before_fork do |server, worker|
     Signal.trap 'TERM' do
