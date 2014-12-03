@@ -39,7 +39,7 @@ ActiveAdmin.register Delayed::Job, as: 'Delayed Job' do
     column :failed_at
     column :attempts
 
-    default_actions
+    actions
   end
 
   show do |job|

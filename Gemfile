@@ -67,3 +67,9 @@ gem "rails-observers"
 
 # activeadmin Rails 4 support is merged on master, but not yet on rubygems.org as of 27/11/2014
 gem 'activeadmin', github: 'gregbell/active_admin'
+
+# delayed job web monitoring 
+gem "delayed_job_web", :git => 'git://github.com/hammady/delayed_job_web.git'
+# heroku api for delayed job zombie detection
+gem 'platform-api'
+
