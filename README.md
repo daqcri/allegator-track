@@ -21,7 +21,7 @@ apt-get install curl libpq-dev postgresql git sendmail
 
 ## Setup environment
 
-### Setup database (not required for Heroku setup)
+### Setup database (not required for Heroku setup, except for the CREATE EXTENSION statement)
 
 Before running the foreman commands below, make sure the database credentials match the actual parameters you have used, depending on your environment (see below).
 
@@ -35,6 +35,10 @@ Before running the foreman commands below, make sure the database credentials ma
 
 Note we don't use `db:setup` because we have hard-coded indices in migrations that are not reflected in schema.rb.
 The `db:migrate` command is always needed whenever you update the code and have new files in `db/migrate` folder.
+
+Load the `intarray` extension so that some sql functions work (idx for example), must be database super user:
+
+    CREATE EXTENSION intarray;
 
 Choose one of the following sub-sections, depending on your installation environment.
 
