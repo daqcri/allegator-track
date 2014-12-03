@@ -87,9 +87,7 @@ class Runset < ActiveRecord::Base
         array_to_string(array_agg(is_true ORDER BY run_id), E',') are_true
       ").joins("
         INNER JOIN claim_results ON dataset_rows.id = claim_results.claim_id
-      ").group("
-        dataset_rows.id, #{claim_cols_s}
-      ").where("claim_results.run_id" => run_ids)
+      ").group("dataset_rows.id").where("claim_results.run_id" => run_ids)
       counts_query = dataset_rows.where("datasets.kind = ?", "claims")
       count_col = "dataset_rows.id"
     end
@@ -113,7 +111,7 @@ class Runset < ActiveRecord::Base
     # filtering
     filtered = total
     logger.info("Counting filtered")
-    if search
+    if search.present?
       fields = results_type == :confidence ? %w(object_key source_id property_key property_value timestamp) : %w(source_id)
       clauses = fields.map{|f| "LOWER(#{f}) like LOWER('%#{search}%')"}.join(" OR ")
       query, counts_query = query.where(clauses), counts_query.where(clauses)
