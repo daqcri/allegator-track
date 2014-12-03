@@ -61,7 +61,7 @@ class Run < ActiveRecord::Base
     # child is done, process output
     java_stdout_s, java_stderr_s = File.read(java_stdout), File.read(java_stderr)
 
-    if java_stderr_s.length == 0
+    unless java_has_stderr?(java_stderr_s)
       logger.info "Run #{self.id} finished, check this dir: #{output_dir}, and stdout: #{java_stdout}"
       # parse java output
       parse_output java_stdout_s, has_ground
@@ -94,7 +94,7 @@ class Run < ActiveRecord::Base
 
     puts "Child forked with pid: #{pid}"
 
-    raise Exception.new "Unknown exception here"
+    raise Exception.new "UNKNOWN EXCEPTION HERE"
     
     puts "Parent will wait for child..."
     Process.wait(pid)
@@ -318,6 +318,13 @@ private
       end
     end
     self.save!
+  end
+
+  def java_has_stderr?(java_stderr)
+    java_stderr.split(/\n\r|\r\n|\n|\r/).each do |line|
+      return true unless line.match(/^Picked up.+JAVA/)
+    end
+    false
   end
 
   def normalize!(associtation, attribute)
