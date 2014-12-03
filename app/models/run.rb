@@ -53,7 +53,7 @@ class Run < ActiveRecord::Base
       exec(cmd)
     }
 
-    # raise Exception.new "Unknown exception here"
+    # raise Exception.new "UNKNOWN EXCEPTION HERE"
 
     logger.info "Child forked with pid: #{pid}"
     Process.wait(pid)
@@ -259,7 +259,8 @@ private
 
   def cleanup(pid, e, message)
     # log exception so we have context about what happened
-    logger.info "Received #{e.class.name}: #{e.message}, terminating child process #{pid}..."
+    backtrace = e.backtrace.join("\n")
+    logger.info "Received #{e.class.name}: #{e.message}, backtrace:\n#{backtrace} terminating child process #{pid}..."
     # terminate the child java process, if any
     Process.kill("KILL", pid) rescue ""
     # propagate back a new exception so that job marked as failed
