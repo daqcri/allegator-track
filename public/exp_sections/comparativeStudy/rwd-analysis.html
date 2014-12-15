@@ -1,0 +1,898 @@
+<style type="text/css">
+	@page {  }
+	.rwcompta1 td, th { vertical-align:top; font-size:10pt;}
+	.rwcompta1 * { margin:0;}
+	.ta1 { writing-mode:lr-tb; }
+	.Default { font-family:Arial; background-color:transparent; border-style:none; vertical-align:bottom; margin-left:0in; writing-mode:page; color:#000000; font-size:11pt; font-style:normal; text-shadow:none; text-decoration:none ! important; font-weight:normal; }
+	.ce1 { background-color:transparent; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; font-style:normal; font-weight:bold; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:middle; writing-mode:page; text-align:center ! important; }
+	.ce10 { background-color:transparent; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce11 { background-color:transparent; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce12 { background-color:#fac090; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce13 { background-color:#92d050; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce14 { background-color:#ffffff; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce15 { background-color:#ffffff; border-style:none; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce16 { background-color:transparent; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:10pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Monospace; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce17 { background-color:#ffffff; border-style:none; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce18 { background-color:#ffffff; border-style:none; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce19 { background-color:transparent; border-style:none; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce2 { background-color:transparent; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; font-style:normal; font-weight:bold; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce3 { background-color:transparent; border-style:none; color:#000000; font-size:11pt; font-style:normal; font-weight:bold; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce4 { background-color:transparent; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce5 { background-color:#ffff00; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce6 { background-color:#ffc000; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; 
+	font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; 
+	vertical-align:bottom; writing-mode:page; text-align:right;}
+	.ce7 { background-color:#ffc000; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.ce8 { background-color:transparent; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; text-align:center ! important; }
+	.ce9 { background-color:#fac090; border-width:0.0133cm; border-style:solid; border-color:#000000; color:#000000; font-size:11pt; font-style:normal; font-weight:normal; margin-left:0in; text-shadow:none; font-family:Arial; text-decoration:none ! important; vertical-align:bottom; writing-mode:page; }
+	.co1 { width:1.1665in; }
+	.co2 { width:1.722in; }
+	.co3 { width:1.2362in; }
+	.co4 { width:0.9165in; }
+	.co5 { width:1.4445in; }
+	.co6 { width:1.528in; }
+	.co7 { width:1.028in; }
+	.ro1 { height:0.2083in; }
+	.ro2 { height:0.178in; }
+	<!-- ODF styles with no properties representable as CSS -->
+	</style>
+	<h2>Real-World Data Sets</h2>
+	<div style="display:block; width:1000px; margin-left:auto; margin-right:auto;">
+	<table  class="rwcompta1" style="border-collapse:collapse; border-spacing:0; empty-cells:show ">
+		<colgroup>
+			<col width="129" />
+			<col width="191" />
+			<col width="137" />
+			<col width="137" />
+			<col width="137" />
+			<col width="137" />
+			<col width="102" />
+			<col width="160" />
+			<col width="170" />
+			<col width="137" />
+			<col width="114" />
+			<col width="114" />
+			<col width="114" />
+			<col width="114" />
+			<col width="114" />
+			<col width="114" />
+		</colgroup>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.1665in;" class="Default"> </td>
+			<td style="text-align: left; width: 1.722in;" class="Default"> </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Precision</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Accuracy</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Recall</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Specificity</p></td>
+			<td style="text-align: left; width: 0.9165in;" class="ce8"><p>Iterations</p></td>
+			<td style="text-align: left; width: 1.4445in;" class="ce8"><p>Time
+					(s)</p></td>
+			<td style="text-align: left; width: 1.528in;" class="ce8"><p>Memory</p></td>
+		</tr>
+		<tr class="ro1">
+			<td rowspan="17" style="text-align: left; width: 1.1665in;"
+				class="ce1"><p>Book</p></td>
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>MajorityVoting</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9804</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8664</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7979</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9748</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>1</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce13"><p>0.009</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce13"><p>41</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>TruthFinder</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9777</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9387</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9211</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9667</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>5</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>0.359</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>618</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Cosine</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9769</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9279</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9037</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9661</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>8</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>0.312</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>165</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>2-Estimates</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9812</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8893</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8351</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9748</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>4</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>0.193</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>124</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>3-Estimates</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9935</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8849</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8172</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9915</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>42</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>1.474</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1117</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>SimpleLCA</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9758</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9023</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.861</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9667</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>5</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>0.136</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>82</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>GuessLCA</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9808</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.882</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8226</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9748</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>17</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>0.566</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>82</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce5"><p>AccuSim</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9403</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9453</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9742</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8974</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>3</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>10.092</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>2072</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Depen</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9814</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8889</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.836</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9744</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>4</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>9.65</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1879</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Accu</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9809</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8852</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.828</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9748</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>4</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>9.463</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1451</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>AccuNoDep</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9806</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8787</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8172</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9748</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>3</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>0.129</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>59</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>LTM</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8551</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8885</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9839</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7395</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>500</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>4.273</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1049</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce5"><p>MLE</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>1</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>1</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>1</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>2</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce14"><p>0.661</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>590</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce6"><p>mean</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.9696</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.9060</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8768</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8751</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce12"><p>46</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce9"><p>2.8705</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce9"><p>717.6154</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce6"><p>stddev</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0370</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0372</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0714</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.2712</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce9"><p>136.8485</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce9"><p>4.0711</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce9"><p>728.8071</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce7"><p>min</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.8551</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.8664</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.7979</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce10"><p>1</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce10"><p>0.009</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce10"><p>41</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce7"><p>max</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>1</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>1</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>1</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.9915</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce10"><p>500</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce10"><p>10.092</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce10"><p>2072</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.1665in;" class="Default"> </td>
+			<td style="text-align: left; width: 1.722in;" class="Default"> </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Precision</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Accuracy</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Recall</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Specificity</p></td>
+			<td style="text-align: left; width: 0.9165in;" class="ce8"><p>Iterations</p></td>
+			<td style="text-align: left; width: 1.4445in;" class="ce8"><p>Time</p></td>
+			<td style="text-align: left; width: 1.528in;" class="ce8"><p>Memory</p></td>
+		</tr>
+		<tr class="ro1">
+			<td rowspan="15" style="text-align: left; width: 1.1665in;"
+				class="ce1"><p>Flight</p></td>
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>MajorityVoting</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8205</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8228</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8199</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8256</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>1</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce13"><p>0.485</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce13"><p>274</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>TruthFinder</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.797</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7997</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7965</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8028</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>2</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>3.974</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>673</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Cosine</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8825</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8839</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8819</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8859</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>13</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>42.696</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1366</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>2-Estimates</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7903</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7931</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7898</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7963</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>4</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>17.444</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1413</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>3-Estimates</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7028</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7068</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7023</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7112</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>24</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce14"><p>92.02</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1622</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>SimpleLCA</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6802</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6846</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6797</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6893</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>7</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>7.904</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1612</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>GuessLCA</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7867</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7895</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7861</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7927</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>137</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>417.289</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1606</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>AccuSim</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9049</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9059</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9042</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9076</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>4</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>65.288</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1623</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Depen</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8204</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8227</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8198</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8255</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>2</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>53.261</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1622</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce5"><p>Accu</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9111</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9121</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9105</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9136</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>3</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>58.55</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1629</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>AccuNoDep</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7915</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7942</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.791</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7974</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>3</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>13.173</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1237</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce6"><p>mean</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8080</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8105</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8074</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8134</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce9"><p>18.1818</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce9"><p>70.1895</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce9"><p>1334.2727</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce6"><p>stddev</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0738</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0727</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0737</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0717</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce9"><p>39.9820</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce9"><p>118.8748</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce9"><p>454.4113</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce7"><p>min</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.6802</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.6846</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.6797</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.6893</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce10"><p>1</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce10"><p>0.485</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce10"><p>274</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce7"><p>max</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.9111</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.9121</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.9105</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.9136</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce10"><p>137</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce10"><p>417.289</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce10"><p>1629</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.1665in;" class="Default"> </td>
+			<td style="text-align: left; width: 1.722in;" class="Default"> </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Precision</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Accuracy</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Recall</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Specificity</p></td>
+			<td style="text-align: left; width: 0.9165in;" class="ce8"><p>Iterations</p></td>
+			<td style="text-align: left; width: 1.4445in;" class="ce8"><p>Time</p></td>
+			<td style="text-align: left; width: 1.528in;" class="ce8"><p>Memory</p></td>
+		</tr>
+		<tr class="ro1">
+			<td rowspan="15" style="text-align: left; width: 1.1665in;"
+				class="ce1"><p>Weather</p></td>
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>MajorityVoting</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6305</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8472</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.649</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8995</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>1</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce13"><p>0.089</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce13"><p>24</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce5"><p>TruthFinder</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6443</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8531</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6633</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9033</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>2</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>1.238</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>476</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Cosine</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6283</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8462</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6468</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8989</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>9</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce14"><p>5.405</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>2348</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>2-Estimates</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.631</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8474</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6495</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8996</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>5</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>3.417</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1823</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>3-Estimates</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6272</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8457</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6456</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8986</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>6</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>5.261</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>2354</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>SimpleLCA</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6421</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8522</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.661</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9027</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>4</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>1.687</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1009</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>GuessLCA</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6359</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8495</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6546</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.901</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>11</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>6.741</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1346</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>AccuSim</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.5079</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7944</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.5229</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8662</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>3</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>4.61</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>2259</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Depen</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6305</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8472</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.649</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8995</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>3</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>4.284</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>2157</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Accu</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.5231</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.801</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.5385</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8703</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>3</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>4.332</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>2206</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>AccuNoDep</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6442</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8531</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6631</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.9032</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>3</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>2.451</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1127</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce6"><p>mean</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.6132</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8397</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.6312</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8948</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce9"><p>4.5455</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce9"><p>3.5923</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce9"><p>1557.1818</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce6"><p>stddev</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0488</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0210</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0502</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0133</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce9"><p>3.0451</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce9"><p>2.0205</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce9"><p>815.7221</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce7"><p>min</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.5079</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.7944</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.5229</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.8662</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce10"><p>1</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce10"><p>0.089</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce10"><p>24</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce7"><p>max</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.6443</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.8531</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.6633</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.9033</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce10"><p>11</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce10"><p>6.741</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce10"><p>2354</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.1665in;" class="Default"> </td>
+			<td style="text-align: left; width: 1.722in;" class="Default"> </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Precision</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Accuracy</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Recall</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Specificity</p></td>
+			<td style="text-align: left; width: 0.9165in;" class="ce8"><p>Iterations</p></td>
+			<td style="text-align: left; width: 1.4445in;" class="ce8"><p>Time</p></td>
+			<td style="text-align: left; width: 1.528in;" class="ce8"><p>Memory</p></td>
+		</tr>
+		<tr class="ro1">
+			<td rowspan="15" style="text-align: left; width: 1.1665in;"
+				class="ce1"><p>Population</p></td>
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>MajorityVoting</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8206</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8419</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8373</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8457</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>1</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce13"><p>0.044</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce13"><p>19</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>TruthFinder</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8505</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8698</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8678</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8714</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>2</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>0.349</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>60</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Cosine</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8306</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8512</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8475</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8543</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>7</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>0.629</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>120</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>2-Estimates</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6777</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7085</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.6915</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.7229</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>6</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>0.835</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>260</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>3-Estimates</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8239</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.845</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8407</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8486</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>8</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>1.178</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>300</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>SimpleLCA</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8372</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8574</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8542</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.86</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>4</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>0.343</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>120</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>GuessLCA</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8239</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.845</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8407</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8486</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>5</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>0.691</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>160</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>AccuSim</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8206</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8419</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8373</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8457</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>5</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>101.174</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>1625</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Depen</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8173</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8388</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8339</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8429</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>4</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>101.078</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>699</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Accu</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8472</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8667</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8644</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8686</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>4</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce14"><p>106.336</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>499</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce5"><p>AccuNoDep</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8538</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8729</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8712</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce4"><p>0.8743</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce4"><p>4</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce4"><p>0.411</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce4"><p>174</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce6"><p>mean</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8185</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8399</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8351</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8439</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce9"><p>4.5455</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce9"><p>28.4607</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce9"><p>366.9091</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce6"><p>stddev</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0485</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0452</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0494</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0417</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce9"><p>2.0181</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce9"><p>47.8053</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce9"><p>462.9923</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce7"><p>min</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.6777</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.7085</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.6915</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.7229</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce10"><p>1</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce10"><p>0.044</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce10"><p>19</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce7"><p>max</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.8538</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.8729</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.8712</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.8743</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce10"><p>8</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce10"><p>106.336</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce10"><p>1625</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.1665in;" class="Default"> </td>
+			<td style="text-align: left; width: 1.722in;" class="Default"> </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Precision</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Accuracy</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Recall</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce8"><p>Specificity</p></td>
+			<td style="text-align: left; width: 0.9165in;" class="ce8"><p>Iterations</p></td>
+			<td style="text-align: left; width: 1.4445in;" class="ce8"><p>Time</p></td>
+			<td style="text-align: left; width: 1.528in;" class="ce8"><p>Memory</p></td>
+		</tr>
+		<tr class="ro1">
+			<td rowspan="15" style="text-align: left; width: 1.1665in;"
+				class="ce1"><p>Biography</p></td>
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>MajorityVoting</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.7068</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.8961</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.9032</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.8941</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce11"><p>1</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce11"><p>3.3424</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce16"><p>1439</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>TruthFinder</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.7064</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.8959</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.9027</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.894</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce11"><p>4</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce11"><p>44.515</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce16"><p>7487</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Cosine</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.7037</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.8944</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.8993</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.893</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce11"><p>2</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce11"><p>32.599</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce16"><p>7470</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce5"><p>2-Estimates</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.7091</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.8974</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.9061</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.895</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce11"><p>2</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce11"><p>32.979</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce16"><p>7471</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>3-Estimates</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.706</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.8957</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.9022</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.8939</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce11"><p>24</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce11"><p>317.305</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce16"><p>8771</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>SimpleLCA</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">NA</td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">NA </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">NA</td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">NA </td>
+			<td style="text-align: left; width: 0.9165in;" class="ce11">500</td>
+			<td style="text-align: left; width: 1.4445in;" class="ce11">NA </td>
+			<td style="text-align: left; width: 1.528in;" class="ce11">NA </td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>GuessLCA</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">NA </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">NA </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">NA </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">NA</td>
+			<td style="text-align: left; width: 0.9165in;" class="ce11">500</td>
+			<td style="text-align: left; width: 1.4445in;" class="ce11">NA </td>
+			<td style="text-align: left; width: 1.528in;" class="ce11">NA</td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>AccuSim</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">EL </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">EL</td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">EL</td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">EL </td>
+			<td style="text-align: left; width: 0.9165in;" class="ce11">EL</td>
+			<td style="text-align: left; width: 1.4445in;" class="ce11">EL</td>
+			<td style="text-align: left; width: 1.528in;" class="ce11">EL </td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Depen</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">EL </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">EL </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">EL</td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">EL </td>
+			<td style="text-align: left; width: 0.9165in;" class="ce11">EL</td>
+			<td style="text-align: left; width: 1.4445in;" class="ce11">EL </td>
+			<td style="text-align: left; width: 1.528in;" class="ce11">EL</td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>Accu</p></td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">EL</td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">EL</td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">EL </td>
+			<td style="text-align: left; width: 1.2362in;" class="ce11">EL</td>
+			<td style="text-align: left; width: 0.9165in;" class="ce11">EL</td>
+			<td style="text-align: left; width: 1.4445in;" class="ce11">EL</td>
+			<td style="text-align: left; width: 1.528in;" class="ce11">EL</td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce4"><p>AccuNoDep</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.7053</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.8953</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.9012</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce11"><p>0.8936</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce11"><p>3</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce11"><p>80.924</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce16"><p>7488</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce6"><p>mean</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.7062</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8958</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.9025</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.8939</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce9"><p>6.0000</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce9"><p>85.2774</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce9"><p>6687.6667</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce6"><p>stddev</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0018</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0010</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0023</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce9"><p>0.0007</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce9"><p>8.8769</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce9"><p>116.3966</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce9"><p>2622.7430</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce7"><p>min</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.7037</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.8944</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.8993</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.893</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce10"><p>1</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce10"><p>3.3424</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce10"><p>1439</p></td>
+		</tr>
+		<tr class="ro1">
+			<td style="text-align: left; width: 1.722in;" class="ce7"><p>max</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.7091</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.8974</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.9061</p></td>
+			<td style="text-align: right; width: 1.2362in;" class="ce10"><p>0.895</p></td>
+			<td style="text-align: right; width: 0.9165in;" class="ce10"><p>24</p></td>
+			<td style="text-align: right; width: 1.4445in;" class="ce10"><p>317.305</p></td>
+			<td style="text-align: right; width: 1.528in;" class="ce10"><p>8771</p></td>
+		</tr>
+		
+	</table>
+</div>

@@ -1,0 +1,57 @@
+  <h2>Runs Endpoint</h2>
+  <ol>
+    <li><a href="#toc_listing">Listing Runs</a></li>
+  </ol>
+
+<h4> Note that 'user_token' parameter must be supplied with every request. </h4>
+<br>
+<!-- LISTING -->
+
+  <h2 id="toc_listing">Listing Runs</h2>
+  <h3>Request</h3>
+<pre>  GET http://dafna.qcri.org/runs/
+</pre>
+  <h4>Response</h4>
+<table>
+  <tbody><tr>
+    <th>Status Code</th>
+    <th>Meaning</th>
+    <th>Body</th>
+  </tr>
+    
+<tr>
+  <td>200</td>
+  <td>OK</td>
+  <td>
+
+<pre>{
+  draw: &lt;draw&gt;,
+  recordsTotal: &lt;Total Number of Records&gt;,
+  recordsFiltered: &lt;Filtered Records&gt;,
+  data:[ <pre>{
+  id: &lt;run id&gt;,
+  algorithm: &lt;Name of the algorithm&gt;,
+  created_at: &lt;Time of creation&gt;,
+  runset_id: &lt;Runset ID&gt;,
+  display: &lt;Algorithm name and parameters in paranthesis (in order)&gt;,
+  status: &lt;whether finished&gt;,
+  duration: &lt;Duration of run&gt;,
+}</pre>,{},{}...]
+}</pre>
+
+  </td>
+</tr>
+
+    
+<tr>
+  <td>401</td>
+  <td>Unauthorized</td>
+  <td>
+      -
+  </td>
+</tr>
+
+</tbody></table>
+
+  <a href="#">Back to top</a>
+  

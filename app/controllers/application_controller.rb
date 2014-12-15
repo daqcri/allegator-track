@@ -14,7 +14,11 @@ class ApplicationController < ActionController::Base
     return limit, offset
   end
 
-  private
+  def after_sign_in_path_for(resource)
+    main_url
+  end
+
+private
 
   def compute_query_length
     (params[:length] || ENV['DEFAULT_DATATABLE_LENGTH']).to_i

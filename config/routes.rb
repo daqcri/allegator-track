@@ -5,10 +5,6 @@ Rails.application.routes.draw do
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
-  # You can have the root of your site routed with "root"
-  root 'main#index'
-  get 'index(.:format)' => 'main#index'
-
   resources :datasets
   resources :dataset_rows
   resources :runs do
@@ -21,6 +17,8 @@ Rails.application.routes.draw do
       get 'results'
     end
   end
+
+  get 'allegatortrack' => "main#index", as: 'main'
 
   # authenticate: enable djmon route only for authenticated admins, otherwise redirect to admin login
   # authenticated: will just throw 404 without login redirection
