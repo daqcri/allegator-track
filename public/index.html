@@ -77,7 +77,19 @@ img.class_dsGraph
 	$(document).ready(function() {
 		$.ajaxSetup ({
     	// Disable caching of AJAX responses
-    	cache: false
+    	cache: false,
+    	// Inject url in xhr object
+    	beforeSend: function(jqXHR, settings) {
+        jqXHR.url = settings.url;
+    	},
+    	// retrieve url of request and set in history state (for google analytics)
+    	// not working, needs more handling to make all be handled through a main controller
+    	success: function(response, status, xhr) {
+    		var parser = document.createElement('a');
+				parser.href = xhr.url
+    		window.location.hash = parser.pathname
+    		// history.pushState({url: parser.pathname}, '', parser.pathname);
+    	}
 		});
 
 		$('#content').load('home_sections/home.html');
@@ -119,7 +131,8 @@ DAFNA - Data Forensics with Analytics
 </title>
 
 </HEAD>
-      <div id="banner" ></div>
+<body>
+<div id="banner" ></div>
 <div  style="display: block;">
 	<div class="nav" style="display: block;">
 		<ul>
@@ -132,5 +145,11 @@ DAFNA - Data Forensics with Analytics
 	</div>
 </div>
 <div id="content" style="margin-left: 10%;margin-right: 10%;"></div>
-<br/><br/><br/><br/>
+</body>
+
+<script src="/assets/google_analytics.js"></script>
+<script>
+  GoogleAnalytics()
+</script>
+
 </HTML>

@@ -30,3 +30,4 @@
 //= require d3.min
 //= require sankey
 //= require jquery.visualizer_dialog
+//= require google_analytics
