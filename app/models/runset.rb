@@ -50,6 +50,13 @@ class Runset < ActiveRecord::Base
     "Runset ##{id}"
   end
 
+  def dataset_names
+    datasets.where("datasets.kind = 'claims'").pluck(:original_filename).map do |filename|
+      # remove extension
+      File.basename(filename, File.extname(filename))
+    end.join("_")
+  end
+
   def results(params)
     run_ids = runs.map(&:id)
     normalized = params[:extra_normalized].present?

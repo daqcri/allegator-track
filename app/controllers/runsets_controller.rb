@@ -56,7 +56,7 @@ class RunsetsController < ApplicationController
 
         filename = params[:extra_only] == "source_id" ? "source" : "claim"
 
-        headers['Content-Disposition'] = "attachment; filename=#{filename}_results_runset_#{@runset.id}.csv"
+        headers['Content-Disposition'] = "attachment; filename=#{filename}_results_runset_#{@runset.id}_#{@runset.dataset_names}.csv"
         headers['X-Accel-Buffering'] = 'no'
         headers['Cache-Control'] = 'no-cache'
 
