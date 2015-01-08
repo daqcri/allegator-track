@@ -270,7 +270,10 @@ function setup_runtable()
     },
     'columns': [
       {
-        'data': 'runset_id',
+        'data': 'runset_id'
+      },
+      {
+        'data': 'id',
         'render': function (id, type, full, meta){
           var span = id + ""
           if (full.last_error) {
