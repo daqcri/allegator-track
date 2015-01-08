@@ -66,7 +66,7 @@ class Runset < ActiveRecord::Base
     when ""
       :confidence
     end
-    order, order_columns = params[:order], params[:columns]
+    order, order_columns, default_order = params[:order], params[:columns], ""
     search = params[:search].try(:[], :value)
     search_object_key = params[:extra_object_key_criteria]
     search_source_id = params[:extra_source_id_criteria]
@@ -85,6 +85,7 @@ class Runset < ActiveRecord::Base
       .where("source_results.run_id" => run_ids)
       counts_query = SourceResult.where(run_id: run_ids.first)
       count_col = "source_id"
+      default_order = "source_id"
     elsif results_type == :confidence
       result = "confidence" unless normalized
       query = DatasetRow.select("
@@ -97,6 +98,7 @@ class Runset < ActiveRecord::Base
       ").group("dataset_rows.id").where("claim_results.run_id" => run_ids)
       counts_query = dataset_rows.where("datasets.kind = ?", "claims")
       count_col = "dataset_rows.id"
+      default_order = "claim_id"
     end
 
     # totals
@@ -113,6 +115,8 @@ class Runset < ActiveRecord::Base
         sort_col = "(array_agg(#{result} ORDER BY run_id))[idx(array_agg(run_id ORDER BY run_id), #{run_id})]"
       end
       query = query.order("#{sort_col} #{sort_dir}")
+    else
+      query = query.order(default_order)
     end
 
     # filtering
