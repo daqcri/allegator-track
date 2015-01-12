@@ -73,3 +73,10 @@ gem "delayed_job_web", :git => 'git://github.com/hammady/delayed_job_web.git'
 # heroku api for delayed job zombie detection
 gem 'platform-api'
 
+# encoding detection for uploaded files
+gem 'charlock_holmes'
+# prerequisites are icu, on Mac:
+# first install ICU, using Homebrew: brew install icu4c
+# bundle config build.charlock_holmes --with-icu-dir=/path/to/installed/icu4c
+# on heroku: use a multipack to apt-get install libicu-dev through heroku-buildpack-apt
+# Check http://stackoverflow.com/questions/18926574/how-to-install-charlock-holmes-dependency-libicu-dev-on-heroku

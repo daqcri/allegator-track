@@ -19,7 +19,12 @@ class Dataset < ActiveRecord::Base
   def parse_upload
     csv_opts = {:headers => true, :return_headers => true, :header_converters => :symbol}
     self.duplicate_rows = self.invalid_rows = 0 
-    CSV.foreach(read_file, csv_opts) do |row|
+
+    # read_file = File.open(Rails.root + 'test.csv')
+    
+    stream = read_file
+    string = detect_encoding_convert stream.read
+    CSV.parse(string, csv_opts) do |row|
       unless row.header_row?
         begin
           DatasetRow.create_from_row(row, self)
@@ -35,6 +40,8 @@ class Dataset < ActiveRecord::Base
       end
       push_status
     end
+  ensure
+    stream.close
   end
 
   def success
@@ -98,18 +105,19 @@ private
 
   def read_file
     # streaming download from S3
-    if(self.s3_key)
+    if self.s3_key
       file = Tempfile.new("import-#{self.id}-")
+      file.binmode
 	    S3_BUCKET.objects[self.s3_key].read do |chunk|
 	      file.write chunk
 	    end
-      file.close
-      return file.path
-    elsif(self.other_url)
+      file.rewind
+      file
+    elsif self.other_url
       # streaming download from other locations
       file = open(self.other_url)
-      file.close
-      return file.path
+      file.rewind
+      file
     end
   end
 
@@ -124,4 +132,16 @@ private
     Pusher.trigger_async("user_#{self.user.id}", 'dataset_change', self)
     @last_push = Time.now
   end
+
+  def detect_encoding_convert(body)
+    detection = CharlockHolmes::EncodingDetector.detect(body)
+    logger.debug "charlock holmes detected #{detection}"
+    # Remove BOM Characters
+    if (detection[:encoding] == 'UTF-8')
+      body.force_encoding("UTF-8").sub("\xEF\xBB\xBF", "")
+    else
+      CharlockHolmes::Converter.convert(body, detection[:encoding], 'UTF-8')
+    end
+  end
+
 end
