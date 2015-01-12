@@ -390,14 +390,22 @@ function setup_dataset_table(dataset_kind){
       {
         'data': 'row_count',
         'render': function (row_count, type, full, meta){
-          var class_attrib = "", desc = ""
-          switch(full.status) {
-            case null: class_attrib = 'ui-icon ui-icon-clock'; desc = 'Upload received, waiting for processing...'; break;
-            case 'processing': class_attrib = 'spinner'; desc = 'Processing upload...'; break;
-            case 'failed': class_attrib = 'ui-icon ui-icon-alert'; desc = 'Processing failed'; break;
-            case 'done': return row_count;
+          var class_attrib = "", desc = "", more_info = ""
+          if (full.duplicate_rows > 0 || full.invalid_rows > 0) {
+            more_info = '\nDuplicate rows: ' + full.duplicate_rows 
+              + '\nInvalid rows: ' + full.invalid_rows
           }
-          return '<span id="dataset-'+full.id+'" class="'+class_attrib+'" title="'+desc+'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
+          switch(full.status) {
+            case null: class_attrib = 'ui-icon ui-icon-clock'; desc = 'Upload received, processing will start shortly...'; break;
+            case 'processing': class_attrib = 'spinner ui-icon-with-text'; desc = 'Processing upload...' + more_info; break;
+            case 'failed': class_attrib = 'ui-icon ui-icon-alert ui-icon-with-text'; desc = 'Processing failed' + more_info; break;
+            case 'done': 
+              class_attrib = 'ui-icon ui-icon-with-text '
+              class_attrib += more_info ? 'ui-icon-info' : 'ui-icon-circle-check';
+              desc = 'Processing done' + more_info;
+              break;
+          }
+          return '<span id="dataset-'+full.id+'" class="'+class_attrib+'" title="'+desc+'">'+row_count+'</span>'
         }
       },
       {'data': 'id',

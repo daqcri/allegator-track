@@ -13,19 +13,28 @@ class Dataset < ActiveRecord::Base
   def before
     push_status 'processing'
     # destroy old inputs, in case job was restarted
-    destroy_associations
+    destroy_associations!
   end
 
   def parse_upload
     csv_opts = {:headers => true, :return_headers => true, :header_converters => :symbol}
+    self.duplicate_rows = self.invalid_rows = 0 
     CSV.foreach(read_file, csv_opts) do |row|
       unless row.header_row?
-        DatasetRow.initialize_from_row(row, self)
+        begin
+          DatasetRow.create_from_row(row, self)
+        rescue ActiveRecord::RecordInvalid => e
+          self.invalid_rows += 1
+          Rails.logger.debug ">>> db error [#{e.class.name}] #{e.message}"
+        rescue => e
+          self.duplicate_rows += 1 if e.message.match(/PG::UniqueViolation/)
+          Rails.logger.debug ">>> db error [#{e.class.name}] (dups: #{self.duplicate_rows}) #{e.message}"
+        end
       else
         self.multi = !!row[:propertyvalues] || !!row[:property_values]
       end
+      push_status
     end
-    self.save!
   end
 
   def success
@@ -54,16 +63,20 @@ class Dataset < ActiveRecord::Base
   end
 
   def export_header
-    if self.kind == 'ground'
+    if ground?
       %w(ObjectID PropertyID PropertyValue)
     else
       %w(ClaimID ObjectID PropertyID PropertyValue SourceID TimeStamp)
     end
   end
 
+  def ground?
+    self.kind == 'ground'
+  end
+
   def as_json(options={})
     options = {
-      :only => [:id, :kind, :original_filename, :created_at, :status],
+      :only => [:id, :kind, :original_filename, :created_at, :status, :duplicate_rows, :invalid_rows],
       :methods => [:row_count]
     }.merge(options)
     super(options)
@@ -100,9 +113,15 @@ private
     end
   end
 
-  def push_status(status)
-    self.status = status
-    self.save!
-    Pusher.trigger("user_#{self.user.id}", 'dataset_change', self)
+  def push_status(status = nil)
+    @last_push ||= Time.now - 1.year
+    if status # status has changed
+      self.status = status
+    elsif Time.now - @last_push < 10.seconds # if some time passed, push updated count
+      return
+    end
+    logger.debug("saving ds: #{self.save}, status = #{status}, dups: #{self.duplicate_rows}")
+    Pusher.trigger_async("user_#{self.user.id}", 'dataset_change', self)
+    @last_push = Time.now
   end
 end

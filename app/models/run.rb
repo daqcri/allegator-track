@@ -21,9 +21,9 @@ class Run < ActiveRecord::Base
     datasets.each do |dataset|
       single_valued_algo = !MULTI_VALUED_ALGORITHMS.include?(algorithm)
       value_to_boolean = MULTI_BOOLEAN_ALGORITHMES.include?(algorithm)
-      dir = dataset.kind == 'ground' ? datasets_grounds_dir : datasets_claims_dir
-      dataset.export("#{dir}/#{dataset.id}.csv", single_valued_algo, value_to_boolean)
-      has_ground = true if dataset.kind == 'ground'
+      dir = dataset.ground? ? datasets_grounds_dir : datasets_claims_dir
+      dataset.export("#{dir}/#{dataset.id}.tmp", single_valued_algo, value_to_boolean)
+      has_ground = true if dataset.ground?
     end
     # prepare extra arguments
     extra_params = "#{self.general_config} #{self.config}"

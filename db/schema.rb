@@ -11,10 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141201192323) do
+ActiveRecord::Schema.define(version: 20150112053754) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "intarray"
 
   create_table "active_admin_comments", force: true do |t|
     t.string   "namespace"
@@ -66,15 +67,17 @@ ActiveRecord::Schema.define(version: 20141201192323) do
 
   create_table "dataset_rows", force: true do |t|
     t.integer "dataset_id"
-    t.string  "object_key"
-    t.string  "property_key"
-    t.string  "property_value"
-    t.string  "source_id"
-    t.string  "timestamp"
+    t.string  "object_key",                  null: false
+    t.string  "property_key",                null: false
+    t.string  "property_value",              null: false
+    t.string  "source_id",      default: ""
+    t.string  "timestamp",      default: ""
     t.integer "parent_id"
+    t.integer "user_id",        default: 0,  null: false
   end
 
   add_index "dataset_rows", ["dataset_id"], name: "index_dataset_rows_on_dataset_id", using: :btree
+  add_index "dataset_rows", ["object_key", "property_key", "property_value", "source_id", "timestamp", "user_id"], name: "index_dataset_rows_on_all", unique: true, using: :btree
 
   create_table "datasets", force: true do |t|
     t.integer  "user_id"
@@ -86,6 +89,8 @@ ActiveRecord::Schema.define(version: 20141201192323) do
     t.string   "status"
     t.boolean  "multi",                          default: false
     t.string   "other_url"
+    t.integer  "duplicate_rows"
+    t.integer  "invalid_rows"
   end
 
   add_index "datasets", ["user_id"], name: "index_datasets_on_user_id", using: :btree
