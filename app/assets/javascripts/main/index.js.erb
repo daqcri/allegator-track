@@ -3,11 +3,12 @@ var searchResultsLayout
 var datatable, source_table, object_table, runtable, claims_dt, ground_dt;
 var runtable_tools
 var config_data = {}
-var checked_algo = []
 var runsets = ["claims", "ground"]
 var s3_direct_post = {}
 var datatable_columns_visibility = {}
 var datatable_columns = []
+var selected_datasets = {}
+var selected_datasets_length = 0
 
 $(document).ready(function() {
   setup_layout()
@@ -167,6 +168,8 @@ function setup_pusher()
     if (row.length == 1) {
       row.data(dataset)
       bind_dataset_delete($(".trash-icon", row.node()), datatable)
+      bind_dataset_select($(".dataset_selector", row.node()))
+      
       $(row.node()).effect("highlight")
       refresh_datatables();
     }
@@ -178,29 +181,35 @@ function setup_start_button()
   $("#start_button")
   .button()
   .click(function(){
-    checked_algo = {}
-    var algorithm_id
+    // setup checked algorithms
+    var checked_algo = {}
     $('.algorithm_checkbox').each(function(index, check_box){
       check_box = $(check_box)
-      algorithm_id = check_box.attr("algorithm_id")
+      var algorithm_id = check_box.attr("algorithm_id")
       if(check_box.is(':checked') && !check_box.button("option", "disabled")){
         if (config_data[algorithm_id].length > 0)
           checked_algo[algorithm_id] = config_data[algorithm_id]
         else
           checked_algo[algorithm_id] = 0  // otherwise, won't be included in params
       }
-    });    
-     $.ajax({
+    });
+    // send post request
+    $.ajax({
       type: "POST",
       url : "/runsets",
-      data: {checked_algo: checked_algo, general_config: config_data["General Parameters"]},
+      data: {
+        checked_algo: checked_algo,
+        general_config: config_data["General Parameters"],
+        datasets: selected_datasets
+      },
       success: function(runset){
         runtable.draw()
         add_runset(runset)
         activate_runset_tab(runset.id)
       }
-     });
+    });
   });
+  refresh_selected_datasets_info()
 }
 
 function setup_runtable()
@@ -376,10 +385,19 @@ function setup_dataset_table(dataset_kind){
           $('#ground_tab').show()
         else
           $('#ground_tab').hide()
+
         bind_dataset_delete($(".trash-icon", obj), dt)
+        bind_dataset_select($(".dataset_selector", obj))
       });
     },
     'columns':[
+      {
+        'data': 'id',
+        'render': function (dataset_id, type, full, meta){
+          var checked = selected_datasets[dataset_id+""] ? "checked='checked'" : ""
+          return "<input type='checkbox' class='dataset_selector' dataset_id='"+dataset_id+"' "+checked+"/>"
+        }      
+      },
       {'data': 'original_filename'},
       {
         'data': 'created_at',
@@ -434,8 +452,36 @@ function bind_dataset_delete(selector, datatable)
    });
 }
 
- function check_algorithm_checkbox()
- {
+function bind_dataset_select(selector) {
+  selector.click(function(){
+    var dataset_id = $(this).attr("dataset_id")
+    // update the seletected object
+    if ($(this).is(":checked")) {
+      selected_datasets[dataset_id] = 1
+      selected_datasets_length++
+    }
+    else {
+      delete selected_datasets[dataset_id]
+      selected_datasets_length--
+    }
+    refresh_selected_datasets_info()
+  })
+}
+
+function refresh_selected_datasets_info()
+{
+  // refresh the info div
+  var message = "Click to start selected algorithm(s) on <u><strong>"
+  if (selected_datasets_length == 0)
+    message += "all your datasets."
+  else
+    message += selected_datasets_length + " dataset(s)."
+  message += "</strong></u>"
+  $("#selected_datasets_info").html(message)
+}
+
+function check_algorithm_checkbox()
+{
   // returns true if mixing multi-valued and single-valued algorithms 
 
   var algorithm_id

@@ -10,7 +10,11 @@ class RunsetsController < ApplicationController
   load_and_authorize_resource :except => [:create, :index]
 
   def create
-    runset = Runset.create user: current_user, datasets: current_user.datasets
+    datasets = current_user.datasets.pluck(:id)
+    if params[:datasets].present? && params[:datasets].respond_to?(:keys)
+      datasets = params[:datasets].keys.map(&:to_i)
+    end
+    runset = Runset.create user: current_user, dataset_ids: datasets
     params[:checked_algo].each do |algo_name, algo_params|
       run = runset.runs.create(algorithm: algo_name,
         general_config: params[:general_config].join(" "),
