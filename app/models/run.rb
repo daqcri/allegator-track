@@ -87,7 +87,7 @@ class Run < ActiveRecord::Base
       # import results
       import_results output_dir
     else
-      raise "Internal error: #{java_stderr_s}"
+      raise ApplicationException, "Internal error: #{java_stderr_s}"
     end
   rescue SignalException => e
     cleanup pid, e, "Processing interrupted"

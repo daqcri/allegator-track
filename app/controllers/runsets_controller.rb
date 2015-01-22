@@ -16,7 +16,7 @@ class RunsetsController < ApplicationController
     end
     runset = Runset.create user: current_user, dataset_ids: datasets
     params[:checked_algo].each do |algo_name, algo_params|
-      run = runset.runs.create(algorithm: algo_name,
+      run = Run.create(runset_id: runset.id, algorithm: algo_name,
         general_config: params[:general_config].join(" "),
         config: algo_params.try(:join, " "))
       run.delay.start unless run.combiner?
