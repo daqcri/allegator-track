@@ -33,15 +33,14 @@ class Runset < ActiveRecord::Base
     runs.select &:scheduled?
   end
 
+  def runs
+    Run.voters.joins(:runset).where("runsets.id = ?", self.id)
+  end
+
   def as_json(options={})
     options = {
       :only => [:id, :created_at],
-      :include => {
-        :runs => {
-          :only => [:id, :algorithm, :created_at],
-          :methods => [:display, :status, :duration]
-        }
-      }
+      :methods => [:runs]
     }.merge(options)
     super(options)
   end

@@ -8,4 +8,12 @@ class SourceResult < ActiveRecord::Base
     sr
   end
 
+  def self.export_header
+    %w(SourceId Trustworthiness)
+  end
+
+  def export
+    [source_id, trustworthiness]
+  end
+
 end

@@ -1,17 +1,24 @@
 require 'csv'
 require 'stringio'
+require 'application_exception'
 
 class Run < ActiveRecord::Base
   belongs_to :runset
   has_many :source_results, dependent: :destroy, autosave: true
   has_many :claim_results, dependent: :destroy, autosave: true
   has_many :datasets, :through => :runset
+  belongs_to :allegates_run, class_name: Run
+  belongs_to :allegates_claim, class_name: DatasetRow
+  has_one :allegated_dataset, class_name: Dataset, foreign_key: 'allegated_by_run_id'
 
   @@JAR_PATH = Rails.root.join("vendor/DAFNA-EA-1.0-jar-with-dependencies.jar")
   MULTI_VALUED_ALGORITHMS = %w(MLE LTM)
   MULTI_BOOLEAN_ALGORITHMES = %w(MLE)
   NORMALIZABLE_ALGORITHMS = %w(Depen Accu AccuSim AccuNoDep 3-Estimates Cosine SimpleLCA GuessLCA)
   COMBINER_ALGORITHMES = %w(Combiner)
+
+  scope :allegators, -> {where("allegates_claim_id is not null and allegates_run_id is not null")}
+  scope :voters, -> {where("allegates_claim_id is null and allegates_run_id is null")}
 
   def start
     # export datasets to csv files
@@ -22,7 +29,7 @@ class Run < ActiveRecord::Base
       single_valued_algo = !MULTI_VALUED_ALGORITHMS.include?(algorithm)
       value_to_boolean = MULTI_BOOLEAN_ALGORITHMES.include?(algorithm)
       dir = dataset.ground? ? datasets_grounds_dir : datasets_claims_dir
-      dataset.export("#{dir}/#{dataset.id}.tmp", single_valued_algo, value_to_boolean)
+      dataset.export("#{dir}/#{dataset.id}.csv", single_valued_algo, value_to_boolean)
       has_ground = true if dataset.ground?
     end
     # prepare extra arguments
@@ -31,11 +38,23 @@ class Run < ActiveRecord::Base
       non_combiners = runset.non_combiner_runs
       extra_params = "0 0 0 0 #{non_combiners.length}"
       non_combiners.each do |run|
-        confidence_dirs << Dir.mktmpdir
-        file = "#{confidence_dirs.last}/Confidences.#{run.id}.csv"
-        run.export_results file
+        dir, file = run.generate_file_in_param "export_claim_results"
+        confidence_dirs << dir
         extra_params << " #{file}"
       end
+    elsif allegator?
+      # add 5 params: run_id claim_id conffile trustfile Allegate
+      extra_params << " #{self.allegates_run_id} #{self.allegates_claim_id}"
+      # generate conf file
+      dir, file = allegates_run.generate_file_in_param "export_claim_results"
+      confidence_dirs << dir
+      extra_params << " #{file}"
+      # generate trust file
+      dir, file = allegates_run.generate_file_in_param "export_source_results"
+      confidence_dirs << dir
+      extra_params << " #{file}"
+      # append the Allegate param
+      extra_params << " Allegate"
     end
 
     # prepare streams
@@ -74,6 +93,10 @@ class Run < ActiveRecord::Base
     cleanup pid, e, "Processing interrupted"
   rescue Delayed::WorkerTimeout => e
     cleanup pid, e, "Processing reached maximum allowed time"
+  rescue ApplicationException => e
+    # this is unrecoverable error, don't mark job as failed so that it is not reattempted
+    # only set last error, but don't cleanup (eventually rethrowing an exception)
+    set_last_error! e.message
   rescue => e
     cleanup pid, e, "Unexpected error"
   ensure
@@ -105,6 +128,10 @@ class Run < ActiveRecord::Base
     cleanup pid, e, "Processing interrupted"
   rescue Delayed::WorkerTimeout => e
     cleanup pid, e, "Processing reached maximum allowed time"
+  rescue ApplicationException => e
+    # this is unrecoverable error, don't mark job as failed so that it is not reattempted
+    # only set last error, but don't cleanup (eventually rethrowing an exception)
+    set_last_error! e.message
   rescue => e
     cleanup pid, e, "Unexpected error"
   ensure
@@ -115,21 +142,24 @@ class Run < ActiveRecord::Base
     COMBINER_ALGORITHMES.include?(algorithm)
   end
 
+  def allegator?
+    !allegates_claim_id.nil? && !allegates_run_id.nil?
+  end
+
   def display
     "#{algorithm} (#{general_config.try(:gsub, ' ', ',')}; #{config.try(:gsub, ' ', ',')})"
   end
 
   def before
     self.started_at = Time.now
-    self.finished_at = nil
+    self.finished_at = self.last_error = nil
     self.save
     # destroy old results, in case job was restarted
     destroy_associations
-    Pusher.trigger_async("user_#{runset.user.id}", 'run_change', self)
+    Pusher.trigger_async("user_#{runset.user.id}", 'run_change', self) rescue nil
   end
   
   def success
-    set_last_error! nil
   end
 
   def error(job, e)
@@ -146,7 +176,7 @@ class Run < ActiveRecord::Base
   def after
     self.finished_at = Time.now
     self.save
-    Pusher.trigger("user_#{runset.user.id}", 'run_change', self)
+    Pusher.trigger_async("user_#{runset.user.id}", 'run_change', self) rescue nil
   end
 
   def status
@@ -172,23 +202,28 @@ class Run < ActiveRecord::Base
     return ""
   end
 
+  def claims_allegated
+    allegated_dataset.row_count rescue nil
+  end
+
+  def dup(allegates_claim)
+    other_run = super()
+    other_run.started_at = other_run.finished_at = other_run.last_error = nil
+    other_run.allegates_run_id = self.id
+    other_run.allegates_claim_id = allegates_claim.id
+    other_run.allegates_value = ClaimResult.where(run_id: self.id).where(claim_id: allegates_claim.id).first.confidence
+    other_run
+  end
+
   def as_json(options={})
     options = {
       :only => [:id, :algorithm, :created_at, :runset_id,
         :precision, :accuracy, :recall, :specificity, :iterations,
-        :last_error],
-      :methods => [:display, :status, :duration]
+        :last_error,
+        :allegates_run_id, :allegates_claim_id, :allegates_value],
+      :methods => [:display, :status, :duration, :claims_allegated, :combiner?, :allegator?]
     }.merge(options)
     super(options)
-  end
-
-  def export_results(output_file)
-    CSV.open(output_file, "wb") do |csv|
-      csv << ClaimResult.export_header
-      claim_results.each do |row|
-        csv << row.export
-      end
-    end
   end
 
   def sankey
@@ -255,6 +290,15 @@ class Run < ActiveRecord::Base
     super
   end
 
+protected
+
+  def generate_file_in_param(exporter_function)
+    dir = Dir.mktmpdir
+    file = "#{dir}/#{exporter_function}.#{self.id}.csv"
+    self.send exporter_function.to_sym, file
+    return dir, file
+  end
+
 private
 
   def cleanup(pid, e, message)
@@ -287,23 +331,63 @@ private
   def import_results(output_dir)
     csv_opts = {:headers => true, :return_headers => false, :header_converters => :symbol}
 
-    # parse source results
-    CSV.parse(File.read(Pathname(output_dir).join("Trustworthiness.csv")), csv_opts) do |row|
-      SourceResult.initialize_from_row(row, self)
-    end
-    # commit to database
-    self.updated_at = Time.now
-    self.save!
-    normalize!(source_results, "trustworthiness")
+    unless allegator?
+      # parse source results
+      CSV.parse(File.read(Pathname(output_dir).join("Trustworthiness.csv")), csv_opts) do |row|
+        SourceResult.initialize_from_row(row, self)
+      end
+      # commit to database
+      self.updated_at = Time.now
+      self.save!
+      normalize!(source_results, "trustworthiness")
 
-    # parse claim results
-    CSV.parse(File.read(Pathname(output_dir).join("Confidences.csv")), csv_opts) do |row|
-      ClaimResult.initialize_from_row(row, self)
+      # parse claim results
+      CSV.parse(File.read(Pathname(output_dir).join("Confidences.csv")), csv_opts) do |row|
+        ClaimResult.initialize_from_row(row, self)
+      end
+      # commit to database
+      self.updated_at = Time.now
+      self.save!
+      normalize!(claim_results, "confidence")
+    else
+      allegations_file = Pathname(output_dir).join("AllegationClaims.csv").to_s
+      if File.exists?(allegations_file)
+        # parse fake claims (for allegators)
+        ds = Dataset.new
+        ds.kind = 'claims'
+        ds.original_filename = "Run#{self.allegates_run_id}.claim#{self.allegates_claim_id}.allegations"
+        ds.other_url = allegations_file
+        ds.user = runset.user
+        ds.allegated_by_run_id = self.id
+        ds.status = 'processing'
+        ds.save!
+        ds.parse_upload
+        ds.status = 'done'
+        ds.save!
+        self.reload # to load allegated_dataset association
+      else
+        # couldn't find allegations
+        raise ApplicationException, "Could not allegate claim #{allegates_claim_id} from " + 
+          "run #{allegates_run_id}, try changing run configuration or claim"
+      end
     end
-    # commit to database
-    self.updated_at = Time.now
-    self.save!
-    normalize!(claim_results, "confidence")
+  end
+
+  def export_claim_results(output_file)
+    export_results output_file, ClaimResult, claim_results
+  end
+
+  def export_source_results(output_file)
+    export_results output_file, SourceResult, source_results
+  end
+
+  def export_results(output_file, results_type, results)
+    CSV.open(output_file, "wb") do |csv|
+      csv << results_type.export_header
+      results.each do |row|
+        csv << row.export
+      end
+    end
   end
 
   def parse_output(java_stdout, has_ground)

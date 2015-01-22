@@ -5,6 +5,7 @@ class Dataset < ActiveRecord::Base
   belongs_to :user
   has_many :dataset_rows, dependent: :destroy, autosave: true
   has_and_belongs_to_many :runsets
+  belongs_to :allegated_by_run, class_name: Run
 
   def to_s
     "Dataset ##{id}: #{original_filename}"
@@ -128,9 +129,11 @@ private
     elsif Time.now - @last_push < 10.seconds # if some time passed, push updated count
       return
     end
-    logger.debug("saving ds: #{self.save}, status = #{status}, dups: #{self.duplicate_rows}")
+    self.save
     Pusher.trigger_async("user_#{self.user.id}", 'dataset_change', self)
     @last_push = Time.now
+  rescue
+    # couldn't push, that's ok!
   end
 
   def detect_encoding_convert(body)

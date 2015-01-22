@@ -18,6 +18,7 @@ $(document).ready(function() {
   setup_datatables()
   setup_start_button()
   setup_runtable()
+  setup_allegationtable()
   setup_pusher()
 });
 
@@ -141,21 +142,20 @@ function setup_pusher()
 
   // handle run_change
   channel.bind('run_change', function(run) {
-     var runset = $.grep(runsets,function(runset, i){
-      return runset.id == run.runset_id
-     })[0]
-     var found_run = $.grep(runset.runs, function(run_value,j){
-      return run_value.id == run.id
-     })[0]
-     found_run.status = run.status
-     activate_runset_tab(runset.id)
-
-    // update corresponding rows in table
-    // find run in table (if any) to update it
-    var row = runtable.row($("#run-" + run.id).parent().parent())
-    if (row.length == 1) {
-      row.data(run)
-      $(row.node()).effect("highlight")
+    if (run["allegator?"]) {
+      update_run_row(allegations_table, run)
+      if (typeof claims_dt != 'undefined') claims_dt.draw()
+    }
+    else {
+      var runset = $.grep(runsets,function(runset, i){
+        return runset.id == run.runset_id
+      })[0]
+      var found_run = $.grep(runset.runs, function(run_value,j){
+        return run_value.id == run.id
+      })[0]
+      activate_runset_tab(runset.id)
+      found_run.status = run.status
+      update_run_row(runtable, run) 
     }
   });
 
@@ -169,11 +169,21 @@ function setup_pusher()
       row.data(dataset)
       bind_dataset_delete($(".trash-icon", row.node()), datatable)
       bind_dataset_select($(".dataset_selector", row.node()))
-      
+
       $(row.node()).effect("highlight")
       refresh_datatables();
     }
   });
+}
+
+function update_run_row(table, run)
+{
+  var row = table.row($("#run-" + run.id).parent().parent())
+  if (row.length == 1) {
+    row.data(run)
+    $(row.node()).effect("highlight")
+    return true
+  }
 }
 
 function setup_start_button()
@@ -233,17 +243,7 @@ function setup_runtable()
         callback(response)
         $(".action-cancel", obj).unbind().click(function(event){
           event.stopPropagation(); // stop the click from propagating to the tr to select/deselcet
-          // if(confirm("Sorry, not implemented yet, just keep calm and stay tuned!")) {
-          if(alert("Sorry, not implemented yet, just keep calm and stay tuned!")) {
-            // console.log("Cancelling...")
-            // $.ajax({
-            //   url: '/runs/'+$(this).attr("dataset_id"),
-            //   type: "DELETE",
-            //   success: function(){
-            //     runtable.draw();
-            //   }
-            // });
-          }
+          alert("Sorry, not implemented yet, just keep calm and stay tuned!")
         });
         $(".action-delete", obj).unbind().click(function(event){
           event.stopPropagation(); // stop the click from propagating to the tr to select/deselcet
@@ -254,6 +254,7 @@ function setup_runtable()
               type: "DELETE",
               success: function(){
                 runtable.draw();
+                // iterate on all runsets and delete the run 
                 $.each(runsets, function(i, runset){
                   if(i>1){
                     runset.runs = $.grep(runset.runs, function(run, index){
@@ -261,13 +262,13 @@ function setup_runtable()
                     })
                   }
                 })
-                runsets = $.grep(runsets,function(value, i){
-                  if(i>1 && value.runs == 0){
-                    delete_runset('span#'+value.id, value.id)
-                    return
+                // if the runset is empty, delete it
+                runsets = $.grep(runsets, function(runset, i){
+                  if (i>1 && runset.runs == 0){
+                    delete_runset('span#'+runset.id, runset.id)
+                    return false
                   }
-                  else
-                    return value
+                  return true
                 })
                 destroy_datatables()
                 setup_datatables()
@@ -354,6 +355,83 @@ function setup_runtable()
     }
   });
   runtable_tools = TableTools.fnGetInstance('run_table');
+}
+
+function setup_allegationtable()
+{
+  var obj = $('#allegations_table')
+  allegations_table = obj.DataTable({
+    dom: 'tJS',
+    serverSide : true,
+    jQueryUI: true,
+    destroy: true,
+    ordering: false,
+    deferRender:true,
+    "scrollY": '200px',
+    "scrollX": true,  // so that table header scrolls with content
+    "ajax": function (data, callback, settings) {
+      var url = "/runs";
+      data.allegations = 1
+      $.getJSON(url, data, function(response){
+        callback(response)
+        $(".action-delete", obj).unbind().click(function(event){
+          if(confirm("Are you sure you want to delete this allegation?")) {
+            var run_id = $(this).attr("run_id")
+            $.ajax({
+              url: '/runs/'+ run_id,
+              type: "DELETE",
+              success: function(){
+                allegations_table.draw();
+              }
+            });
+          }
+        });
+      });
+    },
+    'columns': [
+      {
+        'data': 'allegates_run_id',
+        'render': function (allegates_run_id, type, full, meta){
+          var span = allegates_run_id + ""
+          if (full.last_error) {
+            span = "<span class='ui-icon ui-icon-alert ui-icon-with-text' title='Last error: "
+              + full.last_error
+              + "'>"+allegates_run_id+"</span>"
+          }
+          return span
+        }
+      },
+      {'data': 'allegates_claim_id'},
+      // {'data': 'allegates_value'},
+      {
+        'data': 'created_at',
+        'render': function (created_at, type, full, meta){
+          return moment(created_at).calendar()
+        }
+      },
+      // {'data': 'display'},
+      {
+        'data': 'status',
+        'render': function (status, type, full, meta){
+          var class_attrib = ""
+          switch(status) {
+            case 'scheduled': class_attrib = 'ui-icon ui-icon-clock'; break;
+            case 'started': class_attrib = 'spinner'; break;
+            case 'finished': return moment("00:00:00", "HH:mm:ss").add(moment.duration(full.duration)).format("HH:mm:ss.SSS")
+          }
+          return '<span class="'+class_attrib+'" title="'+status+'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
+        }
+      },
+      {'data': 'claims_allegated'},
+      {
+        'data': 'id',
+        'render': function (id, type, full, meta){
+          return '<span run_id="'+id+'" class="action-delete ui-icon ui-icon-trash" title="Delete"></span>'+
+          '<span id="run-'+id+'"></span>'
+        }
+      }
+    ]
+  });
 }
 
 function setup_claims_dataset_table()
@@ -671,6 +749,29 @@ function setup_datatables() {
           var bool = data["r"+run.id+"_bool"]
           var td = $("span.r"+run.id+"_cell", row).parent()
           td.addClass("claim_is_"+bool)
+          if (bool == 't' && !run["combiner?"]) {
+            td.append("<button class='allegate' title="+
+              "'to falsify this claim, you need to insert some fake claims, "+
+              "click to compute'>Allegate</button>")
+            $("button", td).button().click(function(){
+              // create allegation job
+              $.ajax({
+                type: "POST",
+                url : "/runs",
+                data: {
+                  claim_id: data.claim_id,
+                  run_id: run.id
+                },
+                success: function(run){
+                  allegations_table.draw()
+                }
+              });
+            })
+          }
+          else if (run["combiner?"]) {
+            // replace text
+            td.empty().text(bool == 't' ? 'True' : 'False')
+          }
         })
       }
       // attach icons for child claims
@@ -685,7 +786,7 @@ function setup_datatables() {
       loadingIndicator: false
     },
     tableTools: {
-      "sRowSelect": "os",
+      "sRowSelect": "none",
       "fnRowSelected": function ( nodes ) {
         var data = datatable.row(nodes[0]).data()
         //$("#details").html("You have selected claim with id: " + data.claim_id)
@@ -824,6 +925,7 @@ function adjust_dt_columns()
   if (typeof claims_dt != 'undefined') claims_dt.columns.adjust();
   if (typeof ground_dt != 'undefined') ground_dt.columns.adjust();
   if (typeof runtable != 'undefined') runtable.columns.adjust();
+  if (typeof allegations_table != 'undefined') allegations_table.columns.adjust();
 }
 
 function setup_layout()
@@ -871,6 +973,7 @@ function setup_layout()
       setup_datatables()
       setup_claims_dataset_table()
       setup_ground_dataset_table()
+      setup_allegationtable()
     }
   },layoutState.load('searchResultsLayout')));
 
@@ -893,6 +996,10 @@ function setup_west_pane()
 
   $( "#tabs" ).tabs({
     disabled: [1],
+    activate: function(event, ui) {
+      if (ui.newTab.attr("id") == 'allegate-tab')
+        setup_allegationtable();
+    }
   })
   
   // create algorithm divs

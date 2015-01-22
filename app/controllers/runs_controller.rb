@@ -1,10 +1,12 @@
 class RunsController < ApplicationController
   before_filter :authenticate_user_from_token!
   before_filter :authenticate_user!
-  load_and_authorize_resource :except => [:index]
+  load_and_authorize_resource :except => [:index, :create]
 
   def index
-    query = current_user.runs.order(created_at: :desc)
+    query = params[:allegations].present? ? Run.allegators : Run.voters
+    query = query.joins(:runset).where("runsets.user_id = ?", current_user.id)
+      .order("runs.created_at desc")
 
     query = limit_query(query)
 
@@ -14,6 +16,24 @@ class RunsController < ApplicationController
       recordsFiltered: query.length,
       data: query
     }
+  end
+
+  def create
+    # no need to check for authorization of run_id and claim_id
+    # if they are wrong, results will just be meaningless
+    # find below will raise 404 if not found
+    run = Run.find params[:run_id]
+    claim = DatasetRow.find params[:claim_id]
+    # no allegations for combiners!
+    if run.combiner? || run.allegator?
+      render nothing: true, status: :bad_request
+      return
+    end
+    # creates a new allegator run based on another run
+    allegator = run.dup claim
+    allegator.save
+    allegator.delay.start
+    render json: allegator
   end
 
   def visualize

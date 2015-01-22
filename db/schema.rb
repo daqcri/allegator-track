@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150112053754) do
+ActiveRecord::Schema.define(version: 20150120075553) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -85,12 +85,13 @@ ActiveRecord::Schema.define(version: 20150112053754) do
     t.string   "original_filename"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "s3_key",            limit: 1024
+    t.string   "s3_key",              limit: 1024
     t.string   "status"
-    t.boolean  "multi",                          default: false
+    t.boolean  "multi",                            default: false
     t.string   "other_url"
     t.integer  "duplicate_rows"
     t.integer  "invalid_rows"
+    t.integer  "allegated_by_run_id"
   end
 
   add_index "datasets", ["user_id"], name: "index_datasets_on_user_id", using: :btree
@@ -139,6 +140,9 @@ ActiveRecord::Schema.define(version: 20150112053754) do
     t.float    "specificity"
     t.integer  "iterations"
     t.string   "last_error"
+    t.integer  "allegates_run_id"
+    t.integer  "allegates_claim_id"
+    t.float    "allegates_value"
   end
 
   add_index "runs", ["runset_id"], name: "index_runs_on_runset_id", using: :btree
