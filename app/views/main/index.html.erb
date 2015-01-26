@@ -12,6 +12,14 @@
 <div class="ui-layout-west">
 <div id ='Logo'>
   <img border="0" src="/Logo.jpg" width="235" title='Click to restore defualt layout'>
+  Truth Discovery from Multi-Source Data
+  <div id="user_nav">
+      <% if user_signed_in? %>
+          Signed in as <%= current_user %>.
+          <%= link_to 'Change password', edit_user_registration_path %> -
+          <%= link_to 'Sign out', destroy_user_session_path, :method => :delete %>
+      <% end %>
+  </div>
 </div>
     <!-- DIV for tabs -->
   <div class="ui-layout-content" id="tabs">
@@ -194,12 +202,5 @@
       </table>
     </div>
   </div>
-</div>
-<div id="user_nav">
-    <% if user_signed_in? %>
-        Signed in as <%= current_user %>.
-        <%= link_to 'Change password', edit_user_registration_path %> -
-        <%= link_to 'Sign out', destroy_user_session_path, :method => :delete %>
-    <% end %>
 </div>
 
