@@ -123,7 +123,9 @@ class Runset < ActiveRecord::Base
     logger.info("Counting filtered")
     if search.present?
       fields = results_type == :confidence ? %w(object_key source_id property_key property_value timestamp) : %w(source_id)
-      clauses = fields.map{|f| "LOWER(#{f}) like LOWER('%#{search}%')"}.join(" OR ")
+      clauses = fields.map{|f| "LOWER(#{f}) like LOWER('%#{search}%')"}
+      clauses << "dataset_rows.id = #{search}" if search.to_i > 0
+      clauses = clauses.join(" OR ")
       query, counts_query = query.where(clauses), counts_query.where(clauses)
     end
     # don't filter on object_id/source_id when showing source results
