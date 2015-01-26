@@ -773,6 +773,10 @@ function setup_datatables() {
             td.empty().text(bool == 't' ? 'True' : 'False')
           }
         })
+        // highlight row if it is a previously allegated claim
+        if (data.allegated)
+          $(row).addClass("allegated_claim")
+            .attr("title", "This claim was allegated in a previous run")
       }
       // attach icons for child claims
       if (data.parent_id && data.parent_id != data.claim_id) {

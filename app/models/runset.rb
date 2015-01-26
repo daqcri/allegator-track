@@ -73,6 +73,7 @@ class Runset < ActiveRecord::Base
     claim_cols_s = claim_cols.join(", ")
     result, count_col = "normalized", nil
     query, counts_query = nil, nil
+    allegated_claim_ids = []
 
     if results_type == :trustworthiness
       result = "trustworthiness" unless normalized
@@ -86,13 +87,25 @@ class Runset < ActiveRecord::Base
       count_col = "source_id"
       default_order = "source_id"
     elsif results_type == :confidence
+      # we need to highlight claims that were affected by allegations
+      # get potential claim ids from runset datasets and highlight matching claims in results
+      allegated_claim_ids = ActiveRecord::Base.connection.select_values("
+        SELECT r.allegates_claim_id
+        FROM datasets ds
+        INNER JOIN runs r ON r.id = ds.allegated_by_run_id 
+        WHERE ds.allegated_by_run_id IS NOT NULL
+        AND ds.id IN (#{self.datasets.pluck(:id).join(',')});
+      ").map(&:to_i)
+
       result = "confidence" unless normalized
-      query = DatasetRow.select("
+      select = "
         dataset_rows.id claim_id, #{claim_cols_s},
         array_to_string(array_agg(run_id ORDER BY run_id), E',') run_ids,
         array_to_string(array_agg(round(#{result} * 10000)/10000 ORDER BY run_id), E',') result,
         array_to_string(array_agg(is_true ORDER BY run_id), E',') are_true
-      ").joins("
+      "
+      select << ", array_agg(claim_id in (#{allegated_claim_ids.join(',')})) allegated" if allegated_claim_ids.length > 0
+      query = DatasetRow.select(select).joins("
         INNER JOIN claim_results ON dataset_rows.id = claim_results.claim_id
       ").group("dataset_rows.id").where("claim_results.run_id" => run_ids)
       counts_query = dataset_rows.where("datasets.kind = ?", "claims")
@@ -105,6 +118,7 @@ class Runset < ActiveRecord::Base
     total = counts_query.count("distinct #{count_col}")
 
     # sorting
+    query = query.order("allegated desc") if allegated_claim_ids.length > 0
     if order
       sort = order["0"]
       sort_col = order_columns[sort["column"]]["data"]
@@ -166,6 +180,7 @@ class Runset < ActiveRecord::Base
         values = row["result"].split(',')
         are_true = row["are_true"].split(',')
         run_ids.each_with_index {|run_id, index| hash["r#{run_id}"], hash["r#{run_id}_bool"] = values[index], are_true[index]}
+        hash["allegated"] = 1 if row["allegated"].try(:include?, true)
         hash
       end
     end
