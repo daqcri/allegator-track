@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150127075318) do
+ActiveRecord::Schema.define(version: 20150127101914) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -49,6 +49,27 @@ ActiveRecord::Schema.define(version: 20150127075318) do
 
   add_index "admin_users", ["email"], name: "index_admin_users_on_email", unique: true, using: :btree
   add_index "admin_users", ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true, using: :btree
+
+  create_table "claim_metrics", id: false, force: true do |t|
+    t.integer "run_id"
+    t.integer "claim_id"
+    t.float   "cv"
+    t.float   "ts"
+    t.float   "min_ts"
+    t.float   "max_ts"
+    t.float   "number_supp_sources"
+    t.float   "number_opp_sources"
+    t.float   "total_sources"
+    t.float   "number_distinct_value"
+    t.float   "cv_global"
+    t.float   "local_confidence_comparison"
+    t.float   "ts_global"
+    t.float   "ts_local"
+    t.boolean "label"
+  end
+
+  add_index "claim_metrics", ["run_id", "claim_id"], name: "index_claim_metrics_on_run_id_and_claim_id", unique: true, using: :btree
+  add_index "claim_metrics", ["run_id"], name: "index_claim_metrics_on_run_id", using: :btree
 
   create_table "claim_results", force: true do |t|
     t.integer "run_id"
@@ -143,6 +164,7 @@ ActiveRecord::Schema.define(version: 20150127075318) do
     t.integer  "allegates_run_id"
     t.integer  "allegates_claim_id"
     t.float    "allegates_value"
+    t.text     "feature_scores"
   end
 
   add_index "runs", ["runset_id"], name: "index_runs_on_runset_id", using: :btree

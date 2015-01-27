@@ -6,6 +6,7 @@ class Run < ActiveRecord::Base
   belongs_to :runset
   has_many :source_results, dependent: :destroy, autosave: true
   has_many :claim_results, dependent: :destroy, autosave: true
+  has_many :claim_metrics, dependent: :destroy, autosave: true
   has_many :datasets, :through => :runset
   belongs_to :allegates_run, class_name: Run
   belongs_to :allegates_claim, class_name: DatasetRow
@@ -81,7 +82,7 @@ class Run < ActiveRecord::Base
     java_stdout_s, java_stderr_s = File.read(java_stdout), File.read(java_stderr)
 
     unless java_has_stderr?(java_stderr_s)
-      logger.info "Run #{self.id} finished, check this dir: #{output_dir}, and stdout: #{java_stdout}"
+      logger.info "Run #{self.id} finished, check this dir: #{output_dir}\nstdout: #{java_stdout_s}\nstderr: #{java_stderr_s}"
       # parse java output
       parse_output java_stdout_s, has_ground
       # import results
@@ -313,10 +314,11 @@ private
 
   def destroy_associations!
     # overriding destroy to be more efficient by issuing only 3 SQL deletes
-    # rather than 1 + source_results.count + claim_results.count !
+    # rather than 1 + source_results.count + claim_results.count + claim_metrics.count !
     conn = ActiveRecord::Base.connection
     conn.execute("DELETE FROM source_results WHERE run_id = #{self.id}")    
     conn.execute("DELETE FROM claim_results WHERE run_id = #{self.id}")    
+    conn.execute("DELETE FROM claim_metrics WHERE run_id = #{self.id}")    
   end
 
   def create_sankey_link(links)
@@ -349,6 +351,19 @@ private
       self.updated_at = Time.now
       self.save!
       normalize!(claim_results, "confidence")
+
+      # parse claim metrics
+      CSV.parse(File.read(Pathname(output_dir).join("Metrics.csv")), csv_opts) do |row|
+        ClaimMetric.initialize_from_row(row, self)
+      end
+      # commit to database
+      self.updated_at = Time.now
+      self.save!
+
+      # parse decision tree
+      tree = File.read(Pathname(output_dir).join("DecisionTree.xml"))
+      # TODO: CONVERT XML TO WHATEVER THE visualizer wants...
+
     else
       allegations_file = Pathname(output_dir).join("AllegationClaims.csv").to_s
       if File.exists?(allegations_file)
@@ -399,6 +414,8 @@ private
         self.send("#{key}=", val.to_f) if has_ground
       when 'number of iterations'
         self.iterations = val.to_i
+      when 'featurescores'
+        self.feature_scores = val
       end
     end
     self.save!
@@ -421,6 +438,10 @@ private
     else
       associtation.update_all("normalized = #{attribute}")
     end
+  end
+
+  def feature_scores
+    read_attribute(:feature_scores).strip.split(/\s+/).map(&:to_f) rescue []
   end
 
   # credits: http://stackoverflow.com/a/4459463/441849
