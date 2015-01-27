@@ -749,26 +749,52 @@ function setup_datatables() {
           var bool = data["r"+run.id+"_bool"]
           var td = $("span.r"+run.id+"_cell", row).parent()
           td.addClass("claim_is_"+bool)
-          if (bool == 't' && !run["combiner?"]) {
-            td.append("<button class='allegate' title="+
-              "'to falsify this claim, you need to insert some fake claims, "+
-              "click to compute'>Allegate</button>")
-            $("button", td).button().click(function(){
-              // create allegation job
-              $.ajax({
-                type: "POST",
-                url : "/runs",
-                data: {
-                  claim_id: data.claim_id,
-                  run_id: run.id
-                },
-                success: function(run){
-                  allegations_table.draw()
-                }
-              });
+            .append("<button class='cellmenubutton'/>")
+          $("button", td)
+            .button({
+              text: false,
+              icons: {primary: "ui-icon-triangle-1-s"}
             })
-          }
-          else if (run["combiner?"]) {
+            .click(function() {
+              var menu = $("#cellmenu")
+              if (menu.length == 0) {
+                // create menu
+                menu = $("<ul id='cellmenu'>"+
+                  "<li class='menuexplain'>"+
+                    "<a href='#'>Explain...</a> "+
+                    "</li>"+
+                  "<li class='menuallegate'>"+
+                    "<a href='#'>Allegate...</a>"+
+                    "</li>"+
+                  "</ul>").appendTo($(row).parent()).hide().menu()
+              }
+              // attach menu listeners
+              $("li.menuexplain a", menu).unbind().click(function(){
+                explain_claim(data.claim_id, run.id)
+                menu.hide(); return false;
+              })
+              $("li.menuallegate a", menu).unbind().click(function(){
+                allegate_claim(data.claim_id, run.id)
+                menu.hide(); return false;
+              })
+              if (bool == 't' && !run["combiner?"])
+                $(".menuallegate", menu).show()
+              else
+                $(".menuallegate", menu).hide()
+
+              menu.show().position({
+                my: "right top",
+                at: "right bottom",
+                of: this // arrow button
+              });
+              $( document ).one( "click", function() {
+                menu.hide();
+              });
+
+              return false;
+            })  // click arrow button
+
+          if (run["combiner?"]) {
             // replace text
             td.empty().text(bool == 't' ? 'True' : 'False')
           }
@@ -807,6 +833,57 @@ function setup_datatables() {
   source_table.draw()
   object_table.draw()
   
+}
+
+function explain_claim(claim_id, run_id)
+{
+  // activate explain tab if not active
+  $("#tabs").tabs("option", "active", 2)
+  var p = $("#explanation-text")
+  var pnone = p.next()
+  p.html("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").addClass("spinner")
+  $.getJSON('/runs/'+run_id+'/explain',{
+    claim_id: claim_id
+  }, function(response){
+    p.removeClass("spinner")
+    if (response.length == 1) {
+      p.html(response[0])
+      pnone.show()
+    }
+    else {
+      pnone.hide()
+      var html = "<ul>"
+      $.each(response, function(i, line){
+        if (i > 0) html += "<li><strong>Top Explanation "+i+":</strong> "+line+"</li>"
+      })
+      html += "</ul>"
+      p.html(response[0] + html)
+    }
+  })
+}
+
+function allegate_claim(claim_id, run_id)
+{
+
+  if (confirm(
+  "To falsify this claim, you need to insert some fake claims "+
+  "and rerun this algorithm appending those fake claims to your original datasets. " +
+  "\n\nCompute these claims?")) {
+    // create allegation job
+    $.ajax({
+      type: "POST",
+      url : "/runs",
+      data: {
+        claim_id: claim_id,
+        run_id: run_id
+      },
+      success: function(run){
+        allegations_table.draw()
+      }
+    });
+    // activate allegate tab if not active
+    $("#tabs").tabs("option", "active", 3)
+  }
 }
 
 function setup_single_datatable(field_name, field_display, showing_inputs, runset, height, filter, search_callback)

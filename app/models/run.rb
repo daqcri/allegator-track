@@ -12,6 +12,8 @@ class Run < ActiveRecord::Base
   belongs_to :allegates_claim, class_name: DatasetRow
   has_one :allegated_dataset, class_name: Dataset, foreign_key: 'allegated_by_run_id'
 
+  include Explainable
+
   @@JAR_PATH = Rails.root.join("vendor/DAFNA-EA-1.0-jar-with-dependencies.jar")
   MULTI_VALUED_ALGORITHMS = %w(MLE LTM)
   MULTI_BOOLEAN_ALGORITHMES = %w(MLE)
@@ -438,10 +440,6 @@ private
     else
       associtation.update_all("normalized = #{attribute}")
     end
-  end
-
-  def feature_scores
-    read_attribute(:feature_scores).strip.split(/\s+/).map(&:to_f) rescue []
   end
 
   # credits: http://stackoverflow.com/a/4459463/441849

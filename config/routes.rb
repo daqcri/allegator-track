@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   resources :runs do
     member do
       get 'visualize'
+      get 'explain'
     end
   end
   resources :runsets do

@@ -82,5 +82,13 @@ class RunsController < ApplicationController
     @run.destroy
     render json: {status: 'OK'}
   end
+
+  def explain
+    if params[:claim_id].blank?
+      render nothing: true, status: :bad_request
+    else
+      render json: @run.explain(params[:claim_id])
+    end
+  end
 end
 
