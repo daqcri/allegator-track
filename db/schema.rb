@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150120075553) do
+ActiveRecord::Schema.define(version: 20150127075318) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -139,7 +139,7 @@ ActiveRecord::Schema.define(version: 20150120075553) do
     t.float    "recall"
     t.float    "specificity"
     t.integer  "iterations"
-    t.string   "last_error"
+    t.text     "last_error"
     t.integer  "allegates_run_id"
     t.integer  "allegates_claim_id"
     t.float    "allegates_value"
