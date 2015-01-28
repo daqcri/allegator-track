@@ -363,8 +363,11 @@ private
       self.save!
 
       # parse decision tree
-      tree = File.read(Pathname(output_dir).join("DecisionTree.xml"))
-      # TODO: CONVERT XML TO WHATEVER THE visualizer wants...
+      # store XML in serialized json object
+      parse_decision_tree File.read(Pathname(output_dir).join("DecisionTree.xml"))
+      # commit to database
+      self.updated_at = Time.now
+      self.save!
 
     else
       allegations_file = Pathname(output_dir).join("AllegationClaims.csv").to_s

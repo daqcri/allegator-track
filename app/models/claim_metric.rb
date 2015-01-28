@@ -19,4 +19,25 @@ class ClaimMetric < ActiveRecord::Base
     cm.label = row[:label] == "TRUE"
     cm
   end  
+
+  def as_json(options={})
+    options = {
+      :only => [
+        :cv,
+        :ts,
+        :min_ts,
+        :max_ts,
+        :number_supp_sources,
+        :number_opp_sources,
+        :total_sources,
+        :number_distinct_value,
+        :cv_global,
+        :local_confidence_comparison,
+        :ts_global,
+        :ts_local,
+        :label
+      ]
+    }.merge(options)
+    super(options)
+  end
 end

@@ -1,4 +1,4 @@
-function createChart( energy , chart_selector ) {
+function createSankeyChart( energy , chart_selector ) {
   var margin = {top: 1, right: 1, bottom: 6, left: 1},
       width = $(chart_selector).width() - margin.left - margin.right,
       height = $(chart_selector).height() - margin.top - margin.bottom;

@@ -85,9 +85,9 @@ class RunsController < ApplicationController
 
   def explain
     if params[:claim_id].blank?
-      render nothing: true, status: :bad_request
+      render body: @run.explain_tree, content_type: "application/xml; charset=utf-8"
     else
-      render json: @run.explain(params[:claim_id])
+      render json: (@run.explain(params[:claim_id]) rescue {})
     end
   end
 end
