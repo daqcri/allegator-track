@@ -11,7 +11,7 @@ module Explainable
       header = {
         0 => claim_id,
         1 => "#{claim.object_key}.#{claim.property_key}#{claim.timestamp.present? ? '@'+claim.timestamp : ''}",
-        2 => cr.confidence,
+        2 => claim.property_value,
         3 => claim.source_id,
         4 => self.display
       }
@@ -38,7 +38,7 @@ module Explainable
         "Among #{metrics[7]} distinct value(s) provided by "+
         "#{metrics[6]} source(s) for this data item, "+
         "the confidence of the value \"#{header[2]}\" provided by \"#{header[3]}\" "+
-        "is #{metrics[0]} and it has been chosen as #{metrics[12] ? 'True' : 'False'} according to "+
+        "is #{metrics[0]} (normalized) and it has been chosen as #{metrics[12] ? 'True' : 'False'} according to "+
         "the algorithm #{header[4]} because: "]
 
       #return final_explanation << "There is no conflicting value for this data item" if metrics[6] == 1

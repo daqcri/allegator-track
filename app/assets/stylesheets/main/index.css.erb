@@ -111,6 +111,25 @@ span.spinner {
   height: 1000px;
 }
 
+.tree_viz g.node rect {
+  cursor: pointer;
+  fill: #fff;
+  stroke-width: 1.5px;
+}
+
+.tree_viz g.node text {
+  font-size: 11px;
+}
+
+.tree_viz g.link path {
+  fill: none;
+  stroke: #ccc;
+}
+
+.tree_viz g.link text {
+  fill: red;
+}
+
 .metrics {
   border: 1px solid black;
   border-radius: 5px;
@@ -125,35 +144,35 @@ span.spinner {
   margin: 5px 0 0 5px;
 }
 
-.node rect {
+.sankey .node rect {
   cursor: move;
   fill-opacity: .9;
   shape-rendering: crispEdges;
 }
 
-.node text {
+.sankey .node text {
   pointer-events: none;
   text-shadow: 0 1px 0 #fff;
 }
 
-.link {
+.sankey .link {
   fill: none;
   stroke: #000;
   stroke-opacity: .2;
 }
 
 
-.cycleLink {
+.sankey .cycleLink {
   fill: none;
   stroke: #300;
   stroke-opacity: .2;
 }
 
-.cycleLink:hover {
+.sankey .cycleLink:hover {
   stroke-opacity: .5;
 }
 
-.link:hover {
+.sankey .link:hover {
   stroke-opacity: .5;
 }
 
