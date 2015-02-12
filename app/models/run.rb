@@ -158,7 +158,7 @@ class Run < ActiveRecord::Base
     self.finished_at = self.last_error = nil
     self.save
     # destroy old results, in case job was restarted
-    destroy_associations
+    destroy_associations!
     Pusher.trigger_async("user_#{runset.user.id}", 'run_change', self) rescue nil
   end
   
