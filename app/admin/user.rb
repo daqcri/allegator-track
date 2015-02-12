@@ -35,7 +35,7 @@ ActiveAdmin.register User do
   member_action :login_as, :method => :get do
     user = User.find(params[:id])
     sign_in(user, bypass: true)
-    redirect_to root_path 
+    redirect_to main_path 
   end
 
   # confirm users
