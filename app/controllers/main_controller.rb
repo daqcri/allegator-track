@@ -3,9 +3,10 @@ class MainController < ApplicationController
   before_filter :authenticate_user!
 
   def index
-    respond_to do |format|
+    if current_user.has_gui_access
       @current_user = current_user
-      format.html # index.html.erb
+    else
+      render status: :forbidden, action: 'nogui', layout: false
     end
   end
  

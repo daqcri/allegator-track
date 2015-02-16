@@ -11,16 +11,24 @@ ActiveAdmin.register User do
     column :current_sign_in_at
     column :sign_in_count
     column :created_at
+    column :has_gui_access
     actions
   end
 
   form do |f|
     f.inputs "User Details" do
       f.input :email
-      f.input :password
-      f.input :password_confirmation
+      # f.input :password
+      # f.input :password_confirmation
+      f.input :has_gui_access
     end
     f.actions
+  end
+
+  controller do
+    def permitted_params
+     params.permit(:user => [:email, :password, :password_confirmation, :has_gui_access])
+    end
   end
 
   action_item :only => [:edit, :show] do 
