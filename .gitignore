@@ -20,3 +20,4 @@
 *.sublime-project
 *.sublime-workspace
 /public/assets
+/public/d3decisiontree
