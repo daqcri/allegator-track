@@ -4,7 +4,15 @@ class DatasetRowsController < ApplicationController
   load_and_authorize_resource :except => [:index]
 
   def index
-    query = current_user.dataset_rows.where("datasets.kind" => params[:extra_kind])
+    # only return dataset_rows for selected datasets, or all if no datasets specified
+    datasets = current_user.datasets.pluck(:id)
+    if params[:datasets].present? && params[:datasets].respond_to?(:keys)
+      datasets = params[:datasets].keys.map(&:to_i) & datasets
+    end
+
+    query = DatasetRow.joins(:dataset)
+      .where("dataset_rows.dataset_id" => datasets)
+      .where("datasets.kind" => params[:extra_kind])
 
     # SORTING
     if params[:order]

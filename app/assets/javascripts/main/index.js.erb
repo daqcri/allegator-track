@@ -163,11 +163,11 @@ function setup_pusher()
   channel.bind('dataset_change', function(dataset) {
     // update corresponding rows in table
     // find dataset in table (if any) to update it
-    var datatable = dataset.kind == 'claims' ? claims_dt : ground_dt
-    var row = datatable.row($("#dataset-" + dataset.id).parent().parent())
+    var datasets_table = dataset.kind == 'claims' ? claims_dt : ground_dt
+    var row = datasets_table.row($("#dataset-" + dataset.id).parent().parent())
     if (row.length == 1) {
       row.data(dataset)
-      bind_dataset_delete($(".trash-icon", row.node()), datatable)
+      bind_dataset_delete($(".trash-icon", row.node()), datasets_table)
       bind_dataset_select($(".dataset_selector", row.node()))
 
       $(row.node()).effect("highlight")
@@ -204,14 +204,16 @@ function setup_start_button()
       }
     });
     // send post request
+    var data = {
+      checked_algo: checked_algo,
+      general_config: config_data["General Parameters"]
+    }
+    if (selected_datasets_length > 0)
+      data.datasets = selected_datasets
     $.ajax({
       type: "POST",
       url : "/runsets",
-      data: {
-        checked_algo: checked_algo,
-        general_config: config_data["General Parameters"],
-        datasets: selected_datasets
-      },
+      data: data,
       success: function(runset){
         runtable.draw()
         add_runset(runset)
@@ -515,7 +517,7 @@ function setup_dataset_table(dataset_kind){
   return dt;
 }
 
-function bind_dataset_delete(selector, datatable)
+function bind_dataset_delete(selector, datasets_table)
 {
   selector.click(function(){
     if(confirm("Are you sure you want to delete this dataset?"))
@@ -523,7 +525,7 @@ function bind_dataset_delete(selector, datatable)
         url: '/datasets/'+$(this).attr("dataset_id"),
         type: "DELETE",
         success: function(){
-          datatable.draw()
+          datasets_table.draw()
           refresh_datatables()              
         }
       });
@@ -543,19 +545,26 @@ function bind_dataset_select(selector) {
       selected_datasets_length--
     }
     refresh_selected_datasets_info()
+    refresh_datatables()
   })
+}
+
+function clear_and_init_selected_datasets(dataset)
+{
+  selected_datasets_length = 1
+  selected_datasets = {}
+  selected_datasets[dataset.id+""] = 1
+  refresh_selected_datasets_info()
 }
 
 function refresh_selected_datasets_info()
 {
   // refresh the info div
   var message = "Click to start selected algorithm(s) on <u><strong>"
-  if (selected_datasets_length == 0)
-    message += "all your datasets."
-  else
-    message += selected_datasets_length + " dataset(s)."
-  message += "</strong></u>"
+  var info = selected_datasets_length == 0 ? "all your datasets." : selected_datasets_length + " dataset(s)."
+  message += info + "</strong></u>"
   $("#selected_datasets_info").html(message)
+  $("#show_input").text("Showing " + info)
 }
 
 function check_algorithm_checkbox()
@@ -723,6 +732,8 @@ function setup_datatables() {
       if (showing_inputs) {
         url = "/dataset_rows"
         data.extra_kind = runset
+        if (selected_datasets_length > 0)
+          data.datasets = selected_datasets
       }
       else {
         url = "/runsets/" + runset.id + "/results.json"
@@ -936,6 +947,8 @@ function setup_single_datatable(field_name, field_display, showing_inputs, runse
       if (showing_inputs) {
         url = "/dataset_rows"
         data.extra_kind = runset
+        if (selected_datasets_length > 0)
+          data.datasets = selected_datasets
       }
       else {
         url = "/runsets/" + runset.id + "/results.json"
@@ -1251,7 +1264,9 @@ function setup_west_pane()
         s3_key: key,
         original_filename: key.split("/").pop(),
         kind: $(this).attr("kind")
-      }, function(){
+      }, function(dataset){
+        // clear checked datasets and check only the uploaded one
+        clear_and_init_selected_datasets(dataset)
         if (typeof claims_dt != 'undefined') claims_dt.draw()
         if (typeof ground_dt != 'undefined') ground_dt.draw()
       })

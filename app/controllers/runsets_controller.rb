@@ -10,10 +10,22 @@ class RunsetsController < ApplicationController
   load_and_authorize_resource :except => [:create, :index]
 
   def create
+    # try all user datasets
     datasets = current_user.datasets.pluck(:id)
-    if params[:datasets].present? && params[:datasets].respond_to?(:keys)
-      datasets = params[:datasets].keys.map(&:to_i)
+    if datasets.length == 0
+      render json: {error: "You don't have any datasets yet, please upload at least 1 dataset"}
+      return
     end
+
+    # try selected datasets
+    if params[:datasets].present? && params[:datasets].respond_to?(:keys)
+      datasets = params[:datasets].keys.map(&:to_i) & datasets
+      if datasets.length == 0
+        render json: {error: "You haven't specified valid datasets to use"}
+        return
+      end
+    end
+
     runset = Runset.create user: current_user, dataset_ids: datasets
     params[:checked_algo].each do |algo_name, algo_params|
       run = Run.create(runset_id: runset.id, algorithm: algo_name,

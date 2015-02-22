@@ -18,7 +18,7 @@ class DatasetsController < ApplicationController
     ds.delay(queue: 'process_uploads').parse_upload
     #ds.parse_upload
 
-    render json: {status: 'OK'}
+    render json: ds
   end
 
   def index
