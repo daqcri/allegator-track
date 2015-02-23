@@ -646,8 +646,7 @@ function save_columns_visibility()
 function is_visible_column(field_name)
 {
   // returns boolean wheather column is hidden in datatable
-  return (datatable_columns_visibility[field_name] === true) ||
-    (typeof datatable_columns_visibility[field_name] == 'undefined')
+  return datatable_columns_visibility[field_name]
 }
 
 function setup_datatables() {
@@ -686,13 +685,13 @@ function setup_datatables() {
     {name: "property_key", display: "property_id", ground: true},
     {name: "property_value", ground: true},
     {name: "source_id"},
-    {name: "timestamp"}
+    {name: "timestamp", visible: false}
   ]
 
   $.each(basic_fields, function(id, field){
     if (!showing_ground || field.ground) {
       thead.append("<th>" + (field.display || field.name) + "</th>")
-      push_column_data(datatable_columns, field.name, field.wrap)
+      push_column_data(datatable_columns, field)
     }
   })
 
@@ -1004,17 +1003,20 @@ function append_runs_to_table(runset, thead, cols)
   var finished_runs = $.grep(runset.runs, function(run){return run.status == 'finished'})
   $.each(finished_runs, function(i, run){
     thead.append("<th>["+run.id + "] " + run.algorithm+"</th>")
-    push_column_data(cols, 'r' + run.id, true)
+    push_column_data(cols, {name: 'r' + run.id, wrap: true})
   })
   return finished_runs
 }
 
-function push_column_data(cols, field_name, wrap_span)
+function push_column_data(cols, field)
 {
-  var coldef = {data: field_name, visible: is_visible_column(field_name)}
-  if (wrap_span)
+  var saved_visibility = is_visible_column(field.name)
+  var field_visible = (typeof field.visible != 'undefined') ? field.visible : true
+  var visible = (typeof saved_visibility != 'undefined') ? saved_visibility : field_visible
+  var coldef = {data: field.name, visible: visible}
+  if (field.wrap)
     coldef.render = function(field_value, type, full, meta) {
-      return '<span class="'+field_name+'_cell">'+field_value+'</span>'
+      return '<span class="'+field.name+'_cell">'+field_value+'</span>'
     }
 
   cols.push(coldef)
