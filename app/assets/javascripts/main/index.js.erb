@@ -664,6 +664,7 @@ function setup_datatables() {
   var data_selector = $("#data-selector").tabs("option", "active")
 
   var showing_inputs = data_selector <= 1
+  var showing_ground = data_selector == 1
   var runset = runsets[data_selector]
   var has_normailze_checkbox = false;
   var checkbox = $("#claims_normalize");
@@ -690,18 +691,20 @@ function setup_datatables() {
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
   datatable_columns = []
-  var basic_fields = {
-    claim_id: "claim_id",
-    object_key: "object_id",
-    property_key: "property_id",
-    property_value: "property_value",
-    source_id: "source_id",
-    timestamp: "timestamp"
-  }
+  var basic_fields = [
+    {name: "claim_id", wrap: true}, // wrap claim_id in span for icons
+    {name: "object_key", display: "object_id", ground: true},
+    {name: "property_key", display: "property_id", ground: true},
+    {name: "property_value", ground: true},
+    {name: "source_id"},
+    {name: "timestamp"}
+  ]
 
-  $.each(basic_fields, function(field_name, field_display){
-    thead.append("<th>"+field_display+"</th>")
-    push_column_data(datatable_columns, field_name, field_name == 'claim_id') // wrap claim_id in span for icons
+  $.each(basic_fields, function(id, field){
+    if (!showing_ground || field.ground) {
+      thead.append("<th>" + (field.display || field.name) + "</th>")
+      push_column_data(datatable_columns, field.name, field.wrap)
+    }
   })
 
   var finished_runs
