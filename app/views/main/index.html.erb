@@ -154,7 +154,7 @@
   <div id="data-selector">
     <ul>
       <li> <a href="#show_input">Claims</a></li>
-      <li id= 'ground_tab'> <a href="#show_input">Ground Truths</a></li>
+      <li id= 'ground_tab'> <a href="#show_input">Ground Truth</a></li>
     </ul>
     <div class='runset_array'>
       <div id="tab-common">
@@ -168,20 +168,21 @@
         </span>
       </div>
       <div id="show_input">
+        <span>
+          <input type="checkbox" id="source_view"/>
+          <label for="source_view">&nbsp;Source view</label>
+        </span>
+        <span id="dataset_counter"></span>
       </div>
     </div>
   </div>
   
   <div class="inner">
-    <div class="ui-layout-west">
-      <table class="display" id="source_id_datatable" >
-      </table>
-      <label id="source_id_normalize"><input type="checkbox"/>&nbsp;Normalize</label>
-    </div>
     <div class="ui-layout-center">
-      <table id="datatable" class="display" cellspacing="0" width="100%">
-      </table>
-      <label id="claims_normalize"><input type="checkbox"/>&nbsp;Normalize</label>
+      <div><table id="source_id_datatable" class="display" cellspacing="0" width="100%"></table></div>
+      <div><table id="datatable" class="display" cellspacing="0" width="100%"></table></div>
+      <!-- <label id="source_id_normalize"><input type="checkbox"/>&nbsp;Normalize</label> -->
+      <label id="normalize"><input type="checkbox"/>&nbsp;Normalize</label>
     </div>   
     <div class= "ui-layout-south">
       <table id = "run_table" class="display" cellspacing="0" width="100%">

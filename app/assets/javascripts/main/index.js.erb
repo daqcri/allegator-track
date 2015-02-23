@@ -9,13 +9,13 @@ var datatable_columns_visibility = {}
 var datatable_columns = []
 var selected_datasets = {}
 var selected_datasets_length = 0
+var source_view
 
 $(document).ready(function() {
   setup_layout()
   setup_west_pane()
   setup_datasets_dialog()
   setup_data_selector()
-  setup_datatables()
   setup_start_button()
   setup_runtable()
   setup_allegationtable()
@@ -70,18 +70,49 @@ function setup_data_selector()
       var active = tabs.tabs( "option", "active" )
      
       if (active > 1) {
+        $("#source_view").parent().prependTo($('#tab-common')).show()
         $('#show_input').hide()
         $('#tab-common').show()
       }
       else {
+        $("#source_view").parent().prependTo($('#show_input'))
         $('#tab-common').hide()
         $('#show_input').show()
+        if (active == 0) // claims
+          $("#source_view").parent().show()
+        else
+          $("#source_view").removeAttr("checked").change().parent().hide()
       }
 
       // TODO: show runset info
       refresh_runset()
     }
   })
+
+  // source view
+  $("#source_view")
+    .button({icons: {primary: 'ui-icon-closethick'}})
+    .change(function(){
+      destroy_datatables()
+      var check_box = $(this)
+      if (check_box.is(':checked')) {
+        check_box.button("option", "icons", {primary: 'ui-icon-check'})
+        check_box.next().addClass("vivid_checkbox_label")
+        $("#datatable").parent().hide()
+        $("#source_id_datatable").parent().show()
+        source_view = true
+        setup_datatables()
+      }
+      else {
+        check_box.button("option", "icons", {primary: 'ui-icon-closethick'})
+        check_box.next().removeClass("vivid_checkbox_label")
+        $("#source_id_datatable").parent().hide()
+        $("#datatable").parent().show()
+        source_view = false
+        setup_datatables()
+      }
+    })
+    .change()
 
   // export links
   $(".export-command").click(function(){
@@ -564,7 +595,7 @@ function refresh_selected_datasets_info()
   var info = selected_datasets_length == 0 ? "all your datasets." : selected_datasets_length + " dataset(s)."
   message += info + "</strong></u>"
   $("#selected_datasets_info").html(message)
-  $("#show_input").text("Showing " + info)
+  $("#dataset_counter").text("Showing " + info)
 }
 
 function check_algorithm_checkbox()
@@ -583,7 +614,7 @@ function check_algorithm_checkbox()
       combiner_checkbox = check_box
 
     if (check_box.is(':checked')) {
-      $('input:checked+label').addClass("algorithm_checkbox_on")
+      check_box.next().addClass("vivid_checkbox_label")
       $("h3.algorithm_"+algorithm_id).show()
       if (check_box.attr("multi") == "multi")
         found_multi++
@@ -591,7 +622,7 @@ function check_algorithm_checkbox()
         found_single++
     }
     else {
-      $('[type="checkbox"]:not(:checked) + label').removeClass("algorithm_checkbox_on")
+      check_box.next().removeClass("vivid_checkbox_label")
       $(".algorithm_"+algorithm_id).hide()
     }
   });
@@ -624,14 +655,23 @@ function refresh_datatables()
 
 function destroy_datatables()
 {
-  // sources table
-  source_table.search('')
-  source_table.destroy()
-  // claims table
-  datatable.search('')
-  save_columns_visibility()
-  datatable.destroy()
-  datatable = undefined // to prevent calling save_columns_visibility again on destroyed table which yields all visible columns
+  if (source_view) {
+    if (typeof source_table != 'undefined') {
+      // sources table
+      source_table.search('')
+      source_table.destroy()
+      source_table = undefined
+    }
+  }
+  else {
+    // claims table
+    if (typeof datatable != 'undefined') {
+      datatable.search('')
+      save_columns_visibility()
+      datatable.destroy()
+      datatable = undefined // to prevent calling save_columns_visibility again on destroyed table which yields all visible columns
+    }
+  }
 }
 
 function save_columns_visibility()
@@ -650,29 +690,25 @@ function is_visible_column(field_name)
 }
 
 function setup_datatables() {
-  if (typeof datatable != 'undefined') save_columns_visibility()
-
   var datatable_excess = 135
   var height = searchResultsLayout.state.center.innerHeight - datatable_excess
-
   var data_selector = $("#data-selector").tabs("option", "active")
-
   var showing_inputs = data_selector <= 1
   var showing_ground = data_selector == 1
   var runset = runsets[data_selector]
-  var has_normailze_checkbox = false;
-  var checkbox = $("#claims_normalize");
+  var checkbox = $("#normalize");
 
-  source_table = setup_single_datatable("source_id", "source_id", showing_inputs, runset, height,
-    typeof source_table != 'undefined' ? source_table.search() : '', function(){
-      datatable.draw()
-    })
+  if (source_view) {
+    setup_source_id_datatable(showing_inputs, runset, height)
+    return
+  }
 
-  // maintain search filter and order across destroy/create
+  // maintain search filter, order and column visibility across destroy/create
   var filter = '', order = [[0, 'asc']]
   if (typeof datatable != 'undefined') {
     filter = datatable.search()
     order = datatable.order()
+    save_columns_visibility()
   }
 
   var obj = $('#datatable')
@@ -698,16 +734,15 @@ function setup_datatables() {
   var finished_runs = []
   if (!showing_inputs) {
     finished_runs = append_runs_to_table(runset, thead, datatable_columns)
-    has_normailze_checkbox = finished_runs.length > 0;
   }
 
   datatable = obj.DataTable({
     "serverSide": true,
     "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
-    "scrollY": has_normailze_checkbox ? height - 50 : height,
+    "scrollY": height,
     "scrollX": true,  // so that table header scrolls with content
     jQueryUI: true,
-    "dom": 'C<"toolbar"T>JtSif',
+    "dom": '<"toolbar">fJtSiC',
     "colVis": {
       "exclude": [],
       "activate": "mouseover",
@@ -728,17 +763,17 @@ function setup_datatables() {
       }
       else {
         url = "/runsets/" + runset.id + "/results.json"
+        if (checkbox.find("input").is(":checked"))
+          data.extra_normalized = 1
       }
-      data.extra_source_id_criteria = source_table.search()
-      if (has_normailze_checkbox && checkbox.find("input").is(":checked"))
-        data.extra_normalized = 1
+      // data.extra_source_id_criteria = source_table.search()
       $.getJSON(url, data, function(response){
         callback(response)
       })
       // manually handle search filter change to update other tables
       if (obj.data("last_filter") != datatable.search()) {
         obj.data("last_filter", datatable.search())
-        source_table.draw();
+        // source_table.draw();
       }
     },
     "columns": datatable_columns,
@@ -814,23 +849,12 @@ function setup_datatables() {
     "destroy": true,  // destroy first if reinitializing
     "scroller": {
       loadingIndicator: false
-    },
-    tableTools: {
-      "sRowSelect": "none",
-      "fnRowSelected": function ( nodes ) {
-        var data = datatable.row(nodes[0]).data()
-        //$("#details").html("You have selected claim with id: " + data.claim_id)
-      },
-      "fnRowDeselected": function ( nodes ) {
-        //$("#details").html("")
-      },
-      "aButtons": []
     }
   });
 
-  toggle_normalize_checkbox(checkbox, has_normailze_checkbox, datatable)
+  toggle_normalize_checkbox(checkbox, !showing_inputs, datatable)
 
-  source_table.draw()
+  datatable.draw()
 }
 
 function explain_claim(claim_id, run_id)
@@ -904,27 +928,27 @@ function allegate_claim(claim_id, run_id)
   }
 }
 
-function setup_single_datatable(field_name, field_display, showing_inputs, runset, height, filter, search_callback)
+function setup_source_id_datatable(showing_inputs, runset, height)
 {
+  var field_name = "source_id"
+  var field_display = field_name
+  var filter = typeof source_table != 'undefined' ? source_table.search() : ''
+
   var obj = $("#"+field_name+"_datatable")
 
   obj.empty().append($("<thead><tr></tr></thead>"))
   var thead = $("thead tr", obj)
   thead.append("<th>"+field_display+"</th>")
   var cols = [{data: field_name}]
+  var checkbox = $("#normalize");
 
-  var has_normailze_checkbox = false;
-  var checkbox = $("#"+field_name+"_normalize");
+  if (!showing_inputs)
+    append_runs_to_table(runset, thead, cols)
 
-  if (!showing_inputs) {
-    var finished_runs = append_runs_to_table(runset, thead, cols)
-    has_normailze_checkbox = finished_runs.length > 0;
-  }
-
-  var dt = obj.DataTable({
+  source_table = obj.DataTable({
     "serverSide": true,
     "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
-    "scrollY": has_normailze_checkbox ? height - 30 : height,
+    "scrollY": height,
     "scrollX": true,  // so that table header scrolls with content
     "jQueryUI": true,
     "search": {"search": filter},
@@ -938,48 +962,33 @@ function setup_single_datatable(field_name, field_display, showing_inputs, runse
       }
       else {
         url = "/runsets/" + runset.id + "/results.json"
+        if (checkbox.find("input").is(":checked"))
+          data.extra_normalized = 1
       }
       data.extra_only = field_name
-      data.extra_source_id_criteria = source_table.search()
-      data.extra_criteria = datatable.search()
-      if (has_normailze_checkbox && checkbox.find("input").is(":checked"))
-        data.extra_normalized = 1
-      if (typeof datatable != 'undefined') datatable.draw()
+      // data.extra_source_id_criteria = source_table.search()
+      // data.extra_criteria = datatable.search()
+      // if (typeof datatable != 'undefined') datatable.draw()
       $.getJSON(url, data, function(response){
         callback(response)
       })
       // manually handle search filter change to update other tables
-      if (obj.data("last_filter") != dt.search()) {
-        obj.data("last_filter", dt.search())
-        search_callback()
+      if (obj.data("last_filter") != source_table.search()) {
+        obj.data("last_filter", source_table.search())
       }
 
     },
     "columns": cols,
-    dom: 'T<"clear">JtSif',
-    "language": {
-      "info": "_START_-_END_/_TOTAL_",
-      "infoFiltered": " (_MAX_ total)",
-      "infoEmpty": "0-0/0",
-      "search": "",
-      "zeroRecords": "No matches"
-    },
+    dom: '<"clear">fJtSi',
     "destroy": true,  // destroy first if reinitializing
     "scroller": {
       loadingIndicator: false
-    },
-    tableTools: {
-      "sRowSelect": "none",
-     aButtons: []
     }
   });
 
-  $("#"+field_name+"_datatable_filter input")
-      .attr("placeholder", "Search")
+  toggle_normalize_checkbox(checkbox, !showing_inputs, source_table)
 
-  toggle_normalize_checkbox(checkbox, has_normailze_checkbox, dt)
-
-  return dt;
+  source_table.draw()
 }  
 
 function toggle_normalize_checkbox(checkbox, visible, datatable)
@@ -1033,10 +1042,8 @@ function adjust_dt_columns()
 
 function setup_layout()
 {
-  
   var page_west = '30%'
-  var inner_west = '15%'
-  var inner_center =  '85%'
+  var inner_center =  '100%'
   var inner_south = '15%'
   $('#ground_tab').hide()
 
@@ -1062,7 +1069,6 @@ function setup_layout()
     south__size: inner_south,
     south__minSize: "25%",
     south__maxSize: "75%",
-    west__size: inner_west,
     center__size: inner_center,
     autoResize:       true,  // try to maintain pane-percentages
     closable:       true,
@@ -1081,11 +1087,8 @@ function setup_layout()
   $(window).unload(function(){ layoutState.save('pageLayout')})
   $(window).unload(function(){ layoutState.save('searchResultsLayout') })
 
-  
-
   $('#Logo').click(function(){
     pageLayout.sizePane('west', page_west)
-    searchResultsLayout.sizePane('west', inner_west)
     searchResultsLayout.sizePane('center', inner_center)
     searchResultsLayout.sizePane('south', inner_south)   
     
@@ -1174,10 +1177,10 @@ function setup_west_pane()
     if(index!= 0) {
       html += "<input type='checkbox' id='algorithm_checkbox_" + 
         algorithm.name+"' algorithm_id='" + algorithm.name +
-        "' class='algorithm_checkbox color_on_check color_on_uncheck' "
+        "' class='algorithm_checkbox' "
         if (algorithm.multi) html += "multi='multi' "
         if (algorithm.combiner) html += "combiner='combiner' disabled='disabled' "
-        html += " /><label style='background: none;' class='algorithm_checkbox_label' "
+        html += " /><label class='algorithm_checkbox_label' "
         html += "title='" + algorithm.description+"' for='algorithm_checkbox_"+algorithm.name+"'>" +
         algorithm.name
       if (algorithm.multi) html += "  (multi-valued property values)"
