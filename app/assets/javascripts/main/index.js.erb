@@ -105,7 +105,6 @@ function refresh_runset()
 {
   destroy_datatables()
   setup_datatables()
-  refresh_charts()
   // console.log('refresh_runset called')
 }
 
@@ -184,13 +183,57 @@ function setup_data_selector()
     .change()
 
   // export links
-  $(".export-command").click(function(){
-    var data_selector = $("#data-selector").tabs("option", "active")
-    var runset = runsets[data_selector]
-    var what = source_view ? "source_id" : ""
-    var normalized = normalized_view ? "1" : ""
-    window.location = '/runsets/'+runset.id+'/results.csv?extra_only='+what+'&extra_normalized='+normalized
-  })
+  $("#export-command")
+    .button()
+    .click(function(){
+      var data_selector = $("#data-selector").tabs("option", "active")
+      var runset = runsets[data_selector]
+      var what = source_view ? "source_id" : ""
+      var normalized = normalized_view ? "1" : ""
+      window.location = '/runsets/'+runset.id+'/results.csv?extra_only='+what+'&extra_normalized='+normalized
+    })
+
+  // visualize runs
+  $("#visualize-command")
+    .button({
+      icons: {secondary: "ui-icon-triangle-1-s"}
+    })
+    .click(function(){
+      var data_selector = $("#data-selector").tabs("option", "active")
+      var runset = runsets[data_selector]
+      // construct menu items
+      var items = $.map(runset.runs, function(run){
+        return "<li class='menuvisualize' run_id='"+run.id+"'><a href='#'>"+run.display+"</a></li>"
+      }).join("")
+      var menu = $("#runs_menu").empty()
+      try {menu.menu("destroy")} catch(e){}
+      menu.append($(items)).hide().menu()
+      // attach menu listeners
+      $("li.menuvisualize", menu).unbind().click(function(){
+        menu.hide()
+        var run_id = $(this).attr("run_id")
+        var dialog_id = "visualize-run-"+run_id
+        var dialog = $("#"+dialog_id)
+        if (dialog.length != 1)
+          dialog = $("<div id='"+dialog_id+"'>").appendTo($("body"))
+        
+        dialog.visualizer_dialog({
+          run_id: run_id,
+          title: "[Runset "+runset.id+"] " + $("option:selected", this).text()
+        })
+        return false
+      })
+      // show menu
+      menu.show().position({
+        my: "left top",
+        at: "right top",
+        of: this // visualize button
+      });
+      $(document).one( "click", function() {
+        menu.hide();
+      });
+      return false
+    })
 
   // append tab for each runset
   $.getJSON('/runsets', function(runsets){
@@ -1319,33 +1362,6 @@ function setup_west_pane()
   $('.cancel').click(function (e) {
     jqXHR.abort();
   });
-}
-
-function refresh_charts()
-{
-  // list runs of current runset in runs_selector
-  var data_selector = $("#data-selector").tabs("option", "active")
-  var runset = runsets[data_selector]
-  var options = ["<option value='-1'>Select a run</option>"]
-    .concat($.map(runset.runs, function(run){
-    return "<option value='"+run.id+"'>"+run.display+"</option>"
-  }))
-
-  $("#runs_selector").html(options.join("\n"))
-    .change(function(){
-      var run_id = $(this).val()
-      if (run_id != "-1") {
-        var dialog_id = "visualize-run-"+run_id
-        var dialog = $("#"+dialog_id)
-        if (dialog.length != 1)
-          dialog = $("<div id='"+dialog_id+"'>").appendTo($("body"))
-        
-        dialog.visualizer_dialog({
-          run_id: run_id,
-          title: "[Runset "+runset.id+"] " + $("option:selected", this).text()
-        })
-      }
-    })
 }
 
 function setup_datasets_dialog(dataset_icon_selector){

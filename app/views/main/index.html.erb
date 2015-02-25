@@ -163,12 +163,10 @@
           <input type="checkbox" id="normalized_view"/>
           <label for="normalized_view">Normalized view</label>
         </span>
-        <span class='export-command'>Export</span>
-        &nbsp;-&nbsp;
-        <span class='visualize-command' value="sankey">
+        <button id='export-command'>Export</button>
+        <button id='visualize-command' value="sankey">
           Visualize
-          <select id="runs_selector"></select>
-        </span>
+        </button>
       </div>
       <div id="show_input">
         <span>
@@ -206,3 +204,4 @@
   </div>
 </div>
 
+<ul id="runs_menu"></ul>
