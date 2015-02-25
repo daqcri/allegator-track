@@ -4,10 +4,10 @@ class DatasetRowsController < ApplicationController
   load_and_authorize_resource :except => [:index]
 
   def index
-    # only return dataset_rows for selected datasets, or all if no datasets specified
-    datasets = current_user.datasets.pluck(:id)
+    # only return dataset_rows for selected datasets
+    datasets = []
     if params[:datasets].present? && params[:datasets].respond_to?(:keys)
-      datasets = params[:datasets].keys.map(&:to_i) & datasets
+      datasets = params[:datasets].keys.map(&:to_i) & current_user.datasets.pluck(:id)
     end
 
     query = DatasetRow.joins(:dataset)

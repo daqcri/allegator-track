@@ -37,10 +37,18 @@ class Runset < ActiveRecord::Base
     Run.voters.joins(:runset).where("runsets.id = ?", self.id)
   end
 
+  def claim_datasets
+    datasets.where(kind: 'claims')
+  end
+
+  def ground_datasets
+    datasets.where(kind: 'ground')
+  end
+
   def as_json(options={})
     options = {
       :only => [:id, :created_at],
-      :methods => [:runs]
+      :methods => [:runs, :claim_datasets, :ground_datasets]
     }.merge(options)
     super(options)
   end

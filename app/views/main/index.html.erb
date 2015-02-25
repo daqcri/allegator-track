@@ -1,6 +1,7 @@
 <%= stylesheet_link_tag     'main/index.css', media: 'all' %>
 <%= javascript_include_tag  'main/algorithms.js' %>
 <%= javascript_include_tag  'main/visualize.js' %>
+<%= javascript_include_tag  'main/hash_with_length.js' %>
 
 <script>
   var current_user_id = <%= @current_user.id %>
@@ -25,7 +26,7 @@
   <div class="ui-layout-content" id="tabs">
     <ul>
       <li> <a href="#tab-1">Upload</a> </li>
-      <li>  <a href="#tab-2">Configure and Run</a>  </li>
+      <li id='run-tab'>  <a href="#tab-2">Configure and Run</a>  </li>
       <li id='explain-tab'>  <a href="#tab-3">Explain</a> </li>
       <li id='allegate-tab'> <a href="#tab-4"> Allegate </a> </li>
     </ul>
@@ -158,9 +159,11 @@
     </ul>
     <div class='runset_array'>
       <div id="tab-common">
-        <span class='export-command' value="source_id">Export Sources</span>
-        &nbsp;-&nbsp;
-        <span class='export-command' value="">Export Claims</span>
+        <span>
+          <input type="checkbox" id="normalized_view"/>
+          <label for="normalized_view">Normalized view</label>
+        </span>
+        <span class='export-command'>Export</span>
         &nbsp;-&nbsp;
         <span class='visualize-command' value="sankey">
           Visualize
@@ -170,9 +173,8 @@
       <div id="show_input">
         <span>
           <input type="checkbox" id="source_view"/>
-          <label for="source_view">&nbsp;Source view</label>
+          <label for="source_view">Source view</label>
         </span>
-        <span id="dataset_counter"></span>
       </div>
     </div>
   </div>
@@ -181,8 +183,6 @@
     <div class="ui-layout-center">
       <div><table id="source_id_datatable" class="display" cellspacing="0" width="100%"></table></div>
       <div><table id="datatable" class="display" cellspacing="0" width="100%"></table></div>
-      <!-- <label id="source_id_normalize"><input type="checkbox"/>&nbsp;Normalize</label> -->
-      <label id="normalize"><input type="checkbox"/>&nbsp;Normalize</label>
     </div>   
     <div class= "ui-layout-south">
       <table id = "run_table" class="display" cellspacing="0" width="100%">

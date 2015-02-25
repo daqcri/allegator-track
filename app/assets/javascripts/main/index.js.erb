@@ -7,9 +7,9 @@ var runsets = ["claims", "ground"]
 var s3_direct_post = {}
 var datatable_columns_visibility = {}
 var datatable_columns = []
-var selected_datasets = {}
-var selected_datasets_length = 0
-var source_view
+var selected_claim_datasets = new HashWithLength()
+var selected_ground_datasets = new HashWithLength()
+var source_view, normalized_view
 
 $(document).ready(function() {
   setup_layout()
@@ -22,7 +22,54 @@ $(document).ready(function() {
   setup_pusher()
 });
 
-function has_ground(){
+function set_table_title()
+{
+  var data_selector = $("#data-selector").tabs("option", "active")
+  var runset = runsets[data_selector]
+  var text = ""
+  var claims_len = selected_claim_datasets.length
+  var ground_len = selected_ground_datasets.length
+
+  if (data_selector == 0) {
+    // claims
+    if (claims_len == 0)
+      text = "No datasets selected"
+    else
+      text = "Unique " + (source_view ? "sources" : "claims") + " for " + claims_len + " dataset(s)"
+  }
+  else if (data_selector == 1) {
+    // ground
+    if (ground_len == 0)
+      text = "No ground truth datasets selected"
+    else
+      text = "Unique ground truth for " + ground_len + " dataset(s)"
+  }
+  else {
+    // runsets
+    text = (source_view ? "Source trustworthiness" : "Claim confidence")
+      + " results for " + runset.claim_datasets.length + " dataset(s)"
+    if (runset.ground_datasets.length > 0)
+      text += " and " + runset.ground_datasets.length + " ground truth dataset(s)"
+  }
+
+  $(".tabletitle").text(text)
+}
+
+function toggle_configure_tab()
+{
+  // enable only if at least 1 claim dataset selected and 1 non-combiner algorithm selected
+  var checked_algos = $(".algorithm_checkbox:checked[combiner!='combiner']")
+
+  if (checked_algos.length > 0 && selected_claim_datasets.length > 0){
+    $('#tabs').tabs("enable", 1)
+  }
+  else{
+    $('#tabs').tabs("option", "disabled", [1])
+  }
+}
+
+function has_ground()
+{
   var value = $('#ground_datasets_table').dataTable().fnGetData().length
   return value > 0
 }
@@ -114,13 +161,34 @@ function setup_data_selector()
     })
     .change()
 
+  // normalized view
+  $("#normalized_view")
+    .button({icons: {primary: 'ui-icon-closethick'}})
+    .change(function(){
+      var check_box = $(this)
+      if (check_box.is(':checked')) {
+        check_box.button("option", "icons", {primary: 'ui-icon-check'})
+        check_box.next().addClass("vivid_checkbox_label")
+        normalized_view = true
+      }
+      else {
+        check_box.button("option", "icons", {primary: 'ui-icon-closethick'})
+        check_box.next().removeClass("vivid_checkbox_label")
+        normalized_view = false
+      }
+      if (source_view)
+        source_table.draw()
+      else
+        datatable.draw()
+    })
+    .change()
+
   // export links
   $(".export-command").click(function(){
     var data_selector = $("#data-selector").tabs("option", "active")
     var runset = runsets[data_selector]
-    var what = $(this).attr("value")
-    var checkbox = what == 'source_id' ? $("#source_id_normalize") : $("#claims_normalize");
-    var normalized = checkbox.find("input").is(":checked") ? "1" : ""
+    var what = source_view ? "source_id" : ""
+    var normalized = normalized_view ? "1" : ""
     window.location = '/runsets/'+runset.id+'/results.csv?extra_only='+what+'&extra_normalized='+normalized
   })
 
@@ -199,7 +267,7 @@ function setup_pusher()
     if (row.length == 1) {
       row.data(dataset)
       bind_dataset_delete($(".trash-icon", row.node()), datasets_table)
-      bind_dataset_select($(".dataset_selector", row.node()))
+      bind_dataset_select($(".dataset_selector", row.node()), dataset.kind)
 
       $(row.node()).effect("highlight")
       refresh_datatables();
@@ -239,8 +307,7 @@ function setup_start_button()
       checked_algo: checked_algo,
       general_config: config_data["General Parameters"]
     }
-    if (selected_datasets_length > 0)
-      data.datasets = selected_datasets
+    data.datasets = selected_claim_datasets.append(selected_ground_datasets).get()
     $.ajax({
       type: "POST",
       url : "/runsets",
@@ -252,7 +319,6 @@ function setup_start_button()
       }
     });
   });
-  refresh_selected_datasets_info()
 }
 
 function setup_runtable()
@@ -498,14 +564,15 @@ function setup_dataset_table(dataset_kind){
           $('#ground_tab').hide()
 
         bind_dataset_delete($(".trash-icon", obj), dt)
-        bind_dataset_select($(".dataset_selector", obj))
+        bind_dataset_select($(".dataset_selector", obj), dataset_kind)
       });
     },
     'columns':[
       {
         'data': 'id',
         'render': function (dataset_id, type, full, meta){
-          var checked = selected_datasets[dataset_id+""] ? "checked='checked'" : ""
+          var checked = 
+            (selected_claim_datasets.contains(dataset_id) || selected_ground_datasets.contains(dataset_id)) ? "checked='checked'" : ""
           return "<input type='checkbox' class='dataset_selector' dataset_id='"+dataset_id+"' "+checked+"/>"
         }      
       },
@@ -552,10 +619,15 @@ function bind_dataset_delete(selector, datasets_table)
 {
   selector.click(function(){
     if(confirm("Are you sure you want to delete this dataset?"))
+      var dataset_id = $(this).attr("dataset_id")
       $.ajax({
-        url: '/datasets/'+$(this).attr("dataset_id"),
+        url: '/datasets/' + dataset_id,
         type: "DELETE",
         success: function(){
+          selected_claim_datasets.remove(dataset_id)
+          selected_ground_datasets.remove(dataset_id)
+          toggle_configure_tab()
+          set_table_title()
           datasets_table.draw()
           refresh_datatables()              
         }
@@ -563,39 +635,42 @@ function bind_dataset_delete(selector, datasets_table)
    });
 }
 
-function bind_dataset_select(selector) {
+function bind_dataset_select(selector, kind) {
   selector.click(function(){
     var dataset_id = $(this).attr("dataset_id")
+    var hash = kind == 'ground' ? selected_ground_datasets : selected_claim_datasets
     // update the seletected object
-    if ($(this).is(":checked")) {
-      selected_datasets[dataset_id] = 1
-      selected_datasets_length++
-    }
-    else {
-      delete selected_datasets[dataset_id]
-      selected_datasets_length--
-    }
-    refresh_selected_datasets_info()
+    if ($(this).is(":checked"))
+      hash.add(dataset_id)
+    else
+      hash.remove(dataset_id)
+
+    toggle_configure_tab()
+    set_table_title()
     refresh_datatables()
   })
 }
 
 function clear_and_init_selected_datasets(dataset)
 {
-  selected_datasets_length = 1
-  selected_datasets = {}
-  selected_datasets[dataset.id+""] = 1
+  if (dataset.kind == 'ground') {
+    selected_claim_datasets.clear()
+    selected_ground_datasets.seed([dataset.id])
+  }
+  else {
+    selected_ground_datasets.clear()
+    selected_claim_datasets.seed([dataset.id])
+  }
   refresh_selected_datasets_info()
 }
 
 function refresh_selected_datasets_info()
 {
   // refresh the info div
-  var message = "Click to start selected algorithm(s) on <u><strong>"
-  var info = selected_datasets_length == 0 ? "all your datasets." : selected_datasets_length + " dataset(s)."
-  message += info + "</strong></u>"
+  var message = "Click to start selected algorithm(s) on <strong>"
+    + selected_claim_datasets.length + " dataset(s)</strong>"
+    + " and <strong>" + selected_ground_datasets.length + " ground truth dataset(s)</strong>"
   $("#selected_datasets_info").html(message)
-  $("#dataset_counter").text("Showing " + info)
 }
 
 function check_algorithm_checkbox()
@@ -627,13 +702,7 @@ function check_algorithm_checkbox()
     }
   });
 
-  if (found_single || found_multi){
-    // enable configuration tab
-    $('#tabs').tabs("enable",1)
-  }
-  else{
-    $('#tabs').tabs("option", "disabled",[1])
-  }
+  toggle_configure_tab()
 
   if (combiner_checkbox) {
     if (found_single + found_multi > 1 && has_ground()){
@@ -649,8 +718,8 @@ function check_algorithm_checkbox()
 
 function refresh_datatables()
 {
-  datatable.draw()
-  source_table.draw()
+  if (datatable) datatable.draw()
+  if (source_table) source_table.draw()
 }
 
 function destroy_datatables()
@@ -696,7 +765,6 @@ function setup_datatables() {
   var showing_inputs = data_selector <= 1
   var showing_ground = data_selector == 1
   var runset = runsets[data_selector]
-  var checkbox = $("#normalize");
 
   if (source_view) {
     setup_source_id_datatable(showing_inputs, runset, height)
@@ -742,7 +810,7 @@ function setup_datatables() {
     "scrollY": height,
     "scrollX": true,  // so that table header scrolls with content
     jQueryUI: true,
-    "dom": '<"toolbar">fJtSiC',
+    "dom": '<"tabletitle"><"toolbar">fJtSiC',
     "colVis": {
       "exclude": [],
       "activate": "mouseover",
@@ -758,23 +826,17 @@ function setup_datatables() {
       if (showing_inputs) {
         url = "/dataset_rows"
         data.extra_kind = runset
-        if (selected_datasets_length > 0)
-          data.datasets = selected_datasets
+        data.datasets = selected_claim_datasets.append(selected_ground_datasets).get()
       }
       else {
         url = "/runsets/" + runset.id + "/results.json"
-        if (checkbox.find("input").is(":checked"))
+        if (normalized_view)
           data.extra_normalized = 1
       }
       // data.extra_source_id_criteria = source_table.search()
       $.getJSON(url, data, function(response){
         callback(response)
       })
-      // manually handle search filter change to update other tables
-      if (obj.data("last_filter") != datatable.search()) {
-        obj.data("last_filter", datatable.search())
-        // source_table.draw();
-      }
     },
     "columns": datatable_columns,
     "rowCallback": function( row, data ) {
@@ -852,8 +914,7 @@ function setup_datatables() {
     }
   });
 
-  toggle_normalize_checkbox(checkbox, !showing_inputs, datatable)
-
+  set_table_title()
   datatable.draw()
 }
 
@@ -940,7 +1001,6 @@ function setup_source_id_datatable(showing_inputs, runset, height)
   var thead = $("thead tr", obj)
   thead.append("<th>"+field_display+"</th>")
   var cols = [{data: field_name}]
-  var checkbox = $("#normalize");
 
   if (!showing_inputs)
     append_runs_to_table(runset, thead, cols)
@@ -957,12 +1017,11 @@ function setup_source_id_datatable(showing_inputs, runset, height)
       if (showing_inputs) {
         url = "/dataset_rows"
         data.extra_kind = runset
-        if (selected_datasets_length > 0)
-          data.datasets = selected_datasets
+        data.datasets = selected_claim_datasets.append(selected_ground_datasets).get()
       }
       else {
         url = "/runsets/" + runset.id + "/results.json"
-        if (checkbox.find("input").is(":checked"))
+        if (normalized_view)
           data.extra_normalized = 1
       }
       data.extra_only = field_name
@@ -972,40 +1031,18 @@ function setup_source_id_datatable(showing_inputs, runset, height)
       $.getJSON(url, data, function(response){
         callback(response)
       })
-      // manually handle search filter change to update other tables
-      if (obj.data("last_filter") != source_table.search()) {
-        obj.data("last_filter", source_table.search())
-      }
-
     },
     "columns": cols,
-    dom: '<"clear">fJtSi',
+    dom: '<"tabletitle"><"clear">fJtSi',
     "destroy": true,  // destroy first if reinitializing
     "scroller": {
       loadingIndicator: false
     }
   });
 
-  toggle_normalize_checkbox(checkbox, !showing_inputs, source_table)
-
+  set_table_title()
   source_table.draw()
 }  
-
-function toggle_normalize_checkbox(checkbox, visible, datatable)
-{
-  if (visible) {
-    // append checkbox
-    checkbox
-      .show()
-      .unbind()
-      .find("input")
-      .change(function(){
-        datatable.draw()
-      })
-  }
-  else
-    checkbox.hide()
-}
 
 function append_runs_to_table(runset, thead, cols)
 {
@@ -1102,7 +1139,9 @@ function setup_west_pane()
     disabled: [1],
     activate: function(event, ui) {
       if (ui.newTab.attr("id") == 'allegate-tab')
-        setup_allegationtable();
+        setup_allegationtable()
+      else if (ui.newTab.attr("id") == 'run-tab')
+        refresh_selected_datasets_info()
     }
   })
   
@@ -1250,15 +1289,23 @@ function setup_west_pane()
 
       // extract key and generate URL from response
       var key = $(data.jqXHR.responseXML).find("Key").text()
+      var kind = $(this).attr("kind")
       $.post('/datasets', {
         s3_key: key,
         original_filename: key.split("/").pop(),
-        kind: $(this).attr("kind")
+        kind: kind
       }, function(dataset){
         // clear checked datasets and check only the uploaded one
         clear_and_init_selected_datasets(dataset)
-        if (typeof claims_dt != 'undefined') claims_dt.draw()
-        if (typeof ground_dt != 'undefined') ground_dt.draw()
+        if (kind == 'ground') {
+          ground_dt.draw()
+          $("#data-selector").tabs("option", "active", 1)
+        }
+        else {
+          claims_dt.draw()
+          $("#data-selector").tabs("option", "active", 0)
+        }
+        set_table_title()
       })
     },
     fail: function() {

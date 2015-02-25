@@ -1,0 +1,65 @@
+function HashWithLength()
+{
+  var ana = this
+  ana.length = 0
+  ana.store = {}
+
+  ana.clear = function()
+  {
+    ana.length = 0
+    ana.store = {}
+  }
+
+  ana.seed = function(objs)
+  {
+    ana.clear()
+    $.each(objs, function(id, obj){
+      ana.add(obj)
+    })
+  }
+
+  ana.add = function(obj)
+  {
+    obj = obj + ""
+    if (ana.store[obj])
+      return false
+    ana.store[obj] = 1
+    ana.length++
+    return true
+  }
+
+  ana.contains = function(obj)
+  {
+    return ana.store[obj + ""] == 1
+  }
+
+  ana.remove = function(obj)
+  {
+    obj = obj + ""
+    var ret = ana.store[obj]
+    if (ret) {
+      delete ana.store[obj]
+      ana.length--
+      return true
+    }
+    return false
+  }
+
+  ana.get = function()
+  {
+    return ana.store
+  }
+
+  ana.append = function(another_hash)
+  {
+    ret = new HashWithLength()
+    $.each(ana.store, function(obj){
+      ret.add(obj)
+    })
+    other_store = another_hash.get()
+    $.each(other_store, function(obj){
+      ret.add(obj)
+    })
+    return ret
+  }
+}

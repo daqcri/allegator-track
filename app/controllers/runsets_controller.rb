@@ -24,6 +24,9 @@ class RunsetsController < ApplicationController
         render json: {error: "You haven't specified valid datasets to use"}
         return
       end
+    else
+      render json: {error: "You haven't specified any datasets to use"}
+      return
     end
 
     runset = Runset.create user: current_user, dataset_ids: datasets
