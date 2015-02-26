@@ -1,5 +1,4 @@
 var pageLayout
-var searchResultsLayout
 var datatable, source_table, runtable, claims_dt, ground_dt;
 var runtable_tools
 var config_data = {}
@@ -17,7 +16,6 @@ $(document).ready(function() {
   setup_datasets_dialog()
   setup_data_selector()
   setup_start_button()
-  setup_runtable()
   setup_allegationtable()
   setup_pusher()
 });
@@ -366,9 +364,8 @@ function setup_start_button()
 
 function setup_runtable()
 {
-  var runtable_excess = 47
-  var height = searchResultsLayout.state.south.innerHeight - runtable_excess
-  // console.log(height)
+  var excess = 48
+  var height = pageLayout.state.south.innerHeight - excess
   var obj = $('#run_table')
   runtable = obj.DataTable({
     dom: 'tJST',
@@ -802,8 +799,8 @@ function is_visible_column(field_name)
 }
 
 function setup_datatables() {
-  var datatable_excess = 135
-  var height = searchResultsLayout.state.center.innerHeight - datatable_excess
+  var datatable_excess = 235
+  var height = pageLayout.state.center.innerHeight - datatable_excess
   var data_selector = $("#data-selector").tabs("option", "active")
   var showing_inputs = data_selector <= 1
   var showing_ground = data_selector == 1
@@ -1111,68 +1108,40 @@ function push_column_data(cols, field)
   cols.push(coldef)
 }
 
-function adjust_dt_columns()
-{
-  if (typeof datatable != 'undefined') datatable.columns.adjust();
-  if (typeof claims_dt != 'undefined') claims_dt.columns.adjust();
-  if (typeof ground_dt != 'undefined') ground_dt.columns.adjust();
-  if (typeof runtable != 'undefined') runtable.columns.adjust();
-  if (typeof allegations_table != 'undefined') allegations_table.columns.adjust();
-}
-
 function setup_layout()
 {
-  var page_west = '30%'
-  var inner_center =  '100%'
-  var inner_south = '15%'
-  $('#ground_tab').hide()
-
-  pageLayout = $('body').layout($.extend({
+  pageLayout = $('body').layout({
     applyDefaultStyles: true,
-    west__size: page_west,
-    west__minSize: "10%",
-    west__maxSize: "50%",
     autoResize:       true, 
     animatePaneSizing: true,
-    west__onresize: adjust_dt_columns,
-    west__onclose: adjust_dt_columns,
-  },layoutState.load('pageLayout')));
-
-  inner_height()
-  $('.ui-layout-center').css('padding', '0px')
-  $(window).resize(function(){
-    inner_height()
-  })
-
-  searchResultsLayout = $(".inner").layout($.extend({
-    applyDefaultStyles: true,
-    south__size: inner_south,
-    south__minSize: "25%",
-    south__maxSize: "75%",
-    center__size: inner_center,
-    autoResize:       true,  // try to maintain pane-percentages
     closable:       true,
-    togglerLength_open:   0, // hide toggler-buttons
-    spacing_closed:     0, // hide resizer/slider bar when closed
-    autoReopen:       true,  // auto-open panes that were previously auto-closed due to 'no room'
+
+    west__size: '30%',
+    west__minSize: "10%",
+    west__maxSize: "50%",
+    west__spacing_closed:    15,
+    west__spacing_open:    15,
+    west__togglerTip_closed: 'Click to open toolbox',
+    west__togglerTip_open: 'Click to close toolbox',
+    west__slidable: false,
+
+    south__initClosed: true,
+    south__size: '20%',
+    south__slidable: true,
+    south__togglerLength_open: 0,
+    south__togglerLength_closed: 0,
+    south__spacing_closed:    15,
+    south__sliderTip: 'Click to view progress of runs',
+    south__onopen: setup_runtable,
+
     center__onresize: function() {
-      setup_runtable()
       setup_datatables()
       setup_claims_dataset_table()
       setup_ground_dataset_table()
       setup_allegationtable()
     }
-  },layoutState.load('searchResultsLayout')));
+  });
 
-  $(window).unload(function(){ layoutState.save('pageLayout')})
-  $(window).unload(function(){ layoutState.save('searchResultsLayout') })
-
-  $('#Logo').click(function(){
-    pageLayout.sizePane('west', page_west)
-    searchResultsLayout.sizePane('center', inner_center)
-    searchResultsLayout.sizePane('south', inner_south)   
-    
-  })
 }
 
 function setup_west_pane()
@@ -1291,6 +1260,8 @@ function setup_west_pane()
     heightStyle: "content",
   });
 
+  // ground tab initially hidden
+  $('#ground_tab').hide()
   $("#tab-1 .accordion").accordion({
     "activate": function(event, ui) {
       if (ui.newHeader.attr("id") == "upload_claims_header")
@@ -1384,8 +1355,4 @@ function setup_datasets_dialog(dataset_icon_selector){
   $(".download-datasets").click(function(){
     dialog_div.dialog('open')
   });
-}
-
-function inner_height(){
-  $('.inner').css('height', $(window).height() - $('#data-selector').height())
 }

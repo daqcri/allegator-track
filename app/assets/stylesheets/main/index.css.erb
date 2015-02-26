@@ -199,10 +199,6 @@ tr.allegated_claim, tr.allegated_claim>td {
   background-color: red !important;
 }
 
-#Logo {
-  cursor: pointer;
-}
-
 #tag_line {
   font-weight: bold;
   font-style: italic;
@@ -267,4 +263,33 @@ p#explanation-text-none {
 
 ul#runs_menu {
   position: absolute;
+}
+
+.ui-layout-resizer-south-closed {
+  background-image: url(<%= image_path 'go-up-on.gif' %>) !important;
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
+  background-color: #F6C848 !important;
+}
+
+.ui-layout-resizer-west {
+  background-color: #F6C848 !important;
+}
+
+.ui-layout-toggler-west {
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
+  background-color: #F6C848 !important;
+}
+
+.ui-layout-toggler-west-closed {
+  background-image: url(<%= image_path 'go-rt-off.gif' %>) !important;
+}
+
+.ui-layout-toggler-west-open {
+  background-image: url(<%= image_path 'go-lt-off.gif' %>) !important;
+}
+
+.ui-layout-center {
+  padding: 0 5px 0 5px !important;
 }
