@@ -200,12 +200,14 @@ function setup_data_selector()
       var data_selector = $("#data-selector").tabs("option", "active")
       var runset = runsets[data_selector]
       // construct menu items
-      var items = $.map(runset.runs, function(run){
-        return "<li class='menuvisualize' run_id='"+run.id+"'><a href='#'>"+run.display+"</a></li>"
-      }).join("")
+      var items = []
+      $.each(runset.runs, function(id, run){
+        if (!run["combiner?"])
+          items.push("<li class='menuvisualize' run_id='"+run.id+"'><a href='#'>"+run.display+"</a></li>")
+      })
       var menu = $("#runs_menu").empty()
       try {menu.menu("destroy")} catch(e){}
-      menu.append($(items)).hide().menu()
+      menu.append($(items.join(""))).hide().menu()
       // attach menu listeners
       $("li.menuvisualize", menu).unbind().click(function(){
         menu.hide()
