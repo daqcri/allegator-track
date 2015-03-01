@@ -10,62 +10,55 @@ class DatasetRowsController < ApplicationController
       datasets = params[:datasets].keys.map(&:to_i) & current_user.datasets.pluck(:id)
     end
 
+    single_field = params[:extra_only]
+
+    # basic query
     query = DatasetRow.joins(:dataset)
       .where("dataset_rows.dataset_id" => datasets)
-      .where("datasets.kind" => params[:extra_kind])
+
+    # CALCULATING TOTAL COUNT
+    total = query_count(query, single_field)
+
+    # FILTERING
+    if params[:search][:value].present?
+      fields = single_field.present? ? [single_field] : %w(object_key source_id property_key property_value timestamp)
+      criteria = params[:search][:value]
+      query = query.where fields.map{|f| "LOWER(#{f}) like LOWER('%#{criteria}%')"}.join(" OR ")
+      filtered = query_count(query, single_field)
+    else
+      filtered = total
+    end
+
+    # select more counts in single_field mode
+    if single_field
+      query = query.select("#{single_field}, count(distinct dataset_rows.id) uclaims, count(distinct dataset_rows.object_key) uobjs")
+        .group(single_field)
+    end
 
     # SORTING
     if params[:order]
       sort = params[:order]["0"]
-      sort_col = params[:extra_only] || params[:columns][sort["column"]]["data"]
+      sort_col = params[:columns][sort["column"]]["data"]
       sort_col = 'dataset_rows.id' if sort_col == 'claim_id'  # TODO hack until we rename dataset_rows table to claims
       sort_dir = sort["dir"]
-      
       query = query.order("#{sort_col} #{sort_dir}")
     end
 
-    # CALCULATING TOTAL COUNT
-    if params[:extra_only].present?
-      total = query.select(params[:extra_only]).distinct.count
-    elsif params[:extra_kind] == 'claims'
-      total = query.select("dataset_rows.id").distinct.count
-    else
-      total = query.distinct.count
-    end
-
-    # FILTERING
-    fields = %w(object_key source_id property_key property_value timestamp)
-    # search by applying search criteria from the current table on the visible fields
-    if params[:search][:value].present?
-      criteria = params[:search][:value]
-      qfields = params[:extra_only].blank? ? fields : [params[:extra_only]]
-      query = query.where qfields.map{|f| "LOWER(#{f}) like LOWER('%#{criteria}%')"}.join(" OR ")
-    end
-    # search by applying search criteria from other tables
-    criteria = params[:extra_object_key_criteria]
-    query = query.where "LOWER(object_key) like LOWER('%#{criteria}%')" if criteria.present?
-    criteria = params[:extra_source_id_criteria]
-    query = query.where "LOWER(source_id) like LOWER('%#{criteria}%')" if criteria.present?
-    criteria = params[:extra_criteria]
-    query = query.where fields.map{|f| "LOWER(#{f}) like LOWER('%#{criteria}%')"}.join(" OR ") if criteria.present?
-
     # DISTINCT ROWS
-    query = query.distinct
-
-    # CALCULATING FILTERED COUNT
-    filtered = query.count(params[:extra_only].present? ? params[:extra_only] : 
-      (params[:extra_kind] == 'claims' ? 'dataset_rows.id' : 'id'))
+    # EXPERIMENTAL: DISABLING FOR SPEED
+    # query = query.distinct
 
     # LIMITING QUERY
     query = limit_query(query)
 
     # RENDERING
-    query = query.pluck(params[:extra_only]).map{|f|
-      # should return objects not arrays
+    query = query.map{|row|
       o = {}
-      o[params[:extra_only]] = f
+      o[single_field] = row[single_field]
+      o['uclaims'] = row['uclaims']
+      o['uobjs'] = row['uobjs']
       o
-    } unless params[:extra_only].blank?
+    } if single_field.present?
 
     render json: {
       draw: params[:draw].to_i,
@@ -73,6 +66,16 @@ class DatasetRowsController < ApplicationController
       recordsFiltered: filtered,
       data: query
     }
+  end
+
+private
+
+  def query_count(query, single_field)
+    if single_field.present?
+      query.select(single_field).distinct.count
+    else
+      query.distinct.count
+    end
   end
 
 end

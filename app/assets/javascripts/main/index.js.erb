@@ -40,7 +40,7 @@ function set_table_title()
     if (ground_len == 0)
       text = "No ground truth datasets selected"
     else
-      text = "Unique ground truth for " + ground_len + " dataset(s)"
+      text = "Unique ground truth rows for " + ground_len + " dataset(s)"
   }
   else {
     // runsets
@@ -357,6 +357,7 @@ function setup_start_button()
         runtable.draw()
         add_runset(runset)
         activate_runset_tab(runset.id)
+
       }
     });
   });
@@ -798,19 +799,92 @@ function is_visible_column(field_name)
   return datatable_columns_visibility[field_name]
 }
 
-function setup_datatables() {
-  var datatable_excess = 235
-  var height = pageLayout.state.center.innerHeight - datatable_excess
+function setup_datatables()
+{
   var data_selector = $("#data-selector").tabs("option", "active")
   var showing_inputs = data_selector <= 1
   var showing_ground = data_selector == 1
   var runset = runsets[data_selector]
+  var height = pageLayout.state.center.innerHeight - 235
+  var dt
 
-  if (source_view) {
-    setup_source_id_datatable(showing_inputs, runset, height)
-    return
+  if (source_view)
+    dt = setup_source_id_datatable(showing_inputs, showing_ground, runset, height)
+  else
+    dt = setup_main_datatable(showing_inputs, showing_ground, runset, height)
+
+  dt.draw()
+  set_table_title()
+}
+
+function setup_source_id_datatable(showing_inputs, showing_ground, runset, height)
+{
+  var field_name = "source_id"
+  var field_display = field_name
+  var filter = typeof source_table != 'undefined' ? source_table.search() : ''
+
+  var obj = $("#"+field_name+"_datatable")
+
+  obj.empty().append($("<thead><tr></tr></thead>"))
+  var thead = $("thead tr", obj)
+  thead.append("<th>"+field_display+"</th>")
+  var cols = [{data: field_name}]
+
+  if (showing_inputs) {
+    thead.append(
+      "<th>Unique Claims</th>"+
+      "<th>Unique Objects</th>"
+    )
+    cols = cols.concat([{data: 'uclaims'}, {data: 'uobjs'}])
+  }
+  else {
+    append_runs_to_table(runset, thead, cols)    
   }
 
+  source_table = obj.DataTable({
+    "serverSide": true,
+    "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
+    "scrollY": height,
+    "scrollX": true,  // so that table header scrolls with content
+    "jQueryUI": true,
+    "search": {"search": filter},
+    "ajax": function (data, callback, settings) {
+      var url
+      if (showing_inputs) {
+        url = "/dataset_rows"
+        data.datasets = (showing_ground ? selected_ground_datasets : selected_claim_datasets).get()
+      }
+      else {
+        url = "/runsets/" + runset.id + "/results.json"
+        if (normalized_view)
+          data.extra_normalized = 1
+      }
+      data.extra_only = field_name
+      // data.extra_source_id_criteria = source_table.search()
+      // data.extra_criteria = datatable.search()
+      // if (typeof datatable != 'undefined') datatable.draw()
+      $.getJSON(url, data, function(response){
+        callback(response)
+      })
+    },
+    "columns": cols,
+    dom: '<"tabletitle"><"clear">fJtSi',
+    "destroy": true,  // destroy first if reinitializing
+    "scroller": {
+      loadingIndicator: false
+    },
+    "language": {
+      "info": "Showing _START_ to _END_ of _TOTAL_ unique sources",
+      "infoEmpty": "No sources",
+      "infoFiltered": "(filtered from _MAX_ total unique sources)"
+    }
+  });
+
+  return source_table;
+}  
+
+function setup_main_datatable(showing_inputs, showing_ground, runset, height)
+{
   // maintain search filter, order and column visibility across destroy/create
   var filter = '', order = [[0, 'asc']]
   if (typeof datatable != 'undefined') {
@@ -844,6 +918,7 @@ function setup_datatables() {
     finished_runs = append_runs_to_table(runset, thead, datatable_columns)
   }
 
+  var row_name = (showing_ground ? "ground truth rows" : "claims")
   datatable = obj.DataTable({
     "serverSide": true,
     "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
@@ -865,8 +940,7 @@ function setup_datatables() {
       var url
       if (showing_inputs) {
         url = "/dataset_rows"
-        data.extra_kind = runset
-        data.datasets = selected_claim_datasets.append(selected_ground_datasets).get()
+        data.datasets = (showing_ground ? selected_ground_datasets : selected_claim_datasets).get()
       }
       else {
         url = "/runsets/" + runset.id + "/results.json"
@@ -951,11 +1025,15 @@ function setup_datatables() {
     "destroy": true,  // destroy first if reinitializing
     "scroller": {
       loadingIndicator: false
+    },
+    "language": {
+      "info": "Showing _START_ to _END_ of _TOTAL_ unique " + row_name,
+      "infoEmpty": "No " + row_name,
+      "infoFiltered": "(filtered from _MAX_ total unique " + row_name + ")"
     }
   });
 
-  set_table_title()
-  datatable.draw()
+  return datatable;
 }
 
 function explain_claim(claim_id, run_id)
@@ -1028,61 +1106,6 @@ function allegate_claim(claim_id, run_id)
     $("#tabs").tabs("option", "active", 3)
   }
 }
-
-function setup_source_id_datatable(showing_inputs, runset, height)
-{
-  var field_name = "source_id"
-  var field_display = field_name
-  var filter = typeof source_table != 'undefined' ? source_table.search() : ''
-
-  var obj = $("#"+field_name+"_datatable")
-
-  obj.empty().append($("<thead><tr></tr></thead>"))
-  var thead = $("thead tr", obj)
-  thead.append("<th>"+field_display+"</th>")
-  var cols = [{data: field_name}]
-
-  if (!showing_inputs)
-    append_runs_to_table(runset, thead, cols)
-
-  source_table = obj.DataTable({
-    "serverSide": true,
-    "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
-    "scrollY": height,
-    "scrollX": true,  // so that table header scrolls with content
-    "jQueryUI": true,
-    "search": {"search": filter},
-    "ajax": function (data, callback, settings) {
-      var url
-      if (showing_inputs) {
-        url = "/dataset_rows"
-        data.extra_kind = runset
-        data.datasets = selected_claim_datasets.append(selected_ground_datasets).get()
-      }
-      else {
-        url = "/runsets/" + runset.id + "/results.json"
-        if (normalized_view)
-          data.extra_normalized = 1
-      }
-      data.extra_only = field_name
-      // data.extra_source_id_criteria = source_table.search()
-      // data.extra_criteria = datatable.search()
-      // if (typeof datatable != 'undefined') datatable.draw()
-      $.getJSON(url, data, function(response){
-        callback(response)
-      })
-    },
-    "columns": cols,
-    dom: '<"tabletitle"><"clear">fJtSi',
-    "destroy": true,  // destroy first if reinitializing
-    "scroller": {
-      loadingIndicator: false
-    }
-  });
-
-  set_table_title()
-  source_table.draw()
-}  
 
 function append_runs_to_table(runset, thead, cols)
 {
