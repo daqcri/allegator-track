@@ -1110,13 +1110,20 @@ function allegate_claim(claim_id, run_id)
 function append_runs_to_table(runset, thead, cols, include_combiner)
 {
   var finished_runs = $.grep(runset.runs, function(run){return run.status == 'finished'})
-  $.each(finished_runs, function(i, run){
+  var sorted_runs = finished_runs.sort(function(r1, r2){
+    var r1c = r1["combiner?"], r2c = r2["combiner?"]
+    if (r1c == r2c)
+      return r1.id - r2.id
+    else
+      return r1c ? -1 : 1
+  })
+  $.each(sorted_runs, function(i, run){
     if (!run["combiner?"] || include_combiner) {
       thead.append("<th>["+run.id + "] " + run.algorithm+"</th>")
       push_column_data(cols, {name: 'r' + run.id, wrap: true})
     }
   })
-  return finished_runs
+  return sorted_runs
 }
 
 function push_column_data(cols, field)
