@@ -265,7 +265,6 @@ function delete_runset(span_rm,span_id){
         else if(i>1)
           return value.id != span_id
       })
-      runtable.draw()
       var panelId = $( span_rm).closest( "li" ).remove()
       $( "#" + panelId ).remove()
       $('#data_selector').tabs( "refresh" )
@@ -318,6 +317,7 @@ function setup_pusher()
 
 function update_run_row(table, run)
 {
+  if (typeof table == 'undefined') return
   var row = table.row($("#run-" + run.id).parent().parent())
   if (row.length == 1) {
     row.data(run)
@@ -354,10 +354,8 @@ function setup_start_button()
       url : "/runsets",
       data: data,
       success: function(runset){
-        runtable.draw()
         add_runset(runset)
         activate_runset_tab(runset.id)
-
       }
     });
   });
@@ -838,7 +836,7 @@ function setup_source_id_datatable(showing_inputs, showing_ground, runset, heigh
     cols = cols.concat([{data: 'uclaims'}, {data: 'uobjs'}])
   }
   else {
-    append_runs_to_table(runset, thead, cols)    
+    append_runs_to_table(runset, thead, cols, false)
   }
 
   source_table = obj.DataTable({
@@ -915,7 +913,7 @@ function setup_main_datatable(showing_inputs, showing_ground, runset, height)
 
   var finished_runs = []
   if (!showing_inputs) {
-    finished_runs = append_runs_to_table(runset, thead, datatable_columns)
+    finished_runs = append_runs_to_table(runset, thead, datatable_columns, true)
   }
 
   var row_name = (showing_ground ? "ground truth rows" : "claims")
@@ -1107,12 +1105,14 @@ function allegate_claim(claim_id, run_id)
   }
 }
 
-function append_runs_to_table(runset, thead, cols)
+function append_runs_to_table(runset, thead, cols, include_combiner)
 {
   var finished_runs = $.grep(runset.runs, function(run){return run.status == 'finished'})
   $.each(finished_runs, function(i, run){
-    thead.append("<th>["+run.id + "] " + run.algorithm+"</th>")
-    push_column_data(cols, {name: 'r' + run.id, wrap: true})
+    if (!run["combiner?"] || include_combiner) {
+      thead.append("<th>["+run.id + "] " + run.algorithm+"</th>")
+      push_column_data(cols, {name: 'r' + run.id, wrap: true})
+    }
   })
   return finished_runs
 }
