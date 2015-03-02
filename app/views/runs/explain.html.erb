@@ -1,0 +1,51 @@
+<h3>
+Explanation tree for run <%= @run %>
+</h3>
+
+<span class='spinner'>Calculating...</span>
+<div class='explanation-text-box'>
+  <p id="explanation-text"></p>
+  <p id="explanation-text-none">
+    There is no conflicting value for this data item    
+  </p>
+</div>
+<p class='tree_viz'></p>
+
+<script>
+  $(document).ready(function(){
+    document.title = "Run <%=@run.id%> & Claim <%= @claim %> Explanation | AllegatorTrack"
+    // load tree
+    var xml_url = '<%= explain_run_path @run, format: "xml" %>'
+    var json_url = '<%= explain_run_path @run, claim_id: @claim, format: "json" %>'
+    new TreeVisualizer(xml_url, json_url, '.tree_viz', function(response){
+      if (response.error)
+        $('.spinner').text("Couldn't load decision tree [error: "+response.error+"]")
+      else {
+        $('.spinner').hide()
+        // render textual explanation
+        var p = $("#explanation-text")
+        var pnone = $("#explanation-text-none")
+
+        var text = response.text
+        if (text.length == 0) {
+          p.html("Couldn't find explanation")
+          pnone.hide()
+        }
+        else if (text.length == 1) {
+          p.html(text[0])
+          pnone.show()
+        }
+        else {
+          pnone.hide()
+          var html = "<ul>"
+          $.each(text, function(i, line){
+            if (i > 0) html += "<li><strong>Top Explanation "+i+":</strong> "+line+"</li>"
+          })
+          html += "</ul>"
+          p.html(text[0] + html)
+        }
+
+      }
+    })
+  })
+</script>

@@ -1,0 +1,17 @@
+<h3>
+Sankey diagram for run <%= @run %>
+</h3>
+
+<span class='spinner'>Calculating...</span>
+<p class='sankey'></p>
+
+<script>
+  $(document).ready(function(){
+    document.title = "Run <%=@run.id%> Sankey | AllegatorTrack"
+    // load chart
+    $.getJSON('<%= sankey_run_path @run, format: "json" %>', function(response){
+      $('.spinner').hide()
+      createSankeyChart(response, '.sankey')
+    })
+  })
+</script>

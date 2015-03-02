@@ -19,5 +19,15 @@
  *= require jstree-themes/default/style.min
  *= require dataTables.colvis.jqueryui
  *= require dataTables.colVis.min
+ *= require main/index
+ *= require runs/sankey
+ *= require runs/explain
  *= require_self
  */
+
+span.spinner {
+  width: 40px;
+  background-image: url(<%= image_path 'indicator.gif' %>);
+  background-repeat: no-repeat;
+  background-position: left center;
+}

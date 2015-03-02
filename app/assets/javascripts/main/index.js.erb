@@ -202,8 +202,10 @@ function setup_data_selector()
       // construct menu items
       var items = []
       $.each(runset.runs, function(id, run){
-        if (!run["combiner?"])
-          items.push("<li class='menuvisualize' run_id='"+run.id+"'><a href='#'>"+run.display+"</a></li>")
+        if (!run["combiner?"]) {
+          var url = '/runs/' + run.id + '/sankey'
+          items.push("<li class='menuvisualize' run_id='"+run.id+"'><a target='_blank' href='"+url+"'>"+run.display+"</a></li>")
+        }
       })
       var menu = $("#runs_menu").empty()
       try {menu.menu("destroy")} catch(e){}
@@ -211,17 +213,6 @@ function setup_data_selector()
       // attach menu listeners
       $("li.menuvisualize", menu).unbind().click(function(){
         menu.hide()
-        var run_id = $(this).attr("run_id")
-        var dialog_id = "visualize-run-"+run_id
-        var dialog = $("#"+dialog_id)
-        if (dialog.length != 1)
-          dialog = $("<div id='"+dialog_id+"'>").appendTo($("body"))
-        
-        dialog.visualizer_dialog({
-          run_id: run_id,
-          title: "[Runset "+runset.id+"] " + $("option:selected", this).text()
-        })
-        return false
       })
       // show menu
       menu.show().position({
@@ -970,9 +961,10 @@ function setup_main_datatable(showing_inputs, showing_ground, runset, height)
               var menu = $("#cellmenu")
               if (menu.length == 0) {
                 // create menu
+                var explain_url = '/runs/' + run.id + '/explain?claim_id=' + data.claim_id
                 menu = $("<ul id='cellmenu'>"+
                   "<li class='menuexplain'>"+
-                    "<a href='#'>Explain...</a> "+
+                    "<a target='_blank' href='"+explain_url+"'>Explain...</a> "+
                     "</li>"+
                   "<li class='menuallegate'>"+
                     "<a href='#'>Allegate...</a>"+
@@ -982,7 +974,7 @@ function setup_main_datatable(showing_inputs, showing_ground, runset, height)
               // attach menu listeners
               $("li.menuexplain a", menu).unbind().click(function(){
                 explain_claim(data.claim_id, run.id)
-                menu.hide(); return false;
+                menu.hide();
               })
               $("li.menuallegate a", menu).unbind().click(function(){
                 allegate_claim(data.claim_id, run.id)
@@ -1040,47 +1032,6 @@ function explain_claim(claim_id, run_id)
 {
   // activate explain tab if not active
   $("#tabs").tabs("option", "active", 2)
-  // render textual explanation
-  var p = $("#explanation-text")
-  var pnone = p.next()
-  p.html("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").addClass("spinner")
-  $.getJSON('/runs/'+run_id+'/explain',{
-    claim_id: claim_id
-  }, function(response){
-    p.removeClass("spinner")
-    var text = response.text, metrics = response.metrics
-
-    // render tree viz
-    var dialog_id = "tree-visualize-run-"+run_id
-    var dialog = $("#"+dialog_id)
-    if (dialog.length != 1)
-      dialog = $("<div id='"+dialog_id+"'>").appendTo($("body"))
-    
-    dialog.tree_visualizer_dialog({
-      run_id: run_id,
-      claim_id: claim_id,
-      metrics: metrics,
-      title: "Explaining run " + run_id + " and claim " + claim_id
-    })
-
-    if (text.length == 0) {
-      p.html("Couldn't find explanation")
-      pnone.hide()
-    }
-    else if (text.length == 1) {
-      p.html(text[0])
-      pnone.show()
-    }
-    else {
-      pnone.hide()
-      var html = "<ul>"
-      $.each(text, function(i, line){
-        if (i > 0) html += "<li><strong>Top Explanation "+i+":</strong> "+line+"</li>"
-      })
-      html += "</ul>"
-      p.html(text[0] + html)
-    }
-  })
 }
 
 function allegate_claim(claim_id, run_id)

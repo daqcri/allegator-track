@@ -29,6 +29,5 @@
 //= require dataTables.colVis.min
 //= require d3.min
 //= require sankey
-//= require jquery.tree_visualizer_dialog
-//= require jquery.visualizer_dialog
+//= require tree_visualizer
 //= require google_analytics

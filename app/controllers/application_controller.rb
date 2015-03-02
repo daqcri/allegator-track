@@ -3,6 +3,8 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
+  layout :layout_by_resource
+
   def limit_query(query)
     query = query.offset(params[:start].to_i)
     query = query.limit(compute_query_length)
@@ -16,6 +18,16 @@ class ApplicationController < ActionController::Base
 
   def after_sign_in_path_for(resource)
     main_url
+  end
+
+protected
+
+  def layout_by_resource
+    if devise_controller?
+      "devise"
+    else
+      "application"
+    end
   end
 
 private
@@ -36,4 +48,5 @@ private
       sign_in user
     end
   end
+
 end

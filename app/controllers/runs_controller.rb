@@ -36,46 +36,16 @@ class RunsController < ApplicationController
     render json: allegator
   end
 
-  def visualize
-      render json: @run.sankey
-
-    # render json: {nodes:[
-    #   {name: "Best Bargain Books"},
-    #   {name: "textbookxdotcom"},
-    #   {name: "OPOE-ABE Books"},
-    #   {name: "Player Quest"},
-    #   {name: "Bobs Books"},
-    #   {name: "Mellon's Books"},
-    #   {name: "Blackwell Online"},
-    #   {name: "1"},
-    #   {name: "2"},
-    #   {name: "3"},
-    #   {name: "4"},
-    #   {name: "True"},
-    #   {name: "False"}
-    #   ],
-    #   links:[
-    #   { source:0, target:7, value:2},
-    #   { source:7, target:11, value:3},
-    #   { source:1, target:10, value:6}, 
-    #   { source:10, target:12, value:5},
-    #   { source:1, target:9, value:5},
-    #   { source:2, target:9, value:3},
-    #   { source:9, target:11, value:1},
-    #   { source:2, target:10, value:8},
-    #   { source:3, target:8, value:4},
-    #   { source:8, target:11, value:6},
-    #   { source:4, target:8, value:15},
-    #   { source:8, target:12, value:4},
-    #   { source:5, target:7, value:10},
-    #   { source:9, target:12, value:4},
-    #   { source:6, target:8, value:4},
-    #   { source:8, target:12, value:6},
-    #   { source:6, target:10, value:9},
-    #   { source:10, target:11, value:1},
-    #   { source:6, target:7, value:9},
-    #   { source:7, target:11, value:1}
-    # ]}
+  def sankey
+    respond_to do |format|
+      format.json {
+        render json: @run.sankey
+        #render json: Run.example_sankey
+      }
+      format.html {
+        # template
+      }
+    end
   end
 
   def destroy
@@ -84,10 +54,32 @@ class RunsController < ApplicationController
   end
 
   def explain
-    if params[:claim_id].blank?
-      render body: @run.explain_tree, content_type: "application/xml; charset=utf-8"
-    else
-      render json: (@run.explain(params[:claim_id]) rescue {})
+    respond_to do |format|
+      format.json {
+        if params[:claim_id].blank?
+          render json: {error: 'Missing claim_id'}, status: :bad_request
+        else
+          begin
+            json = @run.explain(params[:claim_id])
+            logger.debug ">>> explanation: #{json}"
+          rescue
+            json = {error: 'Error generating textual explanation'}
+          end
+          render json: json
+        end
+      }
+      format.xml {
+        render body: @run.explain_tree, content_type: "application/xml; charset=utf-8"
+      }
+      format.html {
+        # html template
+        if params[:claim_id].blank?
+          render text: 'Missing claim_id', status: :bad_request
+          return
+        else
+          @claim = params[:claim_id]
+        end
+      }
     end
   end
 end

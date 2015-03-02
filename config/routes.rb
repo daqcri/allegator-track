@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   resources :dataset_rows
   resources :runs do
     member do
-      get 'visualize'
+      get 'sankey'
       get 'explain'
     end
   end
