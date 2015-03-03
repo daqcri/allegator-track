@@ -205,7 +205,8 @@ function setup_data_selector()
       $.each(runset.runs, function(id, run){
         if (!run["combiner?"]) {
           var url = '/runs/' + run.id + '/sankey'
-          items.push("<li class='menuvisualize' run_id='"+run.id+"'><a target='_blank' href='"+url+"'>"+run.display+"</a></li>")
+          var target = 'sankey_r' + run.id
+          items.push("<li class='menuvisualize' run_id='"+run.id+"'><a target='"+target+"' href='"+url+"'>"+run.display+"</a></li>")
         }
       })
       var menu = $("#runs_menu").empty()
@@ -980,7 +981,7 @@ function setup_main_datatable(showing_inputs, showing_ground, runset, height)
               // attach menu listeners
               $("li.menuexplain a", menu).unbind().click(function(){
                 var anchor = $(this)
-                var target = 'r' + run.id + 'c' + data.claim_id
+                var target = 'explain_r' + run.id + 'c' + data.claim_id
                 var explain_url = '/runs/' + run.id + '/explain?claim_id=' + data.claim_id
                 anchor.attr("target", target)
                 anchor.attr("href", explain_url)
