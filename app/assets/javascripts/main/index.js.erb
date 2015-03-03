@@ -961,10 +961,9 @@ function setup_main_datatable(showing_inputs, showing_ground, runset, height)
               var menu = $("#cellmenu")
               if (menu.length == 0) {
                 // create menu
-                var explain_url = '/runs/' + run.id + '/explain?claim_id=' + data.claim_id
                 menu = $("<ul id='cellmenu'>"+
                   "<li class='menuexplain'>"+
-                    "<a target='_blank' href='"+explain_url+"'>Explain...</a> "+
+                    "<a href='#'>Explain...</a> "+
                     "</li>"+
                   "<li class='menuallegate'>"+
                     "<a href='#'>Allegate...</a>"+
@@ -973,7 +972,12 @@ function setup_main_datatable(showing_inputs, showing_ground, runset, height)
               }
               // attach menu listeners
               $("li.menuexplain a", menu).unbind().click(function(){
-                explain_claim(data.claim_id, run.id)
+                var anchor = $(this)
+                var target = 'r' + run.id + 'c' + data.claim_id
+                var explain_url = '/runs/' + run.id + '/explain?claim_id=' + data.claim_id
+                anchor.attr("target", target)
+                anchor.attr("href", explain_url)
+                explain_claim(data.claim_id, run.id, target, explain_url)
                 menu.hide();
               })
               $("li.menuallegate a", menu).unbind().click(function(){
@@ -1028,10 +1032,14 @@ function setup_main_datatable(showing_inputs, showing_ground, runset, height)
   return datatable;
 }
 
-function explain_claim(claim_id, run_id)
+function explain_claim(claim_id, run_id, target, url)
 {
   // activate explain tab if not active
   $("#tabs").tabs("option", "active", 2)
+  $("#explanation-log").append(
+    "<li><a target='"+target+"' href='"+url+"'>Explanation for run "+run_id+" and claim "+claim_id+"</a></li>"
+  )
+  .next().hide()
 }
 
 function allegate_claim(claim_id, run_id)
