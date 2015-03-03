@@ -110,6 +110,7 @@ function setup_data_selector()
 {
   // initialize tabs
   var tabs = $("#data-selector").tabs({
+    heightStyle: 'auto',  // set content div height to tallest div
     activate: function(event, ui) {
       var active = tabs.tabs( "option", "active" )
      
@@ -773,6 +774,9 @@ function destroy_datatables()
       datatable = undefined // to prevent calling save_columns_visibility again on destroyed table which yields all visible columns
     }
   }
+  // manually remove filter boxes and colviz, because they have been detached previously from datatables
+  $(".dataTables_filter").remove()
+  $(".ColVis").remove()
 }
 
 function save_columns_visibility()
@@ -796,7 +800,7 @@ function setup_datatables()
   var showing_inputs = data_selector <= 1
   var showing_ground = data_selector == 1
   var runset = runsets[data_selector]
-  var height = pageLayout.state.center.innerHeight - 235
+  var height = pageLayout.state.center.innerHeight - 190
   var dt
 
   if (source_view)
@@ -812,7 +816,11 @@ function setup_source_id_datatable(showing_inputs, showing_ground, runset, heigh
 {
   var field_name = "source_id"
   var field_display = field_name
-  var filter = typeof source_table != 'undefined' ? source_table.search() : ''
+  var filter = '', order = [[0, 'asc']]
+  if (typeof source_table != 'undefined') {
+    filter = source_table.search()
+    order = source_table.order()
+  }
 
   var obj = $("#"+field_name+"_datatable")
 
@@ -839,6 +847,7 @@ function setup_source_id_datatable(showing_inputs, showing_ground, runset, heigh
     "scrollX": true,  // so that table header scrolls with content
     "jQueryUI": true,
     "search": {"search": filter},
+    "order": order,
     "ajax": function (data, callback, settings) {
       var url
       if (showing_inputs) {
@@ -851,15 +860,12 @@ function setup_source_id_datatable(showing_inputs, showing_ground, runset, heigh
           data.extra_normalized = 1
       }
       data.extra_only = field_name
-      // data.extra_source_id_criteria = source_table.search()
-      // data.extra_criteria = datatable.search()
-      // if (typeof datatable != 'undefined') datatable.draw()
       $.getJSON(url, data, function(response){
         callback(response)
       })
     },
     "columns": cols,
-    dom: '<"tabletitle"><"clear">fJtSi',
+    dom: '<"clear">CfJtS<"tabletitle">i',
     "destroy": true,  // destroy first if reinitializing
     "scroller": {
       loadingIndicator: false
@@ -870,6 +876,8 @@ function setup_source_id_datatable(showing_inputs, showing_ground, runset, heigh
       "infoFiltered": "(filtered from _MAX_ total unique sources)"
     }
   });
+
+  relocateTableControls(showing_inputs, "source_id_datatable")
 
   return source_table;
 }  
@@ -916,10 +924,9 @@ function setup_main_datatable(showing_inputs, showing_ground, runset, height)
     "scrollY": height,
     "scrollX": true,  // so that table header scrolls with content
     jQueryUI: true,
-    "dom": '<"tabletitle"><"toolbar">fJtSiC',
+    "dom": '<"toolbar">CfJtS<"tabletitle">i',
     "colVis": {
       "exclude": [],
-      "activate": "mouseover",
       "fnStateChange": function ( iColumn, bVisible ) {
         if (bVisible)
           datatable.draw()
@@ -1029,7 +1036,17 @@ function setup_main_datatable(showing_inputs, showing_ground, runset, height)
     }
   });
 
+  relocateTableControls(showing_inputs, "datatable")
+
   return datatable;
+}
+
+function relocateTableControls(showing_inputs, selector_prefix)
+{
+  var container = showing_inputs ? $("#show_input .filter_container") : $("#tab-common .filter_container")
+  container.empty()
+    .append($("#"+selector_prefix+"_wrapper .ColVis").detach())
+    .append($("#"+selector_prefix+"_filter").detach())
 }
 
 function explain_claim(claim_id, run_id, target, url)
