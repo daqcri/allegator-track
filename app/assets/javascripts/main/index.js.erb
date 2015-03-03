@@ -135,7 +135,7 @@ function setup_data_selector()
 
   // source view
   $("#source_view")
-    .button({icons: {primary: 'ui-icon-closethick'}})
+    .button({icons: {primary: 'ui-icon-radio-off'}})
     .change(function(){
       destroy_datatables()
       var check_box = $(this)
@@ -148,7 +148,7 @@ function setup_data_selector()
         setup_datatables()
       }
       else {
-        check_box.button("option", "icons", {primary: 'ui-icon-closethick'})
+        check_box.button("option", "icons", {primary: 'ui-icon-radio-off'})
         check_box.next().removeClass("vivid_checkbox_label")
         $("#source_id_datatable").parent().hide()
         $("#datatable").parent().show()
@@ -160,7 +160,7 @@ function setup_data_selector()
 
   // normalized view
   $("#normalized_view")
-    .button({icons: {primary: 'ui-icon-closethick'}})
+    .button({icons: {primary: 'ui-icon-radio-off'}})
     .change(function(){
       var check_box = $(this)
       if (check_box.is(':checked')) {
@@ -169,7 +169,7 @@ function setup_data_selector()
         normalized_view = true
       }
       else {
-        check_box.button("option", "icons", {primary: 'ui-icon-closethick'})
+        check_box.button("option", "icons", {primary: 'ui-icon-radio-off'})
         check_box.next().removeClass("vivid_checkbox_label")
         normalized_view = false
       }
@@ -1233,10 +1233,10 @@ function setup_west_pane()
 
   // create button checkbox
   $(".algorithm_checkbox")
-    .button({icons: {primary: 'ui-icon-closethick'}})
+    .button({icons: {primary: 'ui-icon-radio-off'}})
     .change(function(){
       // Warn if mixing single_valued and multi_valued algorithms
-      $(this).button("option", "icons", {primary: $(this).is(':checked') ? 'ui-icon-check' : 'ui-icon-closethick'})
+      $(this).button("option", "icons", {primary: $(this).is(':checked') ? 'ui-icon-check' : 'ui-icon-radio-off'})
 
       if (check_algorithm_checkbox())
         $(".algo-mix-warn").show()
