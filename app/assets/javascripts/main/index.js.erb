@@ -2,7 +2,7 @@ var pageLayout
 var datatable, source_table, runtable, claims_dt, ground_dt;
 var runtable_tools
 var config_data = {}
-var runsets = ["claims", "ground"]
+var runsets = [{id: 0, runs: []}] // placeholder for input tab
 var s3_direct_post = {}
 var datatable_columns_visibility = {}
 var datatable_columns = []
@@ -25,22 +25,14 @@ function set_table_title()
   var data_selector = $("#data-selector").tabs("option", "active")
   var runset = runsets[data_selector]
   var text = ""
-  var claims_len = selected_claim_datasets.length
-  var ground_len = selected_ground_datasets.length
+  var len = selected_claim_datasets.length + selected_ground_datasets.length
 
   if (data_selector == 0) {
-    // claims
-    if (claims_len == 0)
+    // input
+    if (len == 0)
       text = "No datasets selected"
     else
-      text = "Unique " + (source_view ? "sources" : "claims") + " for " + claims_len + " dataset(s)"
-  }
-  else if (data_selector == 1) {
-    // ground
-    if (ground_len == 0)
-      text = "No ground truth datasets selected"
-    else
-      text = "Unique ground truth rows for " + ground_len + " dataset(s)"
+      text = "Unique " + (source_view ? "sources" : "rows") + " for " + len + " dataset(s)"
   }
   else {
     // runsets
@@ -76,7 +68,7 @@ function activate_runset_tab(runset_id)
 {
   // find corresponding tab
   $.each(runsets, function(id, runset){
-    if (id > 1 && runset.id == runset_id) {
+    if (runset.id == runset_id) {
       $("#data-selector").tabs("option", "active", id)
       refresh_runset()
       return
@@ -86,9 +78,9 @@ function activate_runset_tab(runset_id)
 
 function add_runset_in_tabs(tabs, runset)
 {
-  var label = "Runset " + runset.id
+  var label = "Results " + runset.id
   tabs.find( ".ui-tabs-nav" )
-    .append("<li> <a href='#tab-common'>"+label+"</a><span id='"+runset.id+"' class='ui-icon ui-icon-close' role='presentation'></span> </li>");
+    .append("<li> <a href='#tab-common'>"+label+"</a><span runset_id='"+runset.id+"' class='ui-icon ui-icon-close' role='presentation'></span> </li>");
   runsets.push(runset)
 }
 
@@ -114,19 +106,17 @@ function setup_data_selector()
     activate: function(event, ui) {
       var active = tabs.tabs( "option", "active" )
      
-      if (active > 1) {
+      if (runsets[active].id > 0) {
+        // runsets
         $("#source_view").parent().prependTo($('#tab-common')).show()
         $('#show_input').hide()
         $('#tab-common').show()
       }
       else {
-        $("#source_view").parent().prependTo($('#show_input'))
+        // input
+        $("#source_view").parent().prependTo($('#show_input')).show()
         $('#tab-common').hide()
         $('#show_input').show()
-        if (active == 0) // claims
-          $("#source_view").parent().show()
-        else
-          $("#source_view").removeAttr("checked").change().parent().hide()
       }
 
       // TODO: show runset info
@@ -240,8 +230,8 @@ function setup_data_selector()
   
   // close icon remove runset from server
   tabs.delegate( "span.ui-icon-close", "click", function() {
-    if (confirm("Are you sure you want to permanently delete this runset?")){
-      var span_id = $(this).attr("id")
+    var span_id = $(this).attr("runset_id")
+    if (confirm("Are you sure you want to permanently delete Results "+span_id+"?")){
        var span_rm = this
        delete_runset(span_rm, span_id)
     }
@@ -254,15 +244,10 @@ function delete_runset(span_rm,span_id){
     type: "DELETE",
     success: function(){
       // delete item from array
-      runsets = $.grep(runsets,function(value, i){
-        if(i<=1)
-          return value
-        else if(i>1)
-          return value.id != span_id
+      runsets = $.grep(runsets, function(value, i){
+        return value.id != span_id
       })
-      var panelId = $( span_rm).closest( "li" ).remove()
-      $( "#" + panelId ).remove()
-      $('#data_selector').tabs( "refresh" )
+      $(span_rm).closest("li").remove()
     }
   });
   var tabs = $("#data-selector").tabs()
@@ -389,15 +374,13 @@ function setup_runtable()
                 runtable.draw();
                 // iterate on all runsets and delete the run 
                 $.each(runsets, function(i, runset){
-                  if(i>1){
-                    runset.runs = $.grep(runset.runs, function(run, index){
-                      return run.id != run_id
-                    })
-                  }
+                  runset.runs = $.grep(runset.runs, function(run, index){
+                    return run.id != run_id
+                  })
                 })
                 // if the runset is empty, delete it
                 runsets = $.grep(runsets, function(runset, i){
-                  if (i>1 && runset.runs == 0){
+                  if (runset.id > 0 && runset.runs == 0){
                     delete_runset('span#'+runset.id, runset.id)
                     return false
                   }
@@ -592,11 +575,6 @@ function setup_dataset_table(dataset_kind){
       $.getJSON(url, data, function(response){
         s3_direct_post = response.s3_direct_post
         callback(response)
-        if (has_ground())
-          $('#ground_tab').show()
-        else
-          $('#ground_tab').hide()
-
         bind_dataset_delete($(".trash-icon", obj), dt)
         bind_dataset_select($(".dataset_selector", obj), dataset_kind)
       });
@@ -798,22 +776,21 @@ function is_visible_column(field_name)
 function setup_datatables()
 {
   var data_selector = $("#data-selector").tabs("option", "active")
-  var showing_inputs = data_selector <= 1
-  var showing_ground = data_selector == 1
+  var showing_inputs = data_selector == 0
   var runset = runsets[data_selector]
   var height = pageLayout.state.center.innerHeight - 190
   var dt
 
   if (source_view)
-    dt = setup_source_id_datatable(showing_inputs, showing_ground, runset, height)
+    dt = setup_source_id_datatable(showing_inputs, runset, height)
   else
-    dt = setup_main_datatable(showing_inputs, showing_ground, runset, height)
+    dt = setup_main_datatable(showing_inputs, runset, height)
 
   dt.draw()
   set_table_title()
 }
 
-function setup_source_id_datatable(showing_inputs, showing_ground, runset, height)
+function setup_source_id_datatable(showing_inputs, runset, height)
 {
   var field_name = "source_id"
   var field_display = field_name
@@ -832,7 +809,7 @@ function setup_source_id_datatable(showing_inputs, showing_ground, runset, heigh
 
   if (showing_inputs) {
     thead.append(
-      "<th>Unique Claims</th>"+
+      "<th>Unique Rows</th>"+
       "<th>Unique Objects</th>"
     )
     cols = cols.concat([{data: 'uclaims'}, {data: 'uobjs'}])
@@ -853,7 +830,7 @@ function setup_source_id_datatable(showing_inputs, showing_ground, runset, heigh
       var url
       if (showing_inputs) {
         url = "/dataset_rows"
-        data.datasets = (showing_ground ? selected_ground_datasets : selected_claim_datasets).get()
+        data.datasets = selected_claim_datasets.append(selected_ground_datasets).get()
       }
       else {
         url = "/runsets/" + runset.id + "/results.json"
@@ -883,7 +860,7 @@ function setup_source_id_datatable(showing_inputs, showing_ground, runset, heigh
   return source_table;
 }  
 
-function setup_main_datatable(showing_inputs, showing_ground, runset, height)
+function setup_main_datatable(showing_inputs, runset, height)
 {
   // maintain search filter, order and column visibility across destroy/create
   var filter = '', order = [[0, 'asc']]
@@ -898,19 +875,22 @@ function setup_main_datatable(showing_inputs, showing_ground, runset, height)
   var thead = $("thead tr", obj)
   datatable_columns = []
   var basic_fields = [
-    {name: "claim_id", wrap: true}, // wrap claim_id in span for icons
-    {name: "object_key", display: "object_id", ground: true},
-    {name: "property_key", display: "property_id", ground: true},
-    {name: "property_value", ground: true},
+    // wrap claim_id in span for icons
+    {name: "claim_id", wrap: true,
+      render: function(field_value, type, full, meta){
+        return full['ground?'] ? "" : field_value
+      }
+    },
+    {name: "object_key", display: "object_id"},
+    {name: "property_key", display: "property_id"},
+    {name: "property_value"},
     {name: "source_id"},
     {name: "timestamp", visible: false}
   ]
 
   $.each(basic_fields, function(id, field){
-    if (!showing_ground || field.ground) {
-      thead.append("<th>" + (field.display || field.name) + "</th>")
-      push_column_data(datatable_columns, field)
-    }
+    thead.append("<th>" + (field.display || field.name) + "</th>")
+    push_column_data(datatable_columns, field)
   })
 
   var finished_runs = []
@@ -918,7 +898,7 @@ function setup_main_datatable(showing_inputs, showing_ground, runset, height)
     finished_runs = append_runs_to_table(runset, thead, datatable_columns, true)
   }
 
-  var row_name = (showing_ground ? "ground truth rows" : "claims")
+  var row_name = "rows"
   datatable = obj.DataTable({
     "serverSide": true,
     "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
@@ -939,7 +919,7 @@ function setup_main_datatable(showing_inputs, showing_ground, runset, height)
       var url
       if (showing_inputs) {
         url = "/dataset_rows"
-        data.datasets = (showing_ground ? selected_ground_datasets : selected_claim_datasets).get()
+        data.datasets = selected_claim_datasets.append(selected_ground_datasets).get()
       }
       else {
         url = "/runsets/" + runset.id + "/results.json"
@@ -1109,11 +1089,17 @@ function push_column_data(cols, field)
   var field_visible = (typeof field.visible != 'undefined') ? field.visible : true
   var visible = (typeof saved_visibility != 'undefined') ? saved_visibility : field_visible
   var coldef = {data: field.name, visible: visible}
-  if (field.wrap)
-    coldef.render = function(field_value, type, full, meta) {
-      return '<span class="'+field.name+'_cell">'+field_value+'</span>'
-    }
 
+  coldef.render = field.render
+
+  if (field.wrap) {
+    coldef.render = function(field_value, type, full, meta) {
+      return '<span class="'+field.name+'_cell">'+
+      (field.render ? field.render(field_value, type, full, meta) : field_value)
+      +'</span>'
+    }
+  }
+  
   cols.push(coldef)
 }
 
@@ -1231,7 +1217,7 @@ function setup_west_pane()
   var html = ""
 
   html += "<div class='algo-mix-warn'>WARNING: mixing multi-valued algorithms with non-multi-valued algorithms " +
-          "may not display all claims in the runset table!</div>"
+          "may not display all claims in the results table!</div>"
 
   $.each(algorithms, function(index, algorithm){
     if(index!= 0) {
@@ -1269,8 +1255,6 @@ function setup_west_pane()
     heightStyle: "content",
   });
 
-  // ground tab initially hidden
-  $('#ground_tab').hide()
   $("#tab-1 .accordion").accordion({
     "activate": function(event, ui) {
       if (ui.newHeader.attr("id") == "upload_claims_header")

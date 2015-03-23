@@ -29,10 +29,14 @@ class DatasetRowsController < ApplicationController
       filtered = total
     end
 
-    # select more counts in single_field mode
+    # SELECT COLUMNS
     if single_field
+      # select more counts in single_field mode
       query = query.select("#{single_field}, count(distinct dataset_rows.id) uclaims, count(distinct dataset_rows.object_key) uobjs")
         .group(single_field)
+    else
+      # eager load datasets as we will need datasets.kind
+      query = query.includes :dataset
     end
 
     # SORTING

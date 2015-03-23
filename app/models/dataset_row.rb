@@ -72,7 +72,7 @@ class DatasetRow < ActiveRecord::Base
   def as_json(options={})
     options = {
       :only => [:object_key, :property_key, :property_value, :source_id, :timestamp, :parent_id],
-      :methods => [:claim_id]
+      :methods => [:claim_id, :ground?]
     }.merge(options)
     super(options)
   end
