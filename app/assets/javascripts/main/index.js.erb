@@ -1035,7 +1035,7 @@ function relocateTableControls(showing_inputs, selector_prefix)
 function explain_claim(claim_id, run_id, target, url)
 {
   // activate explain tab if not active
-  $("#tabs").tabs("option", "active", 2)
+  $("#tabs").tabs("option", "active", 1)
   $("#explanation-log").append(
     "<li><a target='"+target+"' href='"+url+"'>Explanation for run "+run_id+" and claim "+claim_id+"</a></li>"
   )
@@ -1062,7 +1062,7 @@ function allegate_claim(claim_id, run_id)
       }
     });
     // activate allegate tab if not active
-    $("#tabs").tabs("option", "active", 3)
+    $("#tabs").tabs("option", "active", 2)
   }
 }
 
@@ -1210,14 +1210,11 @@ function setup_fileupload()
       }, function(dataset){
         // clear checked datasets and check only the uploaded one
         clear_and_init_selected_datasets(dataset)
-        if (kind == 'ground') {
+        if (kind == 'ground')
           ground_dt.draw()
-          $("#data-selector").tabs("option", "active", 1)
-        }
-        else {
+        else
           claims_dt.draw()
-          $("#data-selector").tabs("option", "active", 0)
-        }
+        $("#data-selector").tabs("option", "active", 0)
         set_table_title()
       })
     },
