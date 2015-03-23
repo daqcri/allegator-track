@@ -22,8 +22,7 @@
     <!-- DIV for tabs -->
   <div class="ui-layout-content" id="tabs">
     <ul>
-      <li> <a href="#tab-1">Upload</a> </li>
-      <li id='run-tab'>  <a href="#tab-2">Configure and Run</a>  </li>
+      <li> <a href="#tab-1">Discover</a> </li>
       <li id='explain-tab'>  <a href="#tab-3">Explain</a> </li>
       <li id='allegate-tab'> <a href="#tab-4"> Allegate </a> </li>
     </ul>
@@ -101,19 +100,21 @@
             <tbody id="datasets_ground_tbody"></tbody>
           </table>
         </div>
-        <h3>Select one (or more) algorithm(s)</h3>
-        <div id="algo_pane">
-          <p></p>
+        <h3>Select and configure algorithm(s)</h3>
+        <div>
+          <div class='algo-mix-warn'>
+            WARNING: mixing multi-valued algorithms with non-multi-valued algorithms
+            may not display all claims in the results table!
+          </div>
+          <div id="algo_pane"></div>
         </div>
+      </div>
+      <div>
+        <button id="start_button">START!</button>
+        <div id="start_summary"></div>
       </div>
     </div>
 
-    <!-- This is tab 2 -->
-    <div id="tab-2">
-      <div id="tab_pane" class="accordion"></div>
-      <button id="start_button">START!</button>
-      <div id="selected_datasets_info"></div>
-    </div>
     <!-- This is tab 3 -->
     <div id="tab-3"> 
       Explanations that you have requested:

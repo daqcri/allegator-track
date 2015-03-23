@@ -1,10 +1,4 @@
 var algorithms = [
-  {name: "General Parameters", description: "Parameters needed for all Truth Discovery Algorithms", params: [
-    {name: 'Convergence test threshold', step: 0.001, value: 0.001, dataType: 'double', min: 0, max: 0.1, desc: 'The difference of source truthworthiness cosine similarity between two successive iterations should be less than the user-defined threshold.'},
-    {name: 'Initial sources truthworthiness', value: 0.8, dataType: 'double' , min: 0, max: 1.0, desc: 'Initialization of all sources truthworthiness.'},
-    {name: 'Initial Value Confidence', hidden: true, value: 1, dataType: 'double', min: 0, max: 1.0, desc: "Initialization of value confidence for all properties values."},
-    {name: 'Initial Error Factor', hidden: true, value: 0.4, dataType: 'double' , min: 0, max: 1.0, desc: "Initialization of error factor for all properties values."},
-  ]},
   {name: "Cosine", description: "Cosine is a heuristic approach for estimating a value confidence and source trustworthiness, based on the cosine similarity measure proposed by A. Galland, S. Abiteboul, A. Marian, and P. Senellart. Corroborating Information from Disagreeing Views. In WSDM, pp. 131–140, 2010.", params: [
     {name: 'Initial Value Confidence', value: 1, dataType: 'double', min: 0, max: 1.0, desc: "Initialization of value confidence for all properties values."},
     {name: 'Prediction constant', value: 0.2, dataType: 'double', min: 0, max: 1, desc: 'Constant that gives more weight to predictable views (e.g., sources with consistently often correct claims or consistently often wrong claims).'},
@@ -81,6 +75,12 @@ var algorithms = [
     {name: 'Burn-in', value: 100, dataType: 'int', min: 0, max: 1000, desc: 'Collapsed Gibbs Sampling burn-in period (i.e., the number of discarded first set of iterations). Must be significantly less than the number of iterations.'},
     {name: 'Thinning', value: 9, dataType: 'int', min: 0, max: 1000, desc: 'Collapsed Gibbs Sampling thinning parameter (i.e., the number of iterations to be skipped every time before considering the resul of a selected iteration). Must be significantly less than the number of iterations.'},
   ], multi: true},
+  {name: "General Parameters", general: true, description: "Parameters needed for all Truth Discovery Algorithms", params: [
+    {name: 'Convergence test threshold', step: 0.001, value: 0.001, dataType: 'double', min: 0, max: 0.1, desc: 'The difference of source truthworthiness cosine similarity between two successive iterations should be less than the user-defined threshold.'},
+    {name: 'Initial sources truthworthiness', value: 0.8, dataType: 'double' , min: 0, max: 1.0, desc: 'Initialization of all sources truthworthiness.'},
+    {name: 'Initial Value Confidence', hidden: true, value: 1, dataType: 'double', min: 0, max: 1.0, desc: "Initialization of value confidence for all properties values."},
+    {name: 'Initial Error Factor', hidden: true, value: 0.4, dataType: 'double' , min: 0, max: 1.0, desc: "Initialization of error factor for all properties values."},
+  ]},
   {name: "Combiner", description: "The combiner of selected truth discovery algorithms. To be able to run it, select more than 1 algorithm and upload ground truth. It is based on Bayes combination from P. Domingos and M. Pazzani. On the optimality of the simple Bayesian classifier under zero-one loss. Machine Learning, 29:103–130, 1997.", params: [
   ], combiner: true}
 ]

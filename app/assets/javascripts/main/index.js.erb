@@ -18,6 +18,7 @@ $(document).ready(function() {
   setup_start_button()
   setup_allegationtable()
   setup_pusher()
+  toggle_start_button()
 });
 
 function set_table_title()
@@ -45,17 +46,35 @@ function set_table_title()
   $(".tabletitle").text(text)
 }
 
-function toggle_configure_tab()
+function toggle_start_button()
 {
   // enable only if at least 1 claim dataset selected and 1 non-combiner algorithm selected
   var checked_algos = $(".algorithm_checkbox:checked[combiner!='combiner']")
 
-  if (checked_algos.length > 0 && selected_claim_datasets.length > 0){
-    $('#tabs').tabs("enable", 1)
+  var enable = true
+  var messages = []
+  if (checked_algos.length == 0) {
+    enable = false
+    messages.push("You should select at least 1 algorithm. ")
   }
-  else{
-    $('#tabs').tabs("option", "disabled", [1])
+  else
+    messages.push("<strong>" + checked_algos.length + " algorithm(s)</strong> selected. ")
+
+  if (selected_claim_datasets.length == 0) {
+    enable = false
+    messages.push("You should select at least 1 claims dataset. ")
   }
+  else
+    messages.push("<strong>" + selected_claim_datasets.length + " claim dataset(s)</strong> selected. ")
+
+  messages.push("<strong>" + selected_ground_datasets.length + " ground truth dataset(s)</strong> selected. ")
+
+  $("#start_button").button(enable ? "enable" : "disable")
+
+  // refresh new runset summary
+  $("#start_summary").html(
+    $.map(messages, function(msg){return "<div>"+msg+"</div>"})
+  )
 }
 
 function has_ground()
@@ -638,7 +657,7 @@ function bind_dataset_delete(selector, datasets_table)
         success: function(){
           selected_claim_datasets.remove(dataset_id)
           selected_ground_datasets.remove(dataset_id)
-          toggle_configure_tab()
+          toggle_start_button()
           set_table_title()
           datasets_table.draw()
           refresh_datatables()              
@@ -657,7 +676,7 @@ function bind_dataset_select(selector, kind) {
     else
       hash.remove(dataset_id)
 
-    toggle_configure_tab()
+    toggle_start_button()
     set_table_title()
     refresh_datatables()
   })
@@ -673,16 +692,7 @@ function clear_and_init_selected_datasets(dataset)
     selected_ground_datasets.clear()
     selected_claim_datasets.seed([dataset.id])
   }
-  refresh_selected_datasets_info()
-}
-
-function refresh_selected_datasets_info()
-{
-  // refresh the info div
-  var message = "Click to start selected algorithm(s) on <strong>"
-    + selected_claim_datasets.length + " dataset(s)</strong>"
-    + " and <strong>" + selected_ground_datasets.length + " ground truth dataset(s)</strong>"
-  $("#selected_datasets_info").html(message)
+  toggle_start_button()
 }
 
 function check_algorithm_checkbox()
@@ -701,20 +711,12 @@ function check_algorithm_checkbox()
       combiner_checkbox = check_box
 
     if (check_box.is(':checked')) {
-      check_box.next().addClass("vivid_checkbox_label")
-      $("h3.algorithm_"+algorithm_id).show()
       if (check_box.attr("multi") == "multi")
         found_multi++
       else if (!is_combiner)
         found_single++
     }
-    else {
-      check_box.next().removeClass("vivid_checkbox_label")
-      $(".algorithm_"+algorithm_id).hide()
-    }
   });
-
-  toggle_configure_tab()
 
   if (combiner_checkbox) {
     if (found_single + found_multi > 1 && has_ground()){
@@ -1141,121 +1143,19 @@ function setup_layout()
 
 function setup_west_pane()
 {
-
+  // create tabs
   $( "#tabs" ).tabs({
-    disabled: [1],
     activate: function(event, ui) {
       if (ui.newTab.attr("id") == 'allegate-tab')
         setup_allegationtable()
-      else if (ui.newTab.attr("id") == 'run-tab')
-        refresh_selected_datasets_info()
     }
   })
   
-  // create algorithm divs
-  var container= $("#tab_pane")
-  var html = ""
-  $.each(algorithms, function(index, algorithm) {
-    var params =""
-    var order = 0
-    config_data[algorithm.name] = []
-    $.each(algorithm.params, function(pindex, param){
-      if(param.hidden != true){
-        params += "<tr><td width='100%'><span class='param-name'>" + param.name
-        + "</span><span class='info-icon ui-icon ui-icon-info' title='"
-        + param.desc + "'></span> </td><td><input step='"+(param.step||'')+"' dataType= '"+param.dataType+"' class='spinner' min='"
-        + param.min+"' max='"+param.max+"' value='"+param.value
-        + "' algorithm_id='"+algorithm.name+"' order= '"+order+"' ></input></td></tr>" 
-      }
-      order ++
-      config_data[algorithm.name].push(param.value)
-    });
-    html += "<h3 class='algorithm_"+algorithm.name+"'>" + algorithm.name
-    if (algorithm.multi) html += "  (multi-valued property values)"
-    html += "</h3><div class='algorithm_"+algorithm.name+"'><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
-      + params + "</table></div>"
-  }); 
-  container.append(html)
-
-  // create spinners
-  
-  $(".spinner").spinner({
-    step: 0.000001
-  })
-  .on("spinchange", function(){
-    var value = $(this).spinner('value')
-    var algo_id = $(this).attr('algorithm_id')
-    var order_val = $(this).attr('order')
-    config_data[algo_id].splice(order_val,1,value)
-  })
-  .each(function(){
-    var step = $(this).attr('step')
-    var dataType = $(this).attr('dataType')
-
-    if (step != '')
-    {
-      //console.log("step defined: ", step, parseFloat(step), $(this).attr("algorithm_id"), $(this).attr('order'))
-      $(this).spinner('option', 'numberFormat', 'n')
-      $(this).spinner('option', 'step', parseFloat(step))
-    }
-    else if (dataType == 'double') {
-     // console.log("default step of 0.1")
-      $(this).spinner('option', 'numberFormat', 'n')
-      $(this).spinner('option', 'step', 0.1)
-    }
-    else {
-     // console.log("integer data type")
-      $(this).spinner('option', 'step', 1)
-    }
-    $(this).spinner('option', 'min', parseFloat($(this).attr("min")));
-    $(this).spinner('option', 'max', parseFloat($(this).attr("max")));
-
-  });
-
-  // create Algorithm section in tab-1 under 3rd header
-  var container = $("#algo_pane")
-  var html = ""
-
-  html += "<div class='algo-mix-warn'>WARNING: mixing multi-valued algorithms with non-multi-valued algorithms " +
-          "may not display all claims in the results table!</div>"
-
-  $.each(algorithms, function(index, algorithm){
-    if(index!= 0) {
-      html += "<input type='checkbox' id='algorithm_checkbox_" + 
-        algorithm.name+"' algorithm_id='" + algorithm.name +
-        "' class='algorithm_checkbox' "
-        if (algorithm.multi) html += "multi='multi' "
-        if (algorithm.combiner) html += "combiner='combiner' disabled='disabled' "
-        html += " /><label class='algorithm_checkbox_label' "
-        html += "title='" + algorithm.description+"' for='algorithm_checkbox_"+algorithm.name+"'>" +
-        algorithm.name
-      if (algorithm.multi) html += "  (multi-valued property values)"
-      html += "</label>"
-    }
-  });
-  container.append(html);
-
-  // create button checkbox
-  $(".algorithm_checkbox")
-    .button({icons: {primary: 'ui-icon-radio-off'}})
-    .change(function(){
-      // Warn if mixing single_valued and multi_valued algorithms
-      $(this).button("option", "icons", {primary: $(this).is(':checked') ? 'ui-icon-check' : 'ui-icon-radio-off'})
-
-      if (check_algorithm_checkbox())
-        $(".algo-mix-warn").show()
-      else
-        $(".algo-mix-warn").hide()
-    });
-    
-  // create the accordion
-  $( ".accordion" ).accordion({
-    collapsible: true,
-    active: 0,
-    heightStyle: "content",
-  });
-
+  // create the accordion in first tab
   $("#tab-1 .accordion").accordion({
+    collapsible: true,
+    active: false,
+    heightStyle: "content",
     "activate": function(event, ui) {
       if (ui.newHeader.attr("id") == "upload_claims_header")
         setup_claims_dataset_table()
@@ -1264,10 +1164,16 @@ function setup_west_pane()
       }
     }
   })
+
+  setup_fileupload()
   setup_claims_dataset_table();
   // we need initial setup to know if there are ground datasets
   setup_ground_dataset_table();
+  setup_algorithms()
+}
 
+function setup_fileupload()
+{
   // file upload
   var jqXHR= null;
   $('.fileupload').fileupload({
@@ -1326,6 +1232,118 @@ function setup_west_pane()
   $('.cancel').click(function (e) {
     jqXHR.abort();
   });
+}
+
+function setup_algorithms()
+{
+  // create algorithm checkboxes in tab-1 under 3rd header
+  var container = $("#algo_pane")
+
+  $.each(algorithms, function(index, algorithm){
+    container.append(generate_algorithm_checkbox(algorithm))
+    container.append(generate_algorithm_config(algorithm))
+  });
+
+  // create button checkbox
+  $(".algorithm_checkbox")
+    .button({icons: {primary: 'ui-icon-radio-off'}})
+    .change(function(){
+      // change style
+      $(this).button("option", "icons", {primary: $(this).is(':checked') ? 'ui-icon-check' : 'ui-icon-radio-off'})
+      // toggle checked class and algorithm config
+      $(this)
+        .next('label').toggleClass("vivid_checkbox_label")
+        .next('div').slideToggle("fast")
+      // warn if mixing single_valued and multi_valued algorithms
+      if (check_algorithm_checkbox())
+        $(".algo-mix-warn").show()
+      else
+        $(".algo-mix-warn").hide()
+      // toggle start button
+      toggle_start_button()
+    });
+
+  // create spinners
+  $(".spinner").spinner({
+    step: 0.000001
+  })
+  .on("spinchange", function(){
+    var value = $(this).spinner('value')
+    var algo_id = $(this).attr('algorithm_id')
+    var order_val = $(this).attr('order')
+    config_data[algo_id].splice(order_val,1,value)
+  })
+  .each(function(){
+    var step = $(this).attr('step')
+    var dataType = $(this).attr('dataType')
+
+    if (step != '')
+    {
+      //console.log("step defined: ", step, parseFloat(step), $(this).attr("algorithm_id"), $(this).attr('order'))
+      $(this).spinner('option', 'numberFormat', 'n')
+      $(this).spinner('option', 'step', parseFloat(step))
+    }
+    else if (dataType == 'double') {
+     // console.log("default step of 0.1")
+      $(this).spinner('option', 'numberFormat', 'n')
+      $(this).spinner('option', 'step', 0.1)
+    }
+    else {
+     // console.log("integer data type")
+      $(this).spinner('option', 'step', 1)
+    }
+    $(this).spinner('option', 'min', parseFloat($(this).attr("min")));
+    $(this).spinner('option', 'max', parseFloat($(this).attr("max")));
+
+  });
+
+}
+
+function generate_algorithm_checkbox(algorithm)
+{
+  var html = ""
+
+  if (!algorithm.general) {
+    html += "<input type='checkbox' id='algorithm_checkbox_" 
+    html += algorithm.name+"' algorithm_id='" + algorithm.name
+    html += "' class='algorithm_checkbox' "
+    if (algorithm.multi) html += "multi='multi' "
+    html += " /><label class='algorithm_checkbox_label' "
+    html += "title='" + algorithm.description+"' for='algorithm_checkbox_"
+    html += algorithm.name+"'>" + algorithm.name
+    if (algorithm.multi) html += "  (multi-valued property values)"
+    html += "</label>"
+  }
+  else {
+    html += "<div class='algorithm_general' title='" + algorithm.description
+    html += "'>"+algorithm.name+"</div>"
+  }
+
+  return html
+}
+
+function generate_algorithm_config(algorithm)
+{
+  var html = ""
+  var params =""
+  var order = 0
+  config_data[algorithm.name] = []
+  $.each(algorithm.params, function(pindex, param){
+    if (param.hidden != true){
+      params += "<tr><td width='100%'><span class='param-name' title='"
+      + param.desc +"'>" + param.name
+      + "</span> </td><td><input step='"+(param.step||'')+"' dataType= '"+param.dataType+"' class='spinner' min='"
+      + param.min+"' max='"+param.max+"' value='"+param.value
+      + "' algorithm_id='"+algorithm.name+"' order= '"+order+"' ></input></td></tr>" 
+    }
+    order++
+    config_data[algorithm.name].push(param.value)
+  });
+  var classes = "algorithm_config algorithm_" + algorithm.name
+  if (algorithm.general) classes += " algorithm_config_general"
+  html += "<div class='"+classes+"'><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
+    + params + "</table></div>"
+  return html
 }
 
 function setup_datasets_dialog(dataset_icon_selector){
