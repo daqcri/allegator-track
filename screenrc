@@ -1,0 +1,13 @@
+defscrollback 10000
+hardstatus alwayslastline
+hardstatus string "%{= KW} %H [%`] %{= Kw}|%{-} %-Lw%{= bW}%n%f %t%{-}%+Lw %=%C%a %Y-%M-%d"
+setenv PORT 4000
+screen -t "foreman" foreman start
+screen -t "psql" rails dbconsole
+screen -t "console" foreman run rails console 
+screen -t "logs" less log/development.log 
+setenv QUEUE default
+screen -t "worker" foreman run bundle exec rake jobs:work 
+screen -t "ghi" 
+screen -t "heroku"
+screen -t "bash" 
