@@ -372,43 +372,55 @@ private
     end
   end
 
+  def read_results_file(dir, name)
+    path = Pathname(dir).join(name)
+    File.read(path) if File.exists?(path)
+  end
+
   def import_results(output_dir)
     csv_opts = {:headers => true, :return_headers => false, :header_converters => :symbol}
 
     unless allegator?
       # parse source results
-      CSV.parse(File.read(Pathname(output_dir).join("Trustworthiness.csv")), csv_opts) do |row|
-        SourceResult.initialize_from_row(row, self)
+      if f = read_results_file(output_dir, "Trustworthiness.csv")
+        CSV.parse(f, csv_opts) do |row|
+          SourceResult.initialize_from_row(row, self)
+        end
+        # commit to database
+        self.updated_at = Time.now
+        self.save!
+        normalize!(source_results, "trustworthiness")
       end
-      # commit to database
-      self.updated_at = Time.now
-      self.save!
-      normalize!(source_results, "trustworthiness")
 
       # parse claim results
-      CSV.parse(File.read(Pathname(output_dir).join("Confidences.csv")), csv_opts) do |row|
-        ClaimResult.initialize_from_row(row, self)
+      if f = read_results_file(output_dir, "Confidences.csv")
+        CSV.parse(f, csv_opts) do |row|
+          ClaimResult.initialize_from_row(row, self)
+        end
+        # commit to database
+        self.updated_at = Time.now
+        self.save!
+        normalize!(claim_results, "confidence")
       end
-      # commit to database
-      self.updated_at = Time.now
-      self.save!
-      normalize!(claim_results, "confidence")
 
       # parse claim metrics
-      CSV.parse(File.read(Pathname(output_dir).join("Metrics.csv")), csv_opts) do |row|
-        ClaimMetric.initialize_from_row(row, self)
+      if f = read_results_file(output_dir, "Metrics.csv")
+        CSV.parse(f, csv_opts) do |row|
+          ClaimMetric.initialize_from_row(row, self)
+        end
+        # commit to database
+        self.updated_at = Time.now
+        self.save!
       end
-      # commit to database
-      self.updated_at = Time.now
-      self.save!
 
       # parse decision tree
       # store XML in serialized json object
-      parse_decision_tree File.read(Pathname(output_dir).join("DecisionTree.xml"))
-      # commit to database
-      self.updated_at = Time.now
-      self.save!
-
+      if f = read_results_file(output_dir, "DecisionTree.xml")
+        parse_decision_tree f
+        # commit to database
+        self.updated_at = Time.now
+        self.save!
+      end
     else
       allegations_file = Pathname(output_dir).join("AllegationClaims.csv").to_s
       if File.exists?(allegations_file)

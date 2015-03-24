@@ -31,10 +31,19 @@ class RunsetsController < ApplicationController
 
     runset = Runset.create user: current_user, dataset_ids: datasets
     params[:checked_algo].each do |algo_name, algo_params|
-      run = Run.create(runset_id: runset.id, algorithm: algo_name,
+      run = Run.new(runset_id: runset.id, algorithm: algo_name,
         general_config: params[:general_config].join(" "),
         config: algo_params.try(:join, " "))
-      run.delay.start unless run.combiner?
+      unless run.combiner?  # running combiners explicitly not allowed
+        run.save
+        run.delay.start
+      end
+    end
+    # force run combiners if 2+ algorithms selected and 1+ ground dataset selected
+    if runset.runs.length >= 2 && (Dataset.where(kind: 'ground').where(id: datasets).count) >= 1
+      Run::COMBINER_ALGORITHMES.each do |combiner|
+        Run.create(runset_id: runset.id, algorithm: combiner)
+      end
     end
 
     render json: runset

@@ -15,6 +15,7 @@ class DatasetRowsController < ApplicationController
     # basic query
     query = DatasetRow.joins(:dataset)
       .where("dataset_rows.dataset_id" => datasets)
+    query = query.where("datasets.kind = ?", 'claims') if single_field
 
     # CALCULATING TOTAL COUNT
     total = query_count(query, single_field)
@@ -42,9 +43,12 @@ class DatasetRowsController < ApplicationController
     # SORTING
     if params[:order]
       sort = params[:order]["0"]
-      sort_col = params[:columns][sort["column"]]["data"]
-      sort_col = 'dataset_rows.id' if sort_col == 'claim_id'  # TODO hack until we rename dataset_rows table to claims
       sort_dir = sort["dir"]
+      sort_col = params[:columns][sort["column"]]["data"]
+      if sort_col == 'claim_id'
+        sort_col = 'dataset_rows.id'   # TODO hack until we rename dataset_rows table to claims
+        query = query.order("datasets.kind desc") # so that ground comes first
+      end
       query = query.order("#{sort_col} #{sort_dir}")
     end
 

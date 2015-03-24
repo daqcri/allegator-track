@@ -49,7 +49,7 @@ function set_table_title()
 function toggle_start_button()
 {
   // enable only if at least 1 claim dataset selected and 1 non-combiner algorithm selected
-  var checked_algos = $(".algorithm_checkbox:checked[combiner!='combiner']")
+  var checked_algos = $(".algorithm_checkbox:checked")
 
   var enable = true
   var messages = []
@@ -69,18 +69,17 @@ function toggle_start_button()
 
   messages.push("<strong>" + selected_ground_datasets.length + " ground truth dataset(s)</strong> selected. ")
 
+  if (checked_algos.length > 1 && selected_ground_datasets.length > 0)
+    $(".combiner").removeClass("combiner_off")
+  else
+    $(".combiner").addClass("combiner_off")
+
   $("#start_button").button(enable ? "enable" : "disable")
 
   // refresh new runset summary
   $("#start_summary").html(
     $.map(messages, function(msg){return "<div>"+msg+"</div>"})
   )
-}
-
-function has_ground()
-{
-  var value = $('#ground_datasets_table').dataTable().fnGetData().length
-  return value > 0
 }
 
 function activate_runset_tab(runset_id)
@@ -701,31 +700,18 @@ function check_algorithm_checkbox()
 
   var algorithm_id
   var found_single = 0, found_multi = 0
-  var is_combiner, combiner_checkbox = null
 
   $(".algorithm_checkbox").each(function(index, check_box) {
     check_box = $(check_box)
     algorithm_id = check_box.attr("algorithm_id")
-    is_combiner = check_box.attr("combiner") == "combiner"
-    if (is_combiner)
-      combiner_checkbox = check_box
 
     if (check_box.is(':checked')) {
       if (check_box.attr("multi") == "multi")
         found_multi++
-      else if (!is_combiner)
+      else
         found_single++
     }
   });
-
-  if (combiner_checkbox) {
-    if (found_single + found_multi > 1 && has_ground()){
-      // enable combiner algorithm
-      combiner_checkbox.button("enable")
-    }
-    else
-      combiner_checkbox.button("disable")
-  }
 
   return found_single > 0 && found_multi > 0
  }
@@ -811,7 +797,7 @@ function setup_source_id_datatable(showing_inputs, runset, height)
 
   if (showing_inputs) {
     thead.append(
-      "<th>Unique Rows</th>"+
+      "<th>Unique Claims</th>"+
       "<th>Unique Objects</th>"
     )
     cols = cols.concat([{data: 'uclaims'}, {data: 'uobjs'}])
@@ -1166,9 +1152,6 @@ function setup_west_pane()
   })
 
   setup_fileupload()
-  setup_claims_dataset_table();
-  // we need initial setup to know if there are ground datasets
-  setup_ground_dataset_table();
   setup_algorithms()
 }
 
@@ -1300,7 +1283,13 @@ function generate_algorithm_checkbox(algorithm)
 {
   var html = ""
 
-  if (!algorithm.general) {
+  if (algorithm.general || algorithm.combiner) {
+    var classes = 'algorithm_general'
+    if (algorithm.combiner) classes += ' combiner combiner_off'
+    html += "<div class='"+classes+"' title='" + algorithm.description
+    html += "'>"+algorithm.name+"</div>"
+  }
+  else {
     html += "<input type='checkbox' id='algorithm_checkbox_" 
     html += algorithm.name+"' algorithm_id='" + algorithm.name
     html += "' class='algorithm_checkbox' "
@@ -1311,10 +1300,6 @@ function generate_algorithm_checkbox(algorithm)
     if (algorithm.multi) html += "  (multi-valued property values)"
     html += "</label>"
   }
-  else {
-    html += "<div class='algorithm_general' title='" + algorithm.description
-    html += "'>"+algorithm.name+"</div>"
-  }
 
   return html
 }
@@ -1322,7 +1307,7 @@ function generate_algorithm_checkbox(algorithm)
 function generate_algorithm_config(algorithm)
 {
   var html = ""
-  var params =""
+  var params = ""
   var order = 0
   config_data[algorithm.name] = []
   $.each(algorithm.params, function(pindex, param){
@@ -1336,10 +1321,13 @@ function generate_algorithm_config(algorithm)
     order++
     config_data[algorithm.name].push(param.value)
   });
-  var classes = "algorithm_config algorithm_" + algorithm.name
-  if (algorithm.general) classes += " algorithm_config_general"
-  html += "<div class='"+classes+"'><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
-    + params + "</table></div>"
+
+  if (params != "") {
+    var classes = "algorithm_config algorithm_" + algorithm.name
+    if (algorithm.general) classes += " algorithm_config_general"
+    html += "<div class='"+classes+"'><table cellpadding=0 cellspacing=0 width='100%' border=0 style ='border-collapse:collapse;'>"
+      + params + "</table></div>"
+  }
   return html
 }
 

@@ -81,6 +81,6 @@ var algorithms = [
     {name: 'Initial Value Confidence', hidden: true, value: 1, dataType: 'double', min: 0, max: 1.0, desc: "Initialization of value confidence for all properties values."},
     {name: 'Initial Error Factor', hidden: true, value: 0.4, dataType: 'double' , min: 0, max: 1.0, desc: "Initialization of error factor for all properties values."},
   ]},
-  {name: "Combiner", description: "The combiner of selected truth discovery algorithms. To be able to run it, select more than 1 algorithm and upload ground truth. It is based on Bayes combination from P. Domingos and M. Pazzani. On the optimality of the simple Bayesian classifier under zero-one loss. Machine Learning, 29:103–130, 1997.", params: [
+  {name: "Combiner", description: "The combiner of selected truth discovery algorithms. It is automatically selected if you select more than 1 algorithm and 1 ground truth dataset. It is based on Bayes combination from P. Domingos and M. Pazzani. On the optimality of the simple Bayesian classifier under zero-one loss. Machine Learning, 29:103–130, 1997.", params: [
   ], combiner: true}
 ]
