@@ -887,6 +887,10 @@ function setup_main_datatable(showing_inputs, runset, height)
   }
 
   var row_name = "rows"
+
+  // create menu
+  var menu = setup_datatable_menu(obj)
+
   datatable = obj.DataTable({
     "serverSide": true,
     "deferLoading": 0,  // don't load first page automatically because main datatable is not ready yet
@@ -927,59 +931,17 @@ function setup_main_datatable(showing_inputs, runset, height)
           var bool = data["r"+run.id+"_bool"]
           var td = $("span.r"+run.id+"_cell", row).parent()
           td.addClass("claim_is_"+bool)
-            .append("<button class='cellmenubutton'/>")
-          $("button", td)
-            .button({
-              text: false,
-              icons: {primary: "ui-icon-triangle-1-s"}
-            })
-            .click(function() {
-              var menu = $("#cellmenu")
-              if (menu.length == 0) {
-                // create menu
-                menu = $("<ul id='cellmenu'>"+
-                  "<li class='menuexplain'>"+
-                    "<a href='#'>Explain...</a> "+
-                    "</li>"+
-                  "<li class='menuallegate'>"+
-                    "<a href='#'>Allegate...</a>"+
-                    "</li>"+
-                  "</ul>").appendTo($(row).parent()).hide().menu()
-              }
-              // attach menu listeners
-              $("li.menuexplain a", menu).unbind().click(function(){
-                var anchor = $(this)
-                var target = 'explain_r' + run.id + 'c' + data.claim_id
-                var explain_url = '/runs/' + run.id + '/explain?claim_id=' + data.claim_id
-                anchor.attr("target", target)
-                anchor.attr("href", explain_url)
-                explain_claim(data.claim_id, run.id, target, explain_url)
-                menu.hide();
-              })
-              $("li.menuallegate a", menu).unbind().click(function(){
-                allegate_claim(data.claim_id, run.id)
-                menu.hide(); return false;
-              })
-              if (bool == 't' && !run["combiner?"])
-                $(".menuallegate", menu).show()
-              else
-                $(".menuallegate", menu).hide()
-
-              menu.show().position({
-                my: "right top",
-                at: "right bottom",
-                of: this // arrow button
-              });
-              $( document ).one( "click", function() {
-                menu.hide();
-              });
-
-              return false;
-            })  // click arrow button
 
           if (run["combiner?"]) {
             // replace text
             td.empty().text(bool == 't' ? 'True' : 'False')
+          }
+          else {
+            td.addClass("td_clickable")
+              .click(function(e){
+                clicked_datatable_row(td, menu, data, run, e)
+                return false  // swallow event, otherwise the document.one event will trigger and hide menu
+              })
           }
         })
         // highlight row if it is a previously allegated claim
@@ -1008,6 +970,50 @@ function setup_main_datatable(showing_inputs, runset, height)
   relocateTableControls(showing_inputs, "datatable")
 
   return datatable;
+}
+
+function setup_datatable_menu(datatable)
+{
+  return $("<ul id='cellmenu'>"+
+    "<li class='menuexplain'>"+
+      "<a href='#'>Explain...</a> "+
+      "</li>"+
+    "<li class='menuallegate'>"+
+      "<a href='#'>Allegate...</a>"+
+      "</li>"+
+    "</ul>").appendTo(datatable).hide().menu()
+}
+
+function clicked_datatable_row(td, menu, data, run, e)
+{
+  // show menu
+  // attach menu listeners
+  $("li.menuexplain a", menu).unbind().click(function(){
+    var anchor = $(this)
+    var target = 'explain_r' + run.id + 'c' + data.claim_id
+    var explain_url = '/runs/' + run.id + '/explain?claim_id=' + data.claim_id
+    anchor.attr("target", target)
+    anchor.attr("href", explain_url)
+    explain_claim(data.claim_id, run.id, target, explain_url)
+    menu.hide();
+  })
+  $("li.menuallegate a", menu).unbind().click(function(){
+    allegate_claim(data.claim_id, run.id)
+    menu.hide(); return false;
+  })
+  if (td.hasClass("claim_is_t"))
+    $(".menuallegate", menu).show()
+  else
+    $(".menuallegate", menu).hide()
+
+  menu.show().position({
+    my: "left top",
+    of: e
+  });
+
+  $(document).one("click", function() {
+    menu.hide();
+  });
 }
 
 function relocateTableControls(showing_inputs, selector_prefix)
