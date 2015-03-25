@@ -8,7 +8,7 @@ var datatable_columns_visibility = {}
 var datatable_columns = []
 var selected_claim_datasets = new HashWithLength()
 var selected_ground_datasets = new HashWithLength()
-var source_view, normalized_view
+var source_view, normalized_view, detail_view
 
 $(document).ready(function() {
   setup_layout()
@@ -154,7 +154,6 @@ function setup_data_selector()
         $("#datatable").parent().hide()
         $("#source_id_datatable").parent().show()
         source_view = true
-        setup_datatables()
       }
       else {
         check_box.button("option", "icons", {primary: 'ui-icon-radio-off'})
@@ -162,8 +161,8 @@ function setup_data_selector()
         $("#source_id_datatable").parent().hide()
         $("#datatable").parent().show()
         source_view = false
-        setup_datatables()
       }
+      setup_datatables()
     })
     .change()
 
@@ -186,6 +185,26 @@ function setup_data_selector()
         source_table.draw()
       else
         datatable.draw()
+    })
+    .change()
+
+  // detailed view
+  $("#detail_view")
+    .button({icons: {primary: 'ui-icon-radio-off'}})
+    .change(function(){
+      destroy_datatables()
+      var check_box = $(this)
+      if (check_box.is(':checked')) {
+        check_box.button("option", "icons", {primary: 'ui-icon-check'})
+        check_box.next().addClass("vivid_checkbox_label")
+        detail_view = true
+      }
+      else {
+        check_box.button("option", "icons", {primary: 'ui-icon-radio-off'})
+        check_box.next().removeClass("vivid_checkbox_label")
+        detail_view = false
+      }
+      setup_datatables()
     })
     .change()
 
@@ -1060,7 +1079,27 @@ function allegate_claim(claim_id, run_id)
 
 function append_runs_to_table(runset, thead, cols, include_combiner)
 {
-  var finished_runs = $.grep(runset.runs, function(run){return run.status == 'finished'})
+  // select only finished runs
+  var finished_runs = $.grep(runset.runs, function(run){
+    return run.status == 'finished'
+  })
+
+  // select non detail view runs
+  if (!detail_view && include_combiner) {
+    // count combiners for the non detail view
+    var found_combiner = $.grep(finished_runs, function(run){
+      return run['combiner?']
+    }).length > 0
+
+    if (found_combiner) {
+      // select only combiners
+      finished_runs = $.grep(finished_runs, function(run){
+        return run['combiner?']
+      })      
+    }
+  }
+
+  // sort runs
   var sorted_runs = finished_runs.sort(function(r1, r2){
     var r1c = r1["combiner?"], r2c = r2["combiner?"]
     if (r1c == r2c)
@@ -1068,10 +1107,20 @@ function append_runs_to_table(runset, thead, cols, include_combiner)
     else
       return r1c ? -1 : 1
   })
+
+  // append runs to table
   $.each(sorted_runs, function(i, run){
     if (!run["combiner?"] || include_combiner) {
       thead.append("<th>["+run.id + "] " + run.algorithm+"</th>")
-      push_column_data(cols, {name: 'r' + run.id, wrap: true})
+      var field = {name: 'r' + run.id, wrap: true}
+      if (!detail_view && !run["combiner?"]) {
+        field.render = function(field_value, type, full, meta) {
+          // for non detail view, change field_value to either True or False
+          var bool = full["r"+run.id+"_bool"]
+          return bool == 't' ? 'True' : (bool == 'f' ? 'False' : field_value)
+        }
+      }
+      push_column_data(cols, field)
     }
   })
   return sorted_runs
