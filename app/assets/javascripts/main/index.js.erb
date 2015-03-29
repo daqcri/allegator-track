@@ -142,6 +142,26 @@ function setup_data_selector()
     }
   })
 
+  // detailed view
+  $("#detail_view")
+    .button({icons: {primary: 'ui-icon-radio-off'}})
+    .change(function(){
+      destroy_datatables()
+      var check_box = $(this)
+      if (check_box.is(':checked')) {
+        check_box.button("option", "icons", {primary: 'ui-icon-check'})
+        check_box.next().addClass("vivid_checkbox_label")
+        detail_view = true
+      }
+      else {
+        check_box.button("option", "icons", {primary: 'ui-icon-radio-off'})
+        check_box.next().removeClass("vivid_checkbox_label")
+        detail_view = false
+      }
+      setup_datatables()
+    })
+    .change()
+
   // source view
   $("#source_view")
     .button({icons: {primary: 'ui-icon-radio-off'}})
@@ -153,6 +173,7 @@ function setup_data_selector()
         check_box.next().addClass("vivid_checkbox_label")
         $("#datatable").parent().hide()
         $("#source_id_datatable").parent().show()
+        $("#detail_view").button("disable")
         source_view = true
       }
       else {
@@ -160,6 +181,7 @@ function setup_data_selector()
         check_box.next().removeClass("vivid_checkbox_label")
         $("#source_id_datatable").parent().hide()
         $("#datatable").parent().show()
+        $("#detail_view").button("enable")
         source_view = false
       }
       setup_datatables()
@@ -185,26 +207,6 @@ function setup_data_selector()
         source_table.draw()
       else
         datatable.draw()
-    })
-    .change()
-
-  // detailed view
-  $("#detail_view")
-    .button({icons: {primary: 'ui-icon-radio-off'}})
-    .change(function(){
-      destroy_datatables()
-      var check_box = $(this)
-      if (check_box.is(':checked')) {
-        check_box.button("option", "icons", {primary: 'ui-icon-check'})
-        check_box.next().addClass("vivid_checkbox_label")
-        detail_view = true
-      }
-      else {
-        check_box.button("option", "icons", {primary: 'ui-icon-radio-off'})
-        check_box.next().removeClass("vivid_checkbox_label")
-        detail_view = false
-      }
-      setup_datatables()
     })
     .change()
 
