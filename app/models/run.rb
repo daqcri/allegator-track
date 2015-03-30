@@ -259,9 +259,10 @@ class Run < ActiveRecord::Base
     end
 
     source_keys = sources.keys
-    nodes = (source_keys + ["True", "False"] + 1.upto(max_conflicts).to_a.map(&:to_s)).map do |node|
-      {name: node}
-    end
+    nodes = source_keys.map{|node| {name: node}}
+    nodes << {name: "True", bool: true}
+    nodes << {name: "False", bool: false}
+    (1.upto(max_conflicts).to_a.map(&:to_s)).each{|node| nodes << {name: node, conflict: true}}
 
     logger.debug source_keys_order = 0.upto(source_keys.length - 1).to_a
     logger.debug source_keys_hash = Hash[source_keys.zip(source_keys_order)]
@@ -302,12 +303,12 @@ class Run < ActiveRecord::Base
       {name: "Bobs Books"},
       {name: "Mellon's Books"},
       {name: "Blackwell Online"},
-      {name: "1"},
-      {name: "2"},
-      {name: "3"},
-      {name: "4"},
-      {name: "True"},
-      {name: "False"}
+      {name: "1", conflict: true},
+      {name: "2", conflict: true},
+      {name: "3", conflict: true},
+      {name: "4", conflict: true},
+      {name: "True", bool: true},
+      {name: "False", bool: false}
       ],
       links:[
       { source:0, target:7, value:2},

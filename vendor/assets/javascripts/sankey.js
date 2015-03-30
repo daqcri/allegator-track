@@ -28,7 +28,7 @@ function createSankeyChart( energy , chart_selector ) {
   var link = svg.append("g").selectAll(".link")
       .data(energy.links)
     .enter().append("path")
-      .attr("class", function(d) { return (d.causesCycle ? "cycleLink" : "link") })
+      .attr("class", function(d) { return "link" })
       .attr("d", path)
       .style("stroke-width", function(d) { return Math.max(1, d.dy); })
       .sort(function(a, b) { return b.dy - a.dy; });
@@ -49,7 +49,9 @@ function createSankeyChart( energy , chart_selector ) {
   node.append("rect")
       .attr("height", function(d) { return d.dy; })
       .attr("width", sankey.nodeWidth())
-      .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+      .style("fill", function(d) {
+        return d.color = d.bool == true ? 'green' : (d.bool == false ? 'red' : (color(d.name.replace(/ .*/, ""))));
+      })
       .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
     .append("title")
       .text(function(d) { return d.name + "\n" + format(d.value); });
@@ -60,10 +62,18 @@ function createSankeyChart( energy , chart_selector ) {
       .attr("dy", ".35em")
       .attr("text-anchor", "end")
       .attr("transform", null)
-      .text(function(d) { return d.dy > 0 ? d.name : ""; })
+      .html(function(d) { return d.dy > 0 ? (d.bool == true ? "&#10004" : (d.bool == false ? "&#215" : d.name)) : ""; })
     .filter(function(d) { return d.x < width / 2; })
       .attr("x", 6 + sankey.nodeWidth())
-      .attr("text-anchor", "start");
+      .attr("text-anchor", "start")
+    .filter(function(d) { return d.conflict; })
+      .attr("x", sankey.nodeWidth() / 2)
+      .attr("text-anchor", "middle");
+
+  // node color ready, transfer to links
+  link.style("stroke", function(d) {
+    return d.target.bool == true ? 'green' : (d.target.bool == false ? 'red' : d.source.color)
+  })
 
   function dragmove(d) {
     d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
