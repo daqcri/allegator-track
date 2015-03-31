@@ -1,33 +1,59 @@
-<h3 class="sankey-title">
-Sankey diagram for run <%= @run %>
-</h3>
+<div class="ui-layout-center">
+  <h3 class="sankey-title">
+  Sankey diagram for run <%= @run %>
+  </h3>
 
-<div class='sankey-zoomer'>
-  <div class='in'>+</div>
-  <div class='out'>-</div>
+  <div class='sankey-zoomer'>
+    <div class='in'>+</div>
+    <div class='out'>-</div>
+  </div>
+  <div class="ui-layout-content">
+    <span class='spinner'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <!-- <div style="clear: both;"></div> -->
+    <div class='sankey'></div>
+  </div>
 </div>
-<span class='spinner'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-<div style="clear: both;"></div>
-<div class='sankey'></div>
-
 <script>
+  var energy
+  var selector = '.sankey'
+  var s = $(selector)
+  var zoomInFactor = 1.1, zoomOutFactor = 1/1.1
+
+  function draw(zoom) {
+    if (zoom == 'in')
+      s.height(s.height() * zoomInFactor)
+    else if (zoom == 'out')
+      s.height(s.height() * zoomOutFactor)
+    else
+      s.height($(document).height() - $('.sankey').offset().top - $('.sankey-title').offset().top)
+    s.empty()
+    createSankeyChart(energy, selector)
+  }
+
   $(document).ready(function(){
     document.title = "Run <%=@run.id%> Sankey | AllegatorTrack"
-    var selector = '.sankey'
-    var s = $(selector)
-    var energy
-    var zoomInFactor = 1.1, zoomOutFactor = 1/1.1
+
+    pageLayout = $('body').layout({
+      applyDefaultStyles: true,
+      center__onresize: function() {
+        draw("")
+      }
+    });
+
     // load chart
     $.getJSON('<%= sankey_run_path @run, format: "json" %>', function(response){
       $('.spinner').hide()
       energy = response
-      s.height($(document).height() - $('.sankey').offset().top - $('.sankey-title').offset().top)
-      createSankeyChart(energy, selector)
+      draw("")
     })
+
     // zooming
-    $(".sankey-zoomer>div").click(function(){
-      s.height(s.height() * ($(this).hasClass("in") ? zoomInFactor : zoomOutFactor)).empty()
-      createSankeyChart(energy, selector)
-    })
+    $(".sankey-zoomer>div")
+      .attr('unselectable', 'on')
+      .css('user-select', 'none')
+      .on('selectstart', false)
+      .click(function(){
+        draw($(this).hasClass("in") ? "in" : "out")
+      })
   })
 </script>
