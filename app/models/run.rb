@@ -241,46 +241,37 @@ class Run < ActiveRecord::Base
       WHERE res.run_id = #{self.id}
       GROUP BY object_key || property_key"
 
-    sources, links1, links2, max_conflicts = {}, {}, {}, 0
+    sources, links_true, links_false, max_conflicts = {}, {}, {}, 0
 
     # TODO: escape ; in sources or use psql arrays
     conn.select_all(sql).each do |row|
       conflicts = row["conflicts"].to_i
       max_conflicts = [max_conflicts, conflicts].max
-      row["sources"].split(";").each do |source_id|
+      booleans = row["booleans"].split(";")
+      row["sources"].split(";").each.with_index do |source_id, index|
         sources[source_id] = 1
         link_id = "#{conflicts}_#{source_id}"
-        links1[link_id] = (links1[link_id] || 0) + 1
-      end
-      row["booleans"].split(";").each do |bool|
-        link_id = "#{conflicts}_#{bool}"
-        links2[link_id] = (links2[link_id] || 0) + 1
+        if booleans[index] == 't'
+          links_true[link_id] = (links_true[link_id] || 0) + 1
+        else
+          links_false[link_id] = (links_false[link_id] || 0) + 1
+        end
       end
     end
 
     source_keys = sources.keys
     nodes = source_keys.map{|node| {name: node}}
-    nodes << {name: "True", bool: true}
-    nodes << {name: "False", bool: false}
-    (1.upto(max_conflicts).to_a.map(&:to_s)).each{|node| nodes << {name: node, conflict: true}}
+    1.upto(max_conflicts).each{|node| nodes << {name: "#{node-1}", conflict: true, bool: false}}
+    1.upto(max_conflicts).each{|node| nodes << {name: "#{node-1}", conflict: true, bool: true}}
 
     logger.debug source_keys_order = 0.upto(source_keys.length - 1).to_a
     logger.debug source_keys_hash = Hash[source_keys.zip(source_keys_order)]
-    logger.debug true_node_id = source_keys.length
-    logger.debug false_node_id = true_node_id + 1
-    logger.debug conflict_nodes_base_id = false_node_id
+    logger.debug false_nodes_base_id = source_keys.length - 1
+    logger.debug true_nodes_base_id = false_nodes_base_id + max_conflicts
 
     links = []
-    create_sankey_link(links1) do |conflicts, node, val|
-      node = source_keys_hash[node]
-      conflicts = conflict_nodes_base_id + conflicts
-      links << {source: node, target: conflicts, value: val}
-    end
-    create_sankey_link(links2) do |conflicts, node, val|
-      node = node == "t" ? true_node_id : false_node_id
-      conflicts = conflict_nodes_base_id + conflicts
-      links << {source: conflicts, target: node, value: val}
-    end
+    create_sankey_link(source_keys_hash, links_true, true_nodes_base_id){|link| links << link}
+    create_sankey_link(source_keys_hash, links_false, false_nodes_base_id){|link| links << link}
 
     {nodes: nodes, links: links}
   end
@@ -364,12 +355,14 @@ private
     conn.execute("DELETE FROM claim_metrics WHERE run_id = #{self.id}")    
   end
 
-  def create_sankey_link(links)
+  def create_sankey_link(source_keys_hash, links, bool_nodes_base_id)
     links.each do |link_id, val|
       arr = link_id.split("_")
       conflicts = arr.shift.to_i
       node = arr.join("_")
-      yield conflicts, node, val
+      source_node = source_keys_hash[node]
+      bool_node = bool_nodes_base_id + conflicts
+      yield ({source: source_node, target: bool_node, value: val})
     end
   end
 

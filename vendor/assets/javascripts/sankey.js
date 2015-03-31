@@ -1,10 +1,15 @@
 function createSankeyChart( energy , chart_selector ) {
-  var margin = {top: 1, right: 1, bottom: 6, left: 1},
+  var margin = {top: 6, right: 20, bottom: 6, left: 250},
       width = $(chart_selector).width() - margin.left - margin.right,
       height = $(chart_selector).height() - margin.top - margin.bottom;
 
   var formatNumber = d3.format(",.0f"),
-      format = function(d) { return formatNumber(d) + " tuples"; },
+      format = function(d, prefix) {
+        return formatNumber(d)
+          + (prefix != undefined ? " " + prefix : "")
+          + " claim"
+          + (d > 1 ? "s" : "");
+      },
       color = d3.scale.category20();
 
   var svg = d3.select(chart_selector).append("svg")
@@ -25,16 +30,40 @@ function createSankeyChart( energy , chart_selector ) {
       .links(energy.links)
       .layout(32);
 
+  var lastId = 0
+  var generateId = function()
+  {
+    return ++lastId
+  }
+
   var link = svg.append("g").selectAll(".link")
       .data(energy.links)
-    .enter().append("path")
+    .enter()
+    .append("path")
       .attr("class", function(d) { return "link" })
       .attr("d", path)
       .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+      .on('mouseover', function(d){
+        d3.selectAll("path")
+          .classed("hiddenlink", true)
+        d3.select(this)
+          .classed("hiddenlink", false)
+          .classed("hovered", true)
+      })
+      .on('mouseout', function(d){
+        d3.selectAll("path")
+          .classed("hiddenlink hovered", false)
+      })
       .sort(function(a, b) { return b.dy - a.dy; });
 
   link.append("title")
-      .text(function(d) { return d.source.name + " -> " + d.target.name + "\n" + format(d.value); });
+      .text(function(d) {
+        var num = d.target.name == "0" ? 'non-conflicting' : d.target.name + ' conflicting'
+        return "Source '" + d.source.name + "'"
+          + "\nprovides " + format(d.value, d.target.bool)
+          + "\nwithin " + num + " data item"
+          + (d.target.name == "1" ? "" : "s")
+      });
 
   var node = svg.append("g").selectAll(".node")
       .data(energy.nodes)
@@ -46,34 +75,65 @@ function createSankeyChart( energy , chart_selector ) {
       .on("dragstart", function() { this.parentNode.appendChild(this); })
       .on("drag", dragmove));
 
-  node.append("rect")
+  node
+    .append("rect")
       .attr("height", function(d) { return d.dy; })
       .attr("width", sankey.nodeWidth())
       .style("fill", function(d) {
-        return d.color = d.bool == true ? 'green' : (d.bool == false ? 'red' : (color(d.name.replace(/ .*/, ""))));
+        d.id = generateId()
+        return d.color = 
+          (d.bool == true ? 'green'
+          : (d.bool == false ? 'red' : color(d.name.replace(/ .*/, ""))));
       })
       .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+      .on('mouseover', function(d){
+        var attrib = d.conflict ? "targetId" : "sourceId"
+        d3.selectAll("path")
+          .classed("hiddenlink", true)
+          .filter("path["+attrib+"='"+d.id+"']")
+            .classed("hiddenlink", false)
+            .classed("hovered", true)
+      })
+      .on('mouseout', function(d){
+        var attrib = d.conflict ? "targetId" : "sourceId"
+        d3.selectAll("path")
+          .classed("hiddenlink", false)
+          .filter("path["+attrib+"='"+d.id+"']")
+            .classed("hovered", false)
+      })
     .append("title")
-      .text(function(d) { return d.name + "\n" + format(d.value); });
+      .text(function(d) {
+        if (d.conflict) {
+          var num = d.name == "0" ? 'non-conflicting' : d.name + ' conflicting'
+          return format(d.value, d.bool)
+            + "\nwithin " + num + " data item"
+            + (d.name == "1" ? "" : "s")
+        }
+        else
+          return "Source '" + d.name + "'" + "\nprovides " + format(d.value);
+      })
 
   node.append("text")
-      .attr("x", -6)
+      .attr("x", function(d){
+        return d.conflict ? 6 + sankey.nodeWidth() : -6
+      })
+      .attr("text-anchor", function(d){
+        return d.conflict ? "start" : "end"
+      })
       .attr("y", function(d) { return d.dy / 2; })
       .attr("dy", ".35em")
-      .attr("text-anchor", "end")
       .attr("transform", null)
-      .html(function(d) { return d.dy > 0 ? (d.bool == true ? "&#10004" : (d.bool == false ? "&#215" : d.name)) : ""; })
-    .filter(function(d) { return d.x < width / 2; })
-      .attr("x", 6 + sankey.nodeWidth())
-      .attr("text-anchor", "start")
-    .filter(function(d) { return d.conflict; })
-      .attr("x", sankey.nodeWidth() / 2)
-      .attr("text-anchor", "middle");
+      .html(function(d) {
+        return d.sourceLinks.length > 0 || d.targetLinks.length > 0
+        ? d.name : ""; });
 
-  // node color ready, transfer to links
-  link.style("stroke", function(d) {
-    return d.target.bool == true ? 'green' : (d.target.bool == false ? 'red' : d.source.color)
-  })
+  // node color/id ready, transfer to links
+  link
+    .style("stroke", function(d) {
+      return d.source.color
+    })
+    .attr("sourceId", function(d) {return d.source.id})
+    .attr("targetId", function(d) {return d.target.id})
 
   function dragmove(d) {
     d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");

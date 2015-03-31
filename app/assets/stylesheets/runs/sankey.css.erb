@@ -1,11 +1,10 @@
 .sankey {
-  height: 10000px;
   margin: 0 10px 0 10px;
 }
 
 .sankey .node rect {
   cursor: move;
-  fill-opacity: .9;
+  fill-opacity: 1;
   shape-rendering: crispEdges;
 }
 
@@ -16,9 +15,31 @@
 
 .sankey .link {
   fill: none;
-  stroke-opacity: .8;
+  stroke-opacity: .4;
 }
 
-.sankey .link:hover {
-  stroke-opacity: 1;
+.sankey .link.hovered {
+  stroke-opacity: 0.8;
+}
+
+.sankey .link.hiddenlink {
+  stroke-opacity: 0.05;
+}
+
+.sankey-zoomer {
+  margin: 0 0 10px 10px;
+  font-size: 42px;
+}
+
+.sankey-zoomer div {
+  border: 2px solid black;
+  border-radius: 3px;  
+  line-height: 26px;
+  width: 50px;
+  height: 50px;
+  padding: 5px;
+  margin-top: 10px;
+  vertical-align: middle;
+  text-align: center;
+  cursor: pointer;
 }
