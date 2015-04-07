@@ -17,7 +17,11 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    main_url
+    if resource.is_a?(AdminUser)
+      admin_root_path
+    else
+      main_path
+    end
   end
 
 protected
