@@ -31,7 +31,7 @@
       <div class = "accordion" >
         <h3 id="upload_claims_header">Upload Datasets</h3>
         <div> 
-          <div class='upload-hints'>
+          <div id='upload-hints-claims' style="display: none;">
             Upload CSV files with a header line having the following
             column names in any order: <span>ObjectID, PropertyID, PropertyValue, SourceID, TimeStamp</span>. You can replace <span>PropertyValue</span>
             by <span>PropertyValues</span> and the system will automatically split the
@@ -43,8 +43,8 @@
             <!-- The file input field used as target for the file upload widget -->
             <input class="fileupload" type="file" kind="claims" multiple>
           </span>
-           <span class='download-datasets info-icon ui-icon ui-icon-info' title='Download example datasets...'>
-             <div id='datasets_dialog' title='Download example datasets...'>
+           <span class='download-datasets info-icon ui-icon ui-icon-info' title='Datasets format and examples...'>
+             <div id='datasets_dialog' title='Datasets format and examples'>
              </div>
            </span>
            <button type="button" class="btn btn-warning cancel" disabled="disabled">Cancel upload</button>
@@ -67,7 +67,7 @@
         </div>
         <h3 id="upload_ground_header">Upload Ground Truth Datasets (optional)</h3>
         <div>
-          <div class='upload-hints'>
+          <div id='upload-hints-ground' style="display: none;">
             Upload CSV files with a header line having the following
             column names in any order: <span>ObjectID, PropertyID, PropertyValue
             </span>. Values in <span>ObjectID</span> should match those in the dataset files
@@ -82,7 +82,7 @@
             <!-- The file input field used as target for the file upload widget -->
             <input class="fileupload" type="file" kind="ground" multiple>
           </span>
-           <span class='download-datasets info-icon ui-icon ui-icon-info' title='Download example datasets...'>
+           <span class='download-datasets info-icon ui-icon ui-icon-info' title='Datasets format and examples...'>
           </span>
           <button type="button" class="btn btn-warning cancel" disabled="disabled">Cancel upload</button>
           <!-- The global progress bar -->

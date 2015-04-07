@@ -1391,9 +1391,21 @@ function generate_algorithm_config(algorithm)
 
 function setup_datasets_dialog(dataset_icon_selector){
   var dialog_div = $("#datasets_dialog")
-  var datasets = ["Books", "Flights", "Population", "Weather"]
+  var datasets = [
+    "Books (155 KB)",
+    "Flights (16.2 MB)",
+    "Population (540 KB)",
+    "Weather (2.1 MB)",
+    "Biography (107 MB)"
+  ]
 
-  var html = "<ol>"
+  var html = ""
+  html += "<h4>Datasets format</h4>"
+  html += "<div class='upload-hints'>" + $("#upload-hints-claims").html() + "</div>"
+  html += "<h4>Ground Truth Datasets format</h4>"
+  html += "<div class='upload-hints'>" + $("#upload-hints-ground").html() + "</div>"
+  html += "<h4>Download examples</h4>"
+  html += "<ol>"
   $.each(datasets, function(id, dataset){
     html += "<li><a href='http://allegatortrack.s3-website-us-east-1.amazonaws.com/datasets/"
       +dataset+".zip'>"+dataset+"</a></li>"
@@ -1403,7 +1415,8 @@ function setup_datasets_dialog(dataset_icon_selector){
 
   dialog_div.empty().append(html).dialog({
     autoOpen: false,
-    modal: true
+    modal: true,
+    width: '700px'
   });
 
   $(".download-datasets").click(function(){
