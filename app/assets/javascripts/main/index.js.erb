@@ -123,7 +123,6 @@ function setup_data_selector()
     heightStyle: 'auto',  // set content div height to tallest div
     activate: function(event, ui) {
       var active = tabs.tabs( "option", "active" )
-     
       if (runsets[active].id > 0) {
         // runsets
         $("#source_view").parent().prependTo($('#tab-common')).show()
@@ -269,28 +268,31 @@ function setup_data_selector()
   
   // close icon remove runset from server
   tabs.delegate( "span.ui-icon-close", "click", function() {
-    var span_id = $(this).attr("runset_id")
-    if (confirm("Are you sure you want to permanently delete Results "+span_id+"?")){
+    var runset_id = $(this).attr("runset_id")
+    if (confirm("Are you sure you want to permanently delete Results " + runset_id + "?")){
        var span_rm = this
-       delete_runset(span_rm, span_id)
+       delete_runset(span_rm, runset_id)
     }
   });
 }
 
-function delete_runset(span_rm,span_id){
+function delete_runset(span_rm, runset_id){
   $.ajax({
-    url: '/runsets/'+ span_id,
+    url: '/runsets/'+ runset_id,
     type: "DELETE",
     success: function(){
-      // delete item from array
-      runsets = $.grep(runsets, function(value, i){
-        return value.id != span_id
-      })
+      // activate input tab
+      activate_runset_tab(0);
+      // remove li
       $(span_rm).closest("li").remove()
+      // delete item from array
+      runsets = $.grep(runsets, function(runset, i){
+        return runset.id != runset_id
+      })
+      // notify tabs to recalculate indices
+      $("#data-selector").tabs("refresh");
     }
   });
-  var tabs = $("#data-selector").tabs()
-  tabs.tabs({active:0}) 
 }
 
 function setup_pusher()
@@ -305,10 +307,10 @@ function setup_pusher()
       if (typeof claims_dt != 'undefined') claims_dt.draw()
     }
     else {
-      var runset = $.grep(runsets,function(runset, i){
+      var runset = $.grep(runsets, function(runset, i){
         return runset.id == run.runset_id
       })[0]
-      var found_run = $.grep(runset.runs, function(run_value,j){
+      var found_run = $.grep(runset.runs, function(run_value, j){
         return run_value.id == run.id
       })[0]
       found_run.status = run.status
@@ -498,7 +500,6 @@ function setup_runtable()
       "sRowSelect": "single",  // "os" doesn't allow fnPreRowSelect to work!
       "fnRowSelected": function ( nodes ) {
         var run = runtable.row(nodes[0]).data()
-        // console.log("selected run", run)
         activate_runset_tab(run.runset_id)
       },
       // "fnPreRowSelect": function ( ev, nodes ) {

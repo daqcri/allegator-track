@@ -103,7 +103,7 @@ class Runset < ActiveRecord::Base
         INNER JOIN runs r ON r.id = ds.allegated_by_run_id 
         WHERE ds.allegated_by_run_id IS NOT NULL
         AND ds.id IN (#{self.datasets.pluck(:id).join(',')});
-      ").map(&:to_i)
+      ").map(&:to_i) rescue []  # self.datasets could be deleted
 
       result = "confidence" unless normalized
       select = "
