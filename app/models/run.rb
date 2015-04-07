@@ -150,7 +150,11 @@ class Run < ActiveRecord::Base
   end
 
   def display
-    "#{algorithm} (#{general_config.try(:gsub, ' ', ',')}; #{config.try(:gsub, ' ', ',')})"
+    if combiner?
+      algorithm
+    else
+      "#{algorithm} (#{general_config.try(:gsub, ' ', ',')}; #{config.try(:gsub, ' ', ',')})"
+    end
   end
 
   def before
