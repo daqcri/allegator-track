@@ -311,8 +311,8 @@ function setup_pusher()
       var found_run = $.grep(runset.runs, function(run_value,j){
         return run_value.id == run.id
       })[0]
-      activate_runset_tab(runset.id)
       found_run.status = run.status
+      activate_runset_tab(runset.id)
       update_run_row(runtable, run) 
     }
   });
