@@ -9,8 +9,8 @@ class DatasetRow < ActiveRecord::Base
     dsr = dataset.dataset_rows.build
     # read raw values
     dsr.object_key = (row[:objectid] || row[:object_id] || row[:objectkey] || row[:object_key]).try(:strip)
-    dsr.property_key = (row[:propertyid] || row[:property_id] || row[:propertykey] || row[:property_key]).try(:strip)
-    dsr.property_value = (row[:propertyvalue] || row[:property_value] || row[:propertyvalues] || row[:property_values]).try(:strip)
+    dsr.property_key = (row[:propertyid] || row[:property_id] || row[:propertykey] || row[:property_key] || row[:propertyname] || row[:property_name]).try(:strip)
+    dsr.property_value = (row[:propertyvalue] || row[:property_value] || row[:propertyvalues] || row[:property_values] || row[:value] || row[:values]).try(:strip)
     unless dsr.ground?
       dsr.source_id = (row[:sourceid] || row[:source_id]).try(:strip)
       dsr.timestamp = (row[:timestamp] == 'null' ? '' : row[:timestamp]).try(:strip)
