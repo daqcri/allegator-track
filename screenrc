@@ -6,7 +6,7 @@ screen -t "foreman" foreman start
 screen -t "psql" rails dbconsole
 screen -t "console" foreman run rails console 
 screen -t "logs" less log/development.log 
-setenv QUEUE default
+setenv QUEUE ""
 screen -t "worker" foreman run bundle exec rake jobs:work 
 screen -t "ghi" 
 screen -t "heroku"
