@@ -273,7 +273,7 @@ class Run < ActiveRecord::Base
     create_sankey_link(source_keys_hash, links_true, true_nodes_base_id){|link| links << link}
     create_sankey_link(source_keys_hash, links_false, false_nodes_base_id){|link| links << link}
 
-    {nodes: nodes, links: links}
+    {sources: source_keys.length, nodes: nodes, links: links}
   end
 
   def to_s

@@ -18,15 +18,19 @@
   var energy
   var selector = '.sankey'
   var s = $(selector)
-  var zoomInFactor = 1.1, zoomOutFactor = 1/1.1
+  var zoomInFactor = 1.1,
+      zoomOutFactor = 1/1.1,
+      sourcesToInitialHeightFactor = 12;
 
   function draw(zoom) {
     if (zoom == 'in')
       s.height(s.height() * zoomInFactor)
     else if (zoom == 'out')
       s.height(s.height() * zoomOutFactor)
-    else
-      s.height($(document).height() - $('.sankey').offset().top - $('.sankey-title').offset().top)
+    else {
+      s.height(energy.sources * sourcesToInitialHeightFactor)
+      // s.height($(document).height() - $('.sankey').offset().top - $('.sankey-title').offset().top)
+    }
     s.empty()
     createSankeyChart(energy, selector)
   }
