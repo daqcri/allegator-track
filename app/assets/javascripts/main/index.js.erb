@@ -157,6 +157,7 @@ function setup_data_selector()
         check_box.next().removeClass("vivid_checkbox_label")
         detail_view = false
       }
+      toggle_normalized_button()
       setup_datatables()
     })
     .change()
@@ -183,6 +184,7 @@ function setup_data_selector()
         $("#detail_view").button("enable")
         source_view = false
       }
+      toggle_normalized_button()
       setup_datatables()
     })
     .change()
@@ -208,6 +210,9 @@ function setup_data_selector()
         datatable.draw()
     })
     .change()
+
+  // do anyway in the setup becuase there is circular reference in buttons state
+  toggle_normalized_button()
 
   // export links
   $("#export-command")
@@ -274,6 +279,14 @@ function setup_data_selector()
        delete_runset(span_rm, runset_id)
     }
   });
+}
+
+function toggle_normalized_button()
+{
+  // try/catch to avoid calling .button() while not initialized (circular state dependancy)
+  try {
+    $("#normalized_view").button(source_view || detail_view ? "enable" : "disable")
+  } catch(e){}
 }
 
 function delete_runset(span_rm, runset_id){
