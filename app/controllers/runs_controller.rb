@@ -61,7 +61,6 @@ class RunsController < ApplicationController
         else
           begin
             json = @run.explain(params[:claim_id])
-            logger.debug ">>> explanation: #{json}"
           rescue
             json = {error: 'Error generating textual explanation'}
           end

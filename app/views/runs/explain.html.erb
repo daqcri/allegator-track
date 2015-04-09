@@ -1,19 +1,30 @@
-<h3>
-Explanation tree for run <%= @run %>
-</h3>
+<div class="ui-layout-center">
+  <h3>
+  Explanation tree for run <%= @run %>
+  </h3>
 
-<span class='spinner'>Calculating...</span>
-<div class='explanation-text-box'>
+  <div class="ui-layout-content">
+    <span class='spinner'>Calculating...</span>
+    <p class='tree_viz'></p>
+  </div>
+</div>
+
+<div class="ui-layout-east">
   <p id="explanation-text"></p>
   <p id="explanation-text-none">
     There is no conflicting value for this data item    
   </p>
 </div>
-<p class='tree_viz'></p>
 
 <script>
   $(document).ready(function(){
     document.title = "Run <%=@run.id%> & Claim <%= @claim %> Explanation | AllegatorTrack"
+
+    pageLayout = $('body').layout({
+      applyDefaultStyles: true,
+      east__size: '30%'
+    });
+
     // load tree
     var xml_url = '<%= explain_run_path @run, format: "xml" %>'
     var json_url = '<%= explain_run_path @run, claim_id: @claim, format: "json" %>'
