@@ -28,4 +28,5 @@ Rails.application.routes.draw do
     match "/admin/djmon" => DelayedJobWeb, :anchor => false, via: [:get, :post]
   end
 
+  mount RailsClientChecker::Engine => '/'
 end
