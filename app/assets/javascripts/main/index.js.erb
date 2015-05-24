@@ -1405,11 +1405,11 @@ function generate_algorithm_config(algorithm)
 function setup_datasets_dialog(dataset_icon_selector){
   var dialog_div = $("#datasets_dialog")
   var datasets = [
-    "Books (155 KB)",
-    "Flights (16.2 MB)",
-    "Population (540 KB)",
-    "Weather (2.1 MB)",
-    "Biography (107 MB)"
+    {name: "Books", size: "155 KB"},
+    {name: "Flights", size: "16.2 MB"},
+    {name: "Population", size: "540 KB"},
+    {name: "Weather", size: "2.1 MB"},
+    {name: "Biography", size: "107 MB"}
   ]
 
   var html = ""
@@ -1421,7 +1421,7 @@ function setup_datasets_dialog(dataset_icon_selector){
   html += "<ol>"
   $.each(datasets, function(id, dataset){
     html += "<li><a href='http://allegatortrack.s3-website-us-east-1.amazonaws.com/datasets/"
-      +dataset+".zip'>"+dataset+"</a></li>"
+      + dataset.name +".zip'>" + dataset.name + " (" + dataset.size + ")</a></li>"
   })
 
   html += "</ol>"
