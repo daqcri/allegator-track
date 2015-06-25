@@ -1,6 +1,6 @@
 class MainController < ApplicationController
-  before_filter :authenticate_user_from_token!  
-  before_filter :authenticate_user!
+  before_filter :authenticate_user_from_token!, except: 'landing'
+  before_filter :authenticate_user!, except: 'landing'
 
   def index
     if current_user.has_gui_access
@@ -10,4 +10,11 @@ class MainController < ApplicationController
     end
   end
  
+  def landing
+    if Rails.env.development?
+      redirect_to action: 'index'
+    else
+      redirect_to ENV['LANDING_URL']
+    end
+  end
 end
