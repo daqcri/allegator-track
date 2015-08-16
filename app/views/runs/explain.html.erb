@@ -4,7 +4,7 @@
   </h3>
 
   <div class="ui-layout-content">
-    <span class='spinner'>Calculating...</span>
+    <span class='spinner'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Calculating...</span>
     <p class='tree_viz'></p>
   </div>
 </div>
@@ -29,8 +29,12 @@
     var xml_url = '<%= explain_run_path @run, format: "xml" %>'
     var json_url = '<%= explain_run_path @run, claim_id: @claim, format: "json" %>'
     new TreeVisualizer(xml_url, json_url, '.tree_viz', function(response){
-      if (response.error)
-        $('.spinner').text("Couldn't load decision tree [error: "+response.error+"]")
+      if (response.error == ".") {
+        $('.spinner').replaceWith("<span>No need for explanation tree.</span>")
+        $("#explanation-text").text("No conflict found. Each claim is true.").show()
+      }
+      else if (response.error)
+        $('.spinner').replaceWith("<span>Couldn't load decision tree [error: "+response.error+"] </span>")
       else {
         $('.spinner').hide()
         // render textual explanation
