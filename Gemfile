@@ -80,3 +80,5 @@ gem 'charlock_holmes'
 # bundle config build.charlock_holmes --with-icu-dir=/path/to/installed/icu4c
 # on heroku: use a multipack to apt-get install libicu-dev through heroku-buildpack-apt
 # Check http://stackoverflow.com/questions/18926574/how-to-install-charlock-holmes-dependency-libicu-dev-on-heroku
+
+gem 'rails_client_checker', :git => 'git://github.com/hammady/rails_client_checker.git'
