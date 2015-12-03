@@ -1,0 +1,16 @@
+<p>Hi Admin!</p>
+
+<p>
+  A new user has registered.
+</p>
+
+<ul>
+  <li>
+    <b>Email:</b>
+    <%= @user.to_s %>
+  </li>
+  <li>
+    <b>API Key:</b>
+    <%= @user.authentication_token %>
+  </li>
+</ul>

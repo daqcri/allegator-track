@@ -9,6 +9,8 @@ class User < ActiveRecord::Base
   has_many :dataset_rows, through: :datasets
   has_many :runsets
   has_many :runs, through: :runsets
+
+  after_create :send_admin_new_user_mail
   
   def to_s
     email
@@ -26,4 +28,10 @@ private
   		break token unless User.where(authentication_token: token).first
   	end
   end
+
+  def send_admin_new_user_mail
+    UserMailer.new_user_registration(self).deliver
+  end
+  handle_asynchronously :send_admin_new_user_mail
+
 end
