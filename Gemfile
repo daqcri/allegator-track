@@ -74,7 +74,7 @@ gem "delayed_job_web", :git => 'git://github.com/hammady/delayed_job_web.git'
 gem 'platform-api'
 
 # encoding detection for uploaded files
-gem 'charlock_holmes'
+#gem 'charlock_holmes'
 # prerequisites are icu, on Mac:
 # first install ICU, using Homebrew: brew install icu4c
 # bundle config build.charlock_holmes --with-icu-dir=/path/to/installed/icu4c
