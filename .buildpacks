@@ -1,5 +1,5 @@
 https://github.com/heroku/heroku-buildpack-java
 https://github.com/ddollar/heroku-buildpack-apt
-https://github.com/beechnut/heroku-bundle-config#develop
+https://github.com/hammady/heroku-bundle-config#develop
 https://github.com/heroku/heroku-buildpack-ruby
 https://github.com/hammady/heroku-buildpack-smartmigrate
