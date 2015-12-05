@@ -137,14 +137,7 @@ private
   end
 
   def detect_encoding_convert(body)
-    detection = CharlockHolmes::EncodingDetector.detect(body)
-    logger.debug "charlock holmes detected #{detection}"
-    # Remove BOM Characters
-    if (detection[:encoding] == 'UTF-8')
-      body.force_encoding("UTF-8").sub("\xEF\xBB\xBF", "")
-    else
-      CharlockHolmes::Converter.convert(body, detection[:encoding], 'UTF-8')
-    end
+    body.force_encoding("UTF-8").sub("\xEF\xBB\xBF", "")
   end
 
 end
