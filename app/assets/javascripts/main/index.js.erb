@@ -312,7 +312,6 @@ function setup_pusher()
 {
   var pusher = new Pusher('<%= Pusher.key %>'); // establishes the connection
   var channel = pusher.subscribe("user_" + current_user_id);
-
   // handle run_change
   channel.bind('run_change', function(run) {
     if (run["allegator?"]) {
