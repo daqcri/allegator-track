@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
   get 'allegatortrack' => "main#index", as: 'main'
   root :to => "main#landing"
+  get 'guest' => "main#guest", as: 'guest'
 
   # authenticate: enable djmon route only for authenticated admins, otherwise redirect to admin login
   # authenticated: will just throw 404 without login redirection

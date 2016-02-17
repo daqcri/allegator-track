@@ -11,13 +11,41 @@ class User < ActiveRecord::Base
   has_many :runs, through: :runsets
 
   after_create :send_admin_new_user_mail
-  
+ 
   def to_s
     email
   end
 
   def ensure_authentication_token
 		self.authentication_token = generate_authentication_token if authentication_token.blank?
+  end
+
+  def self.create_guest_user!
+    user = User.create :email => guest_email,
+      :password => 'vyC4Jb8t,-kI', :password_confirmation => 'vyC4Jb8t,-kI'
+
+    user.confirm!
+    user
+  end
+
+  def self.destroy_guest_user!
+    guest.destroy
+  end
+
+  def self.guest_email
+    'guest@example.com'
+  end
+
+  def self.guest
+    User.find_by_email(guest_email)
+  end
+
+  def guest?
+    User.guest?(self.email)
+  end
+
+  def self.guest?(email)
+    email == guest_email
   end
 	 
 private
