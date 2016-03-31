@@ -1,0 +1,46 @@
+<html>
+
+<div ng-controller="HomeCtrl">
+    <div id='cssmenu' align="right">
+    <ul>
+        <a href="#" class="pull-left"><img src="/../static/img/qcri-test.jpg"></a>
+        <li class='active'><a href='http://localhost:8000/#/'><span>Home</span></a></li>
+       <li><a href='http://dafna.qcri.org/users/sign_in'><span>Login/Register</span></a></li>
+       <li><a href='#'><span>Publications</span></a></li>
+       <li><a href='#'><span>Acknowledgement</span></a></li>
+    </ul>
+    </div>
+    <body id="pg-index" class="page-index body--home">
+        <div class="site-wrapper  site-wrapper--home  js-site-wrapper">   
+            <div class="site-wrapper-border"></div>
+
+                <div class="header-wrap--home  js-header-wrap"></div>
+
+                <div id="" class="content-wrap--home">
+                  <div id="content_homepage" class="content--home">
+                    <div class="cw--c">
+                                 <br/> <br/><br/><br/><br/>
+                                <div class="logo-wrap--home">
+                                    <h2> VERA: <small>Veracity Estimation for Web Data</small></h2>
+                                </div>
+
+                        <div class="search-wrap--home">
+
+                            <form id="search_form_homepage" class="search  search--home  js-search-form" ng-submit="submit()">
+                                <input id="query" class="search__input js-search-input" type="text" autocomplete="off" uib-typeahead="query for query in queries" class="form-control" ng-model="searchBox">
+                                <input id="search_button_homepage" class="search__button  js-search-button" type="submit" tabindex="2" value="S" />
+                            </form>
+
+                        </div>
+                    </div>    
+                </div>
+            </div>
+        </div> 
+    </body>
+</div>
+
+<script src="../js/app.js"></script>
+<script src="../js/controller.js"></script>
+<script src="../js/factory.js"></script>
+
+</html>

@@ -1,0 +1,52 @@
+<html>
+    <div ng-controller="QueryCtrl" ng-model-options="{debounce: 500}" ng-app = "myApp">
+        <div id='cssmenu' align="right">
+            <ul>
+                <a href="#" class="pull-left"><img src="/../static/img/qcri-test.jpg"></a>
+                <li><a href='http://localhost:8000/#/'><span>Home</span></a></li>
+               <li><a href='http://dafna.qcri.org/users/sign_in'><span>Login/Register</span></a></li>
+               <li><a href='#'><span>Publications</span></a></li>
+               <li><a href='#'><span>Acknowledgement</span></a></li>
+            </ul>
+        </div>
+        <div class="site-wrapper  site-wrapper--home  js-site-wrapper">   
+        <div class="site-wrapper-border"></div>
+
+        <div class="search-wrap--home">
+            <form id="search_form_homepage" class="search  search--home  js-search-form" ng-submit="submit()">
+                <input id="query" class="search__input js-search-input" type="text" autocomplete="off" uib-typeahead="query for query in queries" class="form-control" ng-model="searchBox">
+                <input id="search_button_homepage" class="search__button  js-search-button" type="submit" tabindex="2" value="S" />
+            </form>
+        </div>
+
+            <br/> 
+            <div>
+            <iframe ng-src='{{current}}' width="500" height="600" align="right"></iframe> 
+            </div>
+            <div ng-if="result === 'False'">
+            Loading Result ..
+            </div>
+
+            <div ng-if="result ==='True'">
+                <div ng-repeat="dat in out">
+                        <font color = {{dat.color}} size = '4'> 
+                        {{dat.unique_key}}: {{dat.property_value}} <br/>
+                        Sources: <br/>
+                        <div ng-repeat = "sources in dat.combined_sources">
+                        <a ng-click='linkClick(sources.source_link)'>{{sources.id}}</a>
+                        </div>
+                        <a target="_blank" href = {{dat.link}}> Allegator Link </a> <br/> <br/>
+                        </font>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script src="../js/controller.js"></script>
+    <script src="../js/factory.js"></script>
+    </<!DOCTYPE html>
+
+</body>
+</html>
