@@ -14,7 +14,7 @@ def parse_query():
 
     if request.method != 'POST':
         return jsonify({'status': 'Error!', 'message': 'Please use POST request'})
-    else:    
+    else:   
         data = request.get_json()
 
         if data == None:

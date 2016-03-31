@@ -12,7 +12,7 @@ class RunsetModels:
         self.user_token = os.environ.get("USER_TOKEN", None)
 
     def fetch_ids(self):
-        r = requests.get("http://localhost:4000/runsets", data = {'user_token': self.user_token})
+        r = requests.get("http://dafna-viz.herokuapp.com/runsets", data = {'user_token': self.user_token})
         data = r.json()
 
         ids = []
@@ -21,7 +21,7 @@ class RunsetModels:
         return ids
    
     def create_runset(self, dataset_id, checked_algo, general_config):
-        url = "http://localhost:4000/runsets"
+        url = "http://dafna-viz.herokuapp.com/runsets"
         data = {"user_token": self.user_token, "datasets": {dataset_id: "1"}, "checked_algo": checked_algo, "general_config": general_config}
         data = json.dumps(data)
         #print data
@@ -31,7 +31,7 @@ class RunsetModels:
 
     def clear(self, ids):
         for runset_id in ids:
-            url = 'http://localhost:4000/runsets/'+str(runset_id)
+            url = 'http://dafna-viz.herokuapp.com/runsets/'+str(runset_id)
             requests.delete(url, data = {'user_token': self.user_token  })
 
 if __name__ == '__main__':

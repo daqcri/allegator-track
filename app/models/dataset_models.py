@@ -12,7 +12,7 @@ class DatasetModels:
         self.user_token = os.environ.get("USER_TOKEN", None)
         
     def fetch_ids(self, dataset_type):
-        r = requests.get("http://localhost:4000/datasets", data = {'user_token': self.user_token, 'kind': dataset_type})
+        r = requests.get("http://dafna-viz.herokuapp.com/datasets", data = {'user_token': self.user_token, 'kind': dataset_type})
         data = r.json()
         sets = data['data']
 
@@ -23,12 +23,12 @@ class DatasetModels:
         return ids
 
     def upload_dataset(self, dataset_url, dataset_type, original_filename):
-        r = requests.post("http://localhost:4000/datasets", data = {'user_token': self.user_token, 'kind': dataset_type, 'original_filename': original_filename, 'other_url': dataset_url})
+        r = requests.post("http://dafna-viz.herokuapp.com/datasets", data = {'user_token': self.user_token, 'kind': dataset_type, 'original_filename': original_filename, 'other_url': dataset_url})
         return r.status_code
 
     def clear(self, ids):
         for dataset_id in ids:
-            url = 'http://localhost:4000/datasets/'+str(dataset_id)
+            url = 'http://dafna-viz.herokuapp.com/datasets/'+str(dataset_id)
             requests.delete(url, data = {'user_token': self.user_token  })
 
 if __name__ == '__main__':

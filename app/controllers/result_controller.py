@@ -28,6 +28,7 @@ def show_result():
         runset_id = RedisCache.fetchValue(hash_name, hash_key, 'runset_id')
         modler = ResultModels()
         response = modler.show_result(int(runset_id))
+        #print response.text
         fetched_data = json.loads(response.text)
 
         result_id = modler.get_resultId(int(runset_id))

@@ -12,7 +12,7 @@ class ResultModels:
         self.user_token = os.environ.get("USER_TOKEN", None)
    
     def show_result(self, runset_id):
-        url = "http://localhost:4000/runsets/"+str(runset_id)+"/results"
+        url = "http://dafna-viz.herokuapp.com/runsets/"+str(runset_id)+"/results"
         data = {"user_token": self.user_token, "extra_normalized": 1}
         data = json.dumps(data)
         #print data
@@ -21,7 +21,7 @@ class ResultModels:
 
     def get_resultId(self, runset_id):
         #print runset_id
-        url = "http://localhost:4000/runsets"
+        url = "http://dafna-viz.herokuapp.com/runsets"
         data = {"user_token": self.user_token}
         data = json.dumps(data)
         #print data
