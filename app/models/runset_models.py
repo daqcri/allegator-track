@@ -4,15 +4,18 @@ Models pertaining to a runset
 
 import requests, json
 import os
+from dataset_models import DatasetModels
 
 
 class RunsetModels:
 
     def __init__(self):
         self.user_token = os.environ.get("USER_TOKEN", None)
+        self.base = os.environ.get("DAFNA_URL", None)
 
     def fetch_ids(self):
-        r = requests.get("http://dafna-viz.herokuapp.com/runsets", data = {'user_token': self.user_token})
+        url = self.base+'/runsets'
+        r = requests.get(url, data = {'user_token': self.user_token})
         data = r.json()
 
         ids = []
@@ -21,7 +24,8 @@ class RunsetModels:
         return ids
    
     def create_runset(self, dataset_id, checked_algo, general_config):
-        url = "http://dafna-viz.herokuapp.com/runsets"
+        modler = DatasetModels()
+        url = self.base + "/runsets"
         data = {"user_token": self.user_token, "datasets": {dataset_id: "1"}, "checked_algo": checked_algo, "general_config": general_config}
         data = json.dumps(data)
         #print data
@@ -31,7 +35,8 @@ class RunsetModels:
 
     def clear(self, ids):
         for runset_id in ids:
-            url = 'http://dafna-viz.herokuapp.com/runsets/'+str(runset_id)
+            base_url = self.base+'/runsets/'
+            url = base_url+str(runset_id)
             requests.delete(url, data = {'user_token': self.user_token  })
 
 if __name__ == '__main__':

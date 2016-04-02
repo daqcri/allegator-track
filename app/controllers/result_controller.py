@@ -50,7 +50,7 @@ def show_result():
                         if str(key) == 'r'+str(result_id)+'_bool':
                             key = 'value'
                         new_item[key] = value
-                    new_item['link'] = 'http://localhost:4000/runs/'+str(result_id)+'/explain?claim_id='+str(new_item['claim_id'])
+                    new_item['link'] = 'http://dafna.qcri.org/runs/'+str(result_id)+'/explain?claim_id='+str(new_item['claim_id'])
                     if new_item['value'] == 't':
                         new_item['color'] = 'Green'
                     else:

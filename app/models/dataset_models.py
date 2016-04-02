@@ -10,9 +10,11 @@ class DatasetModels:
 
     def __init__(self):
         self.user_token = os.environ.get("USER_TOKEN", None)
+        self.base = os.environ.get("DAFNA_URL", None)
         
     def fetch_ids(self, dataset_type):
-        r = requests.get("http://dafna-viz.herokuapp.com/datasets", data = {'user_token': self.user_token, 'kind': dataset_type})
+        url = self.base+'/datasets'
+        r = requests.get(url, data = {'user_token': self.user_token, 'kind': dataset_type})
         data = r.json()
         sets = data['data']
 
@@ -23,12 +25,14 @@ class DatasetModels:
         return ids
 
     def upload_dataset(self, dataset_url, dataset_type, original_filename):
-        r = requests.post("http://dafna-viz.herokuapp.com/datasets", data = {'user_token': self.user_token, 'kind': dataset_type, 'original_filename': original_filename, 'other_url': dataset_url})
+        url = self.base+'/datasets'
+        r = requests.post(url, data = {'user_token': self.user_token, 'kind': dataset_type, 'original_filename': original_filename, 'other_url': dataset_url})
         return r.status_code
 
     def clear(self, ids):
         for dataset_id in ids:
-            url = 'http://dafna-viz.herokuapp.com/datasets/'+str(dataset_id)
+            base_url = self.base+'/datasets/'
+            url = base_url+str(dataset_id)
             requests.delete(url, data = {'user_token': self.user_token  })
 
 if __name__ == '__main__':

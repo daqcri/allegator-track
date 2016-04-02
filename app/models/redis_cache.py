@@ -28,6 +28,16 @@ class RedisCache:
         return value
 
     @staticmethod
+    def setKV(key, value):
+        value = app._redis.get(key)
+        app._redis.set(key, value)   
+
+    @staticmethod
+    def getKV(key, value_key):
+        value = app._redis.get(key)
+        return value
+
+    @staticmethod
     def clear():
         app._redis.flushall()
 

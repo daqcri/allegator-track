@@ -1,19 +1,14 @@
 from flask import Flask, render_template, make_response
 import redis
-import os, urlparse
+import os
 
 app = Flask(__name__)
 
 if 'REDIS_URL' in os.environ:
-    redis_url = urlparse.urlparse(os.environ.get('REDIS_URL'))
-    host = redis_url.hostname
-    port = redis_url.port
+    app._redis = from_url(os.environ.get("REDIS_URL"))
 else:
-    host = 'localhost'
-    port = 6379
-
-app._redis = redis.StrictRedis(host=host, port=port)
-app.secret_key = 'super secret key'
+    app._redis = redis.StrictRedis(host='localhost', port=6379)
+app.secret_key = os.environ.get("FLASK_SECRET")
 
 from app.controllers import dataset_controller
 from app.controllers import query_controller
