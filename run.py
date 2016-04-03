@@ -7,4 +7,4 @@ redisSeed = RedisTokenSeed()
 redisSeed.putTokens()
 
 if __name__ == '__main__': 
-    app.run(debug=True, port = int(os.environ.get("PORT", None)))
+    app.run(port = int(os.environ.get("PORT", None)))
