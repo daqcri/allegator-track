@@ -3,11 +3,7 @@ import redis
 import os
 
 app = Flask(__name__)
-
-if 'REDIS_URL' in os.environ:
-    app._redis = from_url(os.environ.get("REDIS_URL"))
-else:
-    app._redis = redis.StrictRedis(host='localhost', port=6379)
+app._redis = redis.from_url(os.environ.get("REDIS_URL") or 'redis://localhost:6379/0')
 app.secret_key = os.environ.get("FLASK_SECRET")
 
 from app.controllers import dataset_controller
