@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, Blueprint, session, jsonify
-import requests, json
+import requests, json, os
 
 #Models 
 from app.models import RedisCache
@@ -22,6 +22,8 @@ def show_result():
         arg2 = data['arg2'].lower()
         where = arg2.split(' ')[0]
         arg2 = arg2.replace(' ','')
+        base = os.environ.get("DAFNA_URL", None)
+        token = os.environ.get("USER_TOKEN", None)
 
         hash_name = 'runset_map'
         hash_key = '{0}_{1}_{2}'.format(arg1, rel, arg2)
@@ -36,6 +38,7 @@ def show_result():
         if len(fetched_data['data']) > 0: 
             items = fetched_data['data']
             new_data = []
+            base_url = base+'/runs/'
 
             for item in items:
 
@@ -50,7 +53,7 @@ def show_result():
                         if str(key) == 'r'+str(result_id)+'_bool':
                             key = 'value'
                         new_item[key] = value
-                    new_item['link'] = 'http://dafna.qcri.org/runs/'+str(result_id)+'/explain?claim_id='+str(new_item['claim_id'])
+                    new_item['link'] = base_url+str(result_id)+'/explain?claim_id='+str(new_item['claim_id'])+'&user_token='+token
                     if new_item['value'] == 't':
                         new_item['color'] = 'Green'
                     else:
