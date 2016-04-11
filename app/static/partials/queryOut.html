@@ -2,8 +2,8 @@
     <div ng-controller="QueryCtrl" ng-model-options="{debounce: 500}" ng-app = "myApp">
         <div id='cssmenu' align="right">
             <ul>
-                <a href="#" class="pull-left"><img src="/../static/img/qcri-test.jpg"></a>
-                <li><a ng-href="http://vera-qcri.herokuapp.com"><span>Home</span></a></li>
+                <a href="http://da.qcri.org" class="pull-left"><img src="/../static/img/qcri-test.jpg"></a>
+                <li><a ng-href="http://vera-qcri.herokuapp.com/"><span>Home</span></a></li>
                <li><a href='http://dafna.qcri.org/users/sign_in'><span>Login/Register</span></a></li>
                <li><a href='#'><span>Publications</span></a></li>
                <li><a href='#'><span>Acknowledgement</span></a></li>
@@ -27,9 +27,10 @@
 
          <br/> 
 
-        <!-- <div>
-            <iframe ng-src='{{current}}' width="500" height="600" align="right" name="testframe"></iframe> 
-        </div> -->
+        <div class="image">
+           <!-- <iframe ng-src='{{current}}' width="500" height="600" align="right" name="testframe"></iframe> -->
+           <img src = '/../static/img/image.png' width="950" height="700" align="right" class="image">
+        </div>
             <div ng-if="result === 'False'">
             Loading Result ..
             </div>
