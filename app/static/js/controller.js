@@ -48,7 +48,7 @@ angular.module('myApp')
       $scope.queries = ['People killed in Paris Bombing', 'People killed in Boston Bombing', 'Name of Suspects in Boston Bombing', 'Number of stadium attackers in Paris Bombings',
     'Locations Attacked in Paris Bombing', 'Time of Attacks during Paris Bombing', 'Number of attacks in concert halls during Paris Bombing', 'People killed in Concert Hall during Paris Bombing',
     'Name of suspects in Toulouse Bombing', 'People killed in Toulouse Bombing', 'Children Killed in Toulouse Bombing', 'Number of explosions during Boston Bombings', 'Number of hostages during Paris Bombings',
-    'Number of attacks during Paris Bombings'];
+    'Number of attacks during Paris Bombings', 'Locations Attacked in Paris Bombing', 'Suspects identified in Paris Bombing'];
   });
 
 angular.module('myApp')
@@ -138,7 +138,7 @@ angular.module('myApp')
     $scope.queries = ['People killed in Paris Bombing', 'People killed in Boston Bombing', 'Name of Suspects in Boston Bombing', 'Number of stadium attackers in Paris Bombings',
     'Locations Attacked in Paris Bombing', 'Time of Attacks during Paris Bombing', 'Number of attacks in concert halls during Paris Bombing', 'People killed in Concert Hall during Paris Bombing',
     'Name of suspects in Toulouse Bombing', 'People killed in Toulouse Bombing', 'Children Killed in Toulouse Bombing', 'Number of explosions during Boston Bombings', 'Number of hostages during Paris Bombings',
-    'Number of attacks during Paris Bombings'];
+    'Number of attacks during Paris Bombings', 'Locations Attacked in Paris Bombing', 'Suspects identified in Paris Bombing'];
     $scope.linkClick = function(link){
         $scope.current = $sce.trustAsResourceUrl(link);
         poptastic($scope.current)
