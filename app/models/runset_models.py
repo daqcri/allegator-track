@@ -23,10 +23,13 @@ class RunsetModels:
             ids.append(runset['id'])
         return ids
    
-    def create_runset(self, dataset_id, checked_algo, general_config):
+    def create_runset(self, datasets, checked_algo, general_config):
         modler = DatasetModels()
         url = self.base + "/runsets"
-        data = {"user_token": self.user_token, "datasets": {dataset_id: "1"}, "checked_algo": checked_algo, "general_config": general_config}
+        combined_datasets = {}
+        for dataset in datasets:
+            combined_datasets[str(dataset)] = "1"
+        data = {"user_token": self.user_token, "datasets": combined_datasets, "checked_algo": checked_algo, "general_config": general_config}
         data = json.dumps(data)
         #print data
         r = requests.post(url, data = data, headers = {'Content-Type': 'application/json'})
@@ -38,6 +41,13 @@ class RunsetModels:
             base_url = self.base+'/runsets/'
             url = base_url+str(runset_id)
             requests.delete(url, data = {'user_token': self.user_token  })
+
+    def clear_previous(self, ids, current_id):
+        for runset_id in ids:
+            if runset_id != current_id:
+                base_url = self.base+'/runsets/'
+                url = base_url+str(runset_id)
+                requests.delete(url, data = {'user_token': self.user_token  })
 
 if __name__ == '__main__':
     modler = RunsetModels()

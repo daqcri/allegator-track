@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, Blueprint, session, jsonify
+from flask import render_template, request, redirect, Blueprint, session, jsonify, url_for
 import requests, json, os
 
 #Models 
@@ -16,22 +16,29 @@ def show_result():
     if request.method == 'GET':        
         return jsonify({'status': 'Error!', 'message': 'Please use POST request'})
     else:
-        data = session['data']
-        arg1 = data['arg1'].lower()
-        rel = data['rel'].lower()
-        arg2 = data['arg2'].lower()
-        where = arg2.split(' ')[0]
-        arg2 = arg2.replace(' ','')
         base = os.environ.get("DAFNA_URL", None)
         token = os.environ.get("USER_TOKEN", None)
+       
+        query = session['query']
+        object_key = session['object_key']
+        property_key = session['property_key']
 
-        hash_name = 'runset_map'
-        hash_key = '{0}_{1}_{2}'.format(arg1, rel, arg2)
-        runset_id = RedisCache.fetchValue(hash_name, hash_key, 'runset_id')
+        hash_name = 'result_map'
+        runset_id = RedisCache.fetchValue(hash_name, '', 'runset_id')
+        if runset_id == 'None':
+            return redirect(url_for('runset.create_runset'), code=307)
+
+        #print runset_id
         modler = ResultModels()
         response = modler.show_result(int(runset_id))
         #print response.text
+
+        #print '\n\n'
+        #print session
         fetched_data = json.loads(response.text)
+        #print '\n\n'
+        #print fetched_data
+        #print '\n\n'
 
         result_id = modler.get_resultId(int(runset_id))
         '''Changing dictionary key'''
@@ -42,23 +49,27 @@ def show_result():
 
             for item in items:
 
-                obj = item['object_key'].replace('_', '')
-
-                if where.lower() in obj.lower() and rel.lower() in item['property_key'].lower():               
+                if item['object_key'] == object_key and item['property_key'] == property_key:
+                    obj = item['object_key'].replace('_', '')       
                     new_item = {}
                     filtered_item = {}
+                        
                     for key, value in item.iteritems():
                         if str(key) == 'r'+str(result_id):
                             key = 'normalized'
                         if str(key) == 'r'+str(result_id)+'_bool':
                             key = 'value'
                         new_item[key] = value
+                        
                     new_item['link'] = base_url+str(result_id)+'/explain?claim_id='+str(new_item['claim_id'])+'&user_token='+token
+                    new_item['original_query'] = session['original_query']
                     if new_item['value'] == 't':
                         new_item['color'] = 'Green'
+                        new_item['value'] = 'True'
                     else:
                         new_item['color'] = 'Red'
-                    
+                        new_item['value'] = 'False'
+                        
                     filtered_item['color'] = new_item['color']
                     filtered_item['link'] = new_item['link']
                     filtered_item['normalized'] = new_item['normalized']
@@ -67,8 +78,12 @@ def show_result():
                     filtered_item['source_id'] = new_item['source_id']
                     filtered_item['claim_id'] = new_item['claim_id']
                     filtered_item['key_value'] = str(filtered_item['unique_key'])+'_'+str(new_item['property_value'])
-                    filtered_item['source_link'] = str(RedisCache.fetchValue('source_map', hash_key, filtered_item['source_id']))
-
+                    val = new_item['property_value']
+                    val = val.replace(' ','_')
+                    filtered_item['source_link'] = str(RedisCache.fetchValue(filtered_item['unique_key'], val, filtered_item['source_id']))
+                    #filtered_item['source_link'] = '#'
+                    filtered_item['value'] = new_item['value']
+                    filtered_item['original_query'] = new_item['original_query']
                     new_data.append(filtered_item)
 
             fetched_data['data'] = new_data
@@ -99,14 +114,16 @@ def show_result():
                     current_value = dat
                     current_value['combined_sources'] = []
                     current_value['combined_sources'].append({'id': dat['source_id'], 'link': dat['link'], 'source_link': dat['source_link']})
+                    current_value['len'] = len(current_value['combined_sources'][0].keys())
                     combined_data.append(current_value)
                 else:
                     for item in combined_data:
                         if item['key_value'] == dat['key_value']:
                             for k,v in item.iteritems():
                                 if k == 'combined_sources':
-                                    item['combined_sources'].append({'id': dat['source_id'], 'link': dat['link'], 'source_link': dat['source_link']})
+                                    item['combined_sources'].append({'id': dat['source_id'], 'link': dat['link'], 'source_link': dat['source_link']})                       
             fetched_data['data'] = combined_data
+            #print combined_data
 
         if response.status_code != 200:
             return jsonify({'status': 'Error!', 'message': 'No result found'})

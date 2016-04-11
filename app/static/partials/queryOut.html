@@ -3,7 +3,7 @@
         <div id='cssmenu' align="right">
             <ul>
                 <a href="#" class="pull-left"><img src="/../static/img/qcri-test.jpg"></a>
-                <li><a href='http://localhost:8000/#/'><span>Home</span></a></li>
+                <li><a ng-href="/#/"><span>Home</span></a></li>
                <li><a href='http://dafna.qcri.org/users/sign_in'><span>Login/Register</span></a></li>
                <li><a href='#'><span>Publications</span></a></li>
                <li><a href='#'><span>Acknowledgement</span></a></li>
@@ -12,32 +12,46 @@
         <div class="site-wrapper  site-wrapper--home  js-site-wrapper">   
         <div class="site-wrapper-border"></div>
 
-        <div class="search-wrap--home">
-            <form id="search_form_homepage" class="search  search--home  js-search-form" ng-submit="submit()">
-                <input id="query" class="search__input js-search-input" type="text" autocomplete="off" uib-typeahead="query for query in queries" class="form-control" ng-model="searchBox">
-                <input id="search_button_homepage" class="search__button  js-search-button" type="submit" tabindex="2" value="S" />
-            </form>
+        <br/>
+         <div id="header" class="header  cw">
+                <div class="header__search-wrap"><a href="/#/" class="header__logo-wrap"><h5 class="test">VERA</h5></a>
+                    <div class="header__content  header__search">
+                        <form id="search_form" class="search--adv  search--header  js-search-form" ng-submit=submit()>
+                            <input id="query" class="search__input js-search-input" type="text" autocomplete="off" uib-typeahead="query for query in queries | filter:$viewValue" class="form-control" ng-model="searchBox" auto-close="disabled" is-open="true" placeholder="Please Enter a Query">
+                            <input id="search_button" class="search__button  js-search-button" type="submit" tabindex="2" value="S" />
+                        </form>
+                    </div>
+                </div>
+
         </div>
 
-            <br/> 
-            <div>
-            <iframe ng-src='{{current}}' width="500" height="600" align="right"></iframe> 
-            </div>
+         <br/> 
+
+        <!-- <div>
+            <iframe ng-src='{{current}}' width="500" height="600" align="right" name="testframe"></iframe> 
+        </div> -->
             <div ng-if="result === 'False'">
             Loading Result ..
             </div>
 
             <div ng-if="result ==='True'">
-                <div ng-repeat="dat in out">
-                        <font color = {{dat.color}} size = '4'> 
-                        {{dat.unique_key}}: {{dat.property_value}} <br/>
-                        Sources: <br/>
-                        <div ng-repeat = "sources in dat.combined_sources">
-                        <a ng-click='linkClick(sources.source_link)'>{{sources.id}}</a>
-                        </div>
-                        <a target="_blank" href = {{dat.link}}> Allegator Link </a> <br/> <br/>
-                        </font>
-                </div>
+            <table border = "0" class = "left">
+                <tbody ng-repeat="dat in out">
+                        <tr>
+                        <td colspan = {{dat.len}} class="keepLeft"><font color = {{dat.color}} size = '5'/>{{dat.value}} value: {{dat.property_value}} </td></tr>
+                        <tr>
+                        <td ng-repeat = "sources in dat.combined_sources" class="keepLeft"><font size = '3'/>
+                            <a ng-click='linkClick(sources.source_link)' target="testframe">{{sources.id}}</a>
+                        </td> 
+                        </tr>  
+                        <tr><td colspan={{dat.len}} class="keepLeft">
+                        <input type="button" value="Explanation" ng-click="goTo(dat.link)"/> &nbsp;&nbsp;&nbsp;
+                        <input type="button" value="Allegator Track" ng-click="goTo('http://dafna-viz.herokuapp.com/guest')"/> 
+                        </td>
+                        </tr>
+                        <tr><td><br/></td></tr>
+                </tbody>
+            </table>
             </div>
         </div>
         </div>

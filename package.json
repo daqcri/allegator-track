@@ -1,0 +1,26 @@
+{
+  "name": "Vera",
+  "version": "0.0.0",
+  "description": "VERA",
+  "main": "index.js",
+  "dependencies": {
+    "bower": "~1.7.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daqcri/dafna-viz.git"
+  },
+  "keywords": [
+    "VERACITY",
+    "Estimation"
+  ],
+  "author": "VERA",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/daqcri/dafna-viz/issues"
+  }
+}

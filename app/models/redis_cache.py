@@ -18,28 +18,42 @@ class RedisCache:
 
     @staticmethod
     def createHash(hash_name, key, valueset):
-        hash_key = hash_name + ':' + key
+        if key != '':
+            hash_key = hash_name + ':' + key
+        else:
+            hash_key = hash_name
         app._redis.hmset(hash_key, valueset)
 
     @staticmethod
     def fetchValue(hash_name, key, value_key):
-        hash_key = hash_name + ':' + key
+        if key != '':
+            hash_key = hash_name + ':' + key
+        else:
+            hash_key = hash_name
         value = app._redis.hget(hash_key, value_key)
         return value
 
     @staticmethod
     def setKV(key, value):
-        value = app._redis.get(key)
         app._redis.set(key, value)   
 
     @staticmethod
-    def getKV(key, value_key):
+    def getKV(key):
         value = app._redis.get(key)
         return value
 
     @staticmethod
     def clear():
         app._redis.flushall()
+
+    @staticmethod
+    def getKeys(key_type):
+        keys = app._redis.keys()
+        result = []
+        for key in keys:
+            if key_type in key:
+                result.append(key)
+        return result
 
 if __name__ == '__main__':
     redis_cache = RedisCache()

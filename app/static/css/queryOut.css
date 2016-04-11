@@ -1,0 +1,22 @@
+table td{
+    padding: 5px;
+}
+
+td{
+    text-align: center;
+}
+
+td.keepLeft{
+    text-align: left;
+}
+
+
+table.left {
+    margin-left:5px; 
+    margin-right:auto;
+  }
+
+h5{
+    margin-left: 15px;
+    margin-right: 0;
+}

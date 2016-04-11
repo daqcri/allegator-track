@@ -190,7 +190,6 @@ summary {
 }
 .header__logo-wrap {
     display: block;
-    width: 94px;
     position: absolute;
     top: 0
 }
@@ -204,7 +203,7 @@ summary {
     }
     .header__logo-wrap {
         width: 58px;
-        left: 0
+        left: 
     }
     .header__search-wrap,
     .content__internal {
@@ -4135,12 +4134,11 @@ only screen and (max-height: 361.25px) {
 .header__search-wrap {
     position: relative;
     margin-bottom: 3px;
-    margin-top: 1px
 }
 .header__logo-wrap {
     height: 50px;
     margin: auto;
-    margin-left: 3.5px
+    margin-left: 5px
 }
 .header__logo-wrap:hover {
     text-decoration: none

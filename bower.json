@@ -1,0 +1,32 @@
+{
+  "name": "Vera",
+  "description": "VERA",
+  "main": "index.js",
+  "authors": [
+    "VERA"
+  ],
+  "license": "BSD-2-Clause",
+  "keywords": [
+    "VERACITY",
+    "Estimation"
+  ],
+  "homepage": "https://github.com/daqcri/dafna-viz",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components/",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-route": "^1.5.3",
+    "angular-bootstrap": "^1.3.0",
+    "angular-material": "^1.0.7",
+    "angular-aria": "^1.5.3",
+    "angular-animate": "^1.5.3",
+    "angular-local-storage": "^0.2.7",
+    "bootstrap-css-only": "^3.3.6"
+  }
+}

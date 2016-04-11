@@ -45,7 +45,10 @@ angular.module('myApp')
     var _selected;
 
     $scope.selected = undefined;
-      $scope.queries = ['People killed in Paris Bombing', 'People killed in Bamako Shooting'];
+      $scope.queries = ['People killed in Paris Bombing', 'People killed in Boston Bombing', 'Name of Suspects in Boston Bombing', 'Number of stadium attackers in Paris Bombings',
+    'Locations Attacked in Paris Bombing', 'Time of Attacks during Paris Bombing', 'Number of attacks in concert halls during Paris Bombing', 'People killed in Concert Hall during Paris Bombing',
+    'Name of suspects in Toulouse Bombing', 'People killed in Toulouse Bombing', 'Children Killed in Toulouse Bombing', 'Number of explosions during Boston Bombings', 'Number of hostages during Paris Bombings',
+    'Number of attacks during Paris Bombings'];
   });
 
 angular.module('myApp')
@@ -132,10 +135,13 @@ angular.module('myApp')
     var _selected;
 
     $scope.selected = undefined;
-    $scope.queries = ['People killed in Paris Bombing', 'People killed in Bamako Shooting'];
-
+    $scope.queries = ['People killed in Paris Bombing', 'People killed in Boston Bombing', 'Name of Suspects in Boston Bombing', 'Number of stadium attackers in Paris Bombings',
+    'Locations Attacked in Paris Bombing', 'Time of Attacks during Paris Bombing', 'Number of attacks in concert halls during Paris Bombing', 'People killed in Concert Hall during Paris Bombing',
+    'Name of suspects in Toulouse Bombing', 'People killed in Toulouse Bombing', 'Children Killed in Toulouse Bombing', 'Number of explosions during Boston Bombings', 'Number of hostages during Paris Bombings',
+    'Number of attacks during Paris Bombings'];
     $scope.linkClick = function(link){
         $scope.current = $sce.trustAsResourceUrl(link);
+        poptastic($scope.current)
     };
    
     $scope.popup = function (link){
@@ -144,4 +150,16 @@ angular.module('myApp')
                 });
     }
     
+    $scope.goTo = function(link){
+        window.open(link, '_blank')
+    };
+
+    $scope.home = function(){
+        $location.path('/')
+    }
+
+    var newwindow; function poptastic(url){
+    newwindow=window.open(url,'name', 'height=800,width=1020,scrollbars=yes');
+    if (window.focus) {newwindow.focus()}}
+
 });

@@ -15,7 +15,7 @@ class ResultModels:
     def show_result(self, runset_id):
         base_url = self.base+'/runsets/'
         url = base_url+str(runset_id)+"/results"
-        data = {"user_token": self.user_token, "extra_normalized": 1}
+        data = {"user_token": self.user_token, "extra_normalized": 1, "start": 0, "length": 1000}
         data = json.dumps(data)
         #print data
         r = requests.get(url, data = data, headers = {'Content-Type': 'application/json'})

@@ -564,11 +564,11 @@ only screen and (max-height: 361.25px) {
     margin-right: auto;
     display: block;
     float: none;
-    width: 70%
+    width: 50%
 }
 @media only screen and (max-width: 634px) {
     .search-wrap--home {
-        width: 80%
+        width: 100%
     }
     .has-search-focus .search-wrap--home {
         width: auto
@@ -776,10 +776,9 @@ only screen and (max-height: 382.5px) and (min-width: 425px) {
     .logo-wrap--home,
     .search-wrap--home {
         display: table-cell;
-        vertical-align: middle
     }
     .search-wrap--home {
-        text-align: left
+        text-align: center
     }
     .search--home {
         margin-left: 1em;
