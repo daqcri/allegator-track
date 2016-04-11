@@ -38,7 +38,11 @@
             <table border = "0" class = "left">
                 <tbody ng-repeat="dat in out">
                         <tr>
-                        <td colspan = {{dat.len}} class="keepLeft"><font color = {{dat.color}} size = '5'/>{{dat.value}} value: {{dat.property_value}} </td></tr>
+                        <td colspan = {{dat.len}} class="keepLeft"><font color = {{dat.color}} size = '5'/>{{dat.value}} value: {{dat.property_value}} </td>
+                        <td>
+                        <input type="button" value="Allegator Track" ng-click="goTo(dat.allegator_link)" ng-hide="{{dat.hide}}"/> 
+                        </td>
+                        </tr>
                         <tr>
                         <td ng-repeat = "sources in dat.combined_sources" class="keepLeft"><font size = '3'/>
                             <a ng-click='linkClick(sources.source_link)' target="testframe">{{sources.id}}</a>
@@ -46,7 +50,6 @@
                         </tr>  
                         <tr><td colspan={{dat.len}} class="keepLeft">
                         <input type="button" value="Explanation" ng-click="goTo(dat.link)"/> &nbsp;&nbsp;&nbsp;
-                        <input type="button" value="Allegator Track" ng-click="goTo('http://dafna-viz.herokuapp.com/guest')"/> 
                         </td>
                         </tr>
                         <tr><td><br/></td></tr>

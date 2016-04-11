@@ -115,13 +115,16 @@ def show_result():
                     current_value['combined_sources'] = []
                     current_value['combined_sources'].append({'id': dat['source_id'], 'link': dat['link'], 'source_link': dat['source_link']})
                     current_value['len'] = len(current_value['combined_sources'][0].keys())
+                    current_value['hide'] = 'true'
                     combined_data.append(current_value)
                 else:
                     for item in combined_data:
                         if item['key_value'] == dat['key_value']:
                             for k,v in item.iteritems():
                                 if k == 'combined_sources':
-                                    item['combined_sources'].append({'id': dat['source_id'], 'link': dat['link'], 'source_link': dat['source_link']})                       
+                                    item['combined_sources'].append({'id': dat['source_id'], 'link': dat['link'], 'source_link': dat['source_link']})  
+            combined_data[0]['allegator_link'] = 'http://dafna-viz.herokuapp.com/guest'   
+            combined_data[0]['hide'] = 'false'                  
             fetched_data['data'] = combined_data
             #print combined_data
 
