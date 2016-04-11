@@ -40,7 +40,10 @@
                         <tr>
                         <td colspan = {{dat.len}} class="keepLeft"><font color = {{dat.color}} size = '5'/>{{dat.value}} value: {{dat.property_value}} </td>
                         <td>
-                        <input type="button" value="Allegator Track" ng-click="goTo(dat.allegator_link)" ng-hide="{{dat.hide}}"/> 
+                            <input type="button" value="Explanation" ng-click="goTo(dat.link)"/>
+                        </td>
+                        <td>
+                            <input type="button" value="Allegator Track" ng-click="goTo(dat.allegator_link)" ng-hide="{{dat.hide}}"/> 
                         </td>
                         </tr>
                         <tr>
@@ -48,10 +51,6 @@
                             <a ng-click='linkClick(sources.source_link)' target="testframe">{{sources.id}}</a>
                         </td> 
                         </tr>  
-                        <tr><td colspan={{dat.len}} class="keepLeft">
-                        <input type="button" value="Explanation" ng-click="goTo(dat.link)"/> &nbsp;&nbsp;&nbsp;
-                        </td>
-                        </tr>
                         <tr><td><br/></td></tr>
                 </tbody>
             </table>
