@@ -29,8 +29,13 @@ function run($rootScope, $location, $window) {
         // initialise google analytics
     $window.ga('create', 'UA-55160701-3', 'auto');
  
-        // track pageview on state change
-    $rootScope.$on('$stateChangeSuccess', function (event) {
-        $window.ga('send', 'pageview', $location.path());
-    });
+  $rootScope
+        .$on('$stateChangeSuccess',
+            function(event){
+ 
+                if (!$window.ga)
+                    return;
+ 
+                $window.ga('send', 'pageview', { page: $location.path() });
+        });
 }
