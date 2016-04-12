@@ -8,6 +8,10 @@ angular.module('myApp')
         $window.ga('send', 'pageview', { page: $location.url() });
     });
 
+    $scope.$on('$stateChangeSuccess', function(event) {
+        $window.ga('send', 'pageview', { page: $location.url() });
+    });
+
     $scope.submit = function() {
 
         var data = {

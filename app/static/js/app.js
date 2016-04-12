@@ -38,4 +38,8 @@ function run($rootScope, $location, $window) {
  
                 $window.ga('send', 'pageview', { page: $location.path() });
         });
+
+    $rootScope.$on('$viewContentLoaded', function(event) {
+        $window.ga('send', 'pageview', { page: $location.url() });
+    });
 }
