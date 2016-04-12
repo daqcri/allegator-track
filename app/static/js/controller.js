@@ -2,7 +2,7 @@
 
 
 angular.module('myApp')
-  .controller('HomeCtrl', function($scope, $http, $location, dataShare, localStorageService, $timeout) {
+  .controller('HomeCtrl', function($scope, $http, $location, dataShare, localStorageService, $timeout, $window) {
 
     $scope.$on('$viewContentLoaded', function(event) {
         $window.ga('send', 'pageview', { page: $location.url() });
@@ -56,7 +56,7 @@ angular.module('myApp')
   });
 
 angular.module('myApp')
-  .controller('QueryCtrl', function($scope, $http, $location, dataShare, localStorageService, $timeout, $sce, $uibModal) {
+  .controller('QueryCtrl', function($scope, $http, $location, dataShare, localStorageService, $timeout, $sce, $uibModal, $window) {
 
     $scope.$on('$viewContentLoaded', function(event) {
         $window.ga('send', 'pageview', { page: $location.url() });
