@@ -3,10 +3,9 @@
         <div id='cssmenu' align="right">
             <ul>
                 <a href="http://da.qcri.org" class="pull-left"><img src="/../static/img/qcri-test.jpg"></a>
-                <li><a ng-href="http://vera-qcri.herokuapp.com/"><span>Home</span></a></li>
-               <li><a href='http://dafna.qcri.org/users/sign_in'><span>Login/Register</span></a></li>
-               <li><a href='#'><span>Publications</span></a></li>
-               <li><a href='#'><span>Acknowledgement</span></a></li>
+                <li><a ng-href="http://vera-qcri.herokuapp.com/" target="_blank"><span>Home</span></a></li>
+               <li><a href='http://dafna.qcri.org/users/sign_in' target="_blank"><span>Login/Register</span></a></li>
+               <li><a href='http://da.qcri.org/dafna/#/dafna/home_sections/publications.html' target="_blank"><span>Publications</span></a></li>
             </ul>
         </div>
         <div class="site-wrapper  site-wrapper--home  js-site-wrapper">   
@@ -27,11 +26,12 @@
 
          <br/> 
 
-        <div class="image">
+        <div class="image-frame">
            <!-- <iframe ng-src='{{current}}' width="500" height="600" align="right" name="testframe"></iframe> -->
-           <img src = '/../static/img/image.png' width="675" height="425" align="right" class="image">
+           <img src = '/../static/img/image.png' width="600" height="400" align="right" class="image">
         </div>
             <div ng-if="result === 'False'">
+            <br/>
             Loading Result ..
             </div>
 
