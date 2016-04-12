@@ -1,6 +1,6 @@
 'use strict';  
 
-var myApp = angular.module('myApp', ['ngRoute', 'ngAnimate', 'LocalStorageModule', 'ui.bootstrap', 'ngMaterial', 'ngMessages']);
+var myApp = angular.module('myApp', ['ngRoute', 'ngAnimate', 'LocalStorageModule', 'ui.bootstrap', 'ngMaterial', 'ngMessages', 'angular-google-analytics']);
 
 myApp.config(['$routeProvider',
      function($routeProvider) {
@@ -20,3 +20,12 @@ myApp.config(['$routeProvider',
                  redirectTo: '/'
              });
     }]);
+
+myApp.config(function (AnalyticsProvider) {
+    
+    AnalyticsProvider.logAllCalls(true);
+    AnalyticsProvider.startOffline(true)
+    AnalyticsProvider.useAnalytics(false);
+    AnalyticsProvider.setAccount('UA-55160701-3');
+
+    });
