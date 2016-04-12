@@ -4,6 +4,10 @@
 angular.module('myApp')
   .controller('HomeCtrl', function($scope, $http, $location, dataShare, localStorageService, $timeout) {
 
+    $scope.$on('$viewContentLoaded', function(event) {
+        $window.ga('send', 'pageview', { page: $location.url() });
+    });
+
     $scope.submit = function() {
 
         var data = {
@@ -53,6 +57,10 @@ angular.module('myApp')
 
 angular.module('myApp')
   .controller('QueryCtrl', function($scope, $http, $location, dataShare, localStorageService, $timeout, $sce, $uibModal) {
+
+    $scope.$on('$viewContentLoaded', function(event) {
+        $window.ga('send', 'pageview', { page: $location.url() });
+    });
 
     $scope.params = localStorageService.get('params');
     $scope.out = ''

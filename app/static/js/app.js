@@ -1,9 +1,10 @@
 'use strict';  
 
-var myApp = angular.module('myApp', ['ngRoute', 'ngAnimate', 'LocalStorageModule', 'ui.bootstrap', 'ngMaterial', 'ngMessages', 'angular-google-analytics']);
+var myApp = angular.module('myApp', ['ngRoute', 'ngAnimate', 'LocalStorageModule', 'ui.bootstrap', 'ngMaterial', 'ngMessages']);
 
-myApp.config(['$routeProvider',
+myApp.config(['$routeProvider', 
      function($routeProvider) {
+
          $routeProvider.
              when('/', {
                  templateUrl: 'static/partials/home.html',
@@ -21,11 +22,15 @@ myApp.config(['$routeProvider',
              });
     }]);
 
-myApp.config(function (AnalyticsProvider) {
-    
-    AnalyticsProvider.logAllCalls(true);
-    AnalyticsProvider.startOffline(true)
-    AnalyticsProvider.useAnalytics(false);
-    AnalyticsProvider.setAccount('UA-55160701-3');
+myApp.run(run);
 
+run.$inject = ['$rootScope', '$location', '$window'];
+function run($rootScope, $location, $window) {
+        // initialise google analytics
+    $window.ga('create', 'UA-55160701-3', 'auto');
+ 
+        // track pageview on state change
+    $rootScope.$on('$stateChangeSuccess', function (event) {
+        $window.ga('send', 'pageview', $location.path());
     });
+}
