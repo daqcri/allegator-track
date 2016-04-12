@@ -66,6 +66,10 @@ angular.module('myApp')
         $window.ga('send', 'pageview', { page: $location.url() });
     });
 
+    $scope.$on('$stateChangeSuccess', function(event) {
+        $window.ga('send', 'pageview', { page: $location.url() });
+    });
+
     $scope.params = localStorageService.get('params');
     $scope.out = ''
     $scope.searchBox = $scope.params.query
