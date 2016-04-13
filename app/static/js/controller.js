@@ -53,10 +53,17 @@ angular.module('myApp')
     var _selected;
 
     $scope.selected = undefined;
-      $scope.queries = ['People killed in Paris Bombing', 'People killed in Boston Bombing', 'Name of Suspects in Boston Bombing', 'Number of stadium attackers in Paris Bombings',
-    'Locations Attacked in Paris Bombing', 'Time of Attacks during Paris Bombing', 'Number of attacks in concert halls during Paris Bombing', 'People killed in Concert Hall during Paris Bombing',
-    'Name of suspects in Toulouse Bombing', 'People killed in Toulouse Bombing', 'Children Killed in Toulouse Bombing', 'Number of explosions during Boston Bombings', 'Number of hostages during Paris Bombings',
-    'Number of attacks during Paris Bombings', 'Locations Attacked in Paris Bombing', 'Suspects identified in Paris Bombing'];
+      $scope.queries = ['People killed in Paris Bombing', 'Number of stadium attackers in Paris Bombings', 'Locations Attacked in Paris Bombing', 'Suspects identified in Paris Bombing',
+        'People killed in Concert Hall during Paris Bombing', 'Number of attacks in concert halls during Paris Bombing', 'Time of Attacks during Paris Bombing', 'Number of attacks during Paris Bombings',
+        'Number of hostages during Paris Bombings',
+        'People killed in Boston Bombing', 'Name of Suspects in Boston Bombing', 'Number of explosions during Boston Bombings', 'People injured in Boston Bombing', 
+        'People Killed in Algiers Bombing', 'Number of attacks during Algiers Bombing',
+        'Name of suspects in Toulouse Bombing', 'People killed in Toulouse Bombing', 'Children Killed in Toulouse Bombing', 
+        'People killed in Charlie Hebdo Bombing', 'Suspects identified in Charlie Hebdo Bombing',
+        'People killed during Jeddah Consulate Bombing', 'Suspects killed during Jeddah Consulate Bombing',
+        'Number of attacks during Karbala Bombing', 'People killed in Karbala bombing',
+        'People killed in Karmah bombing'
+    ];
   });
 
 angular.module('myApp')
@@ -151,10 +158,19 @@ angular.module('myApp')
     var _selected;
 
     $scope.selected = undefined;
-    $scope.queries = ['People killed in Paris Bombing', 'People killed in Boston Bombing', 'Name of Suspects in Boston Bombing', 'Number of stadium attackers in Paris Bombings',
-    'Locations Attacked in Paris Bombing', 'Time of Attacks during Paris Bombing', 'Number of attacks in concert halls during Paris Bombing', 'People killed in Concert Hall during Paris Bombing',
-    'Name of suspects in Toulouse Bombing', 'People killed in Toulouse Bombing', 'Children Killed in Toulouse Bombing', 'Number of explosions during Boston Bombings', 'Number of hostages during Paris Bombings',
-    'Number of attacks during Paris Bombings', 'Locations Attacked in Paris Bombing', 'Suspects identified in Paris Bombing'];
+    
+    $scope.queries = ['People killed in Paris Bombing', 'Number of stadium attackers in Paris Bombings', 'Locations Attacked in Paris Bombing', 'Suspects identified in Paris Bombing',
+        'People killed in Concert Hall during Paris Bombing', 'Number of attacks in concert halls during Paris Bombing', 'Time of Attacks during Paris Bombing', 'Number of attacks during Paris Bombings',
+        'Number of hostages during Paris Bombings',
+        'People killed in Boston Bombing', 'Name of Suspects in Boston Bombing', 'Number of explosions during Boston Bombings', 'People injured in Boston Bombing', 
+        'People Killed in Algiers Bombing', 'Number of attacks during Algiers Bombing',
+        'Name of suspects in Toulouse Bombing', 'People killed in Toulouse Bombing', 'Children Killed in Toulouse Bombing', 
+        'People killed in Charlie Hebdo Bombing', 'Suspects identified in Charlie Hebdo Bombing',
+        'People killed during Jeddah Consulate Bombing', 'Suspects killed during Jeddah Consulate Bombing',
+        'Number of attacks during Karbala Bombing', 'People killed in Karbala bombing',
+        'People killed in Karmah bombing'
+    ];
+
     $scope.linkClick = function(link){
         $scope.current = $sce.trustAsResourceUrl(link);
         poptastic($scope.current)
